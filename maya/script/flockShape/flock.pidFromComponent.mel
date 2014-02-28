@@ -1,0 +1,12 @@
+global proc string flock.pidFromComponent() {
+
+
+
+
+	string $result = "";
+
+	
+	
+	
+	return $result;
+}

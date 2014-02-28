@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title><%= @item[:title] %> - <%= @item[:type] %></title>
+	<meta name="author" content="<%= @item[:author] %>" />
+	<link rel="stylesheet" href="css/page.css" type="text/css" media="screen, projection"></link>
+</head>
+<body>
+	<div class="page">
+		<%= create_header %>
+		<!-- <%= create_meta %>	 -->
+		
+		<div id="main_container">
+			
+			<div id="sidebar">	
+				<%= toc %>
+			</div>
+			
+			<div id="body_container">	
+			 <%= create_meta %>	
+				<div id="body_inner_container">	
+				
+				<%= yield %>
+				</div>
+			</div>				
+		</div>
+
+		<%= footer %>
+
+	</div>
+	
+	
+
+
+</body>
+</html>

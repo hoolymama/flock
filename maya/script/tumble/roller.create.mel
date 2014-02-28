@@ -1,0 +1,103 @@
+
+// create  visualizations
+proc roller.attachDiagnostics(string $particle, string $roller) {
+
+	string $p;
+	string $g;
+	
+	$g =   `createNode glyphShape`;
+	connectAttr ($particle+".position")  ($g+".points");
+	connectAttr ($roller+".output")  ($g+".directions");
+
+	$p = firstParentOf($g);
+	rename $p "rollerGlyph";
+	
+	string $graph = connection.ensureOutputNode( ($particle+".velocity"), "graphShape" ,  "values");
+	connectAttr ($graph+".maxValue") ($roller+".speedInputMax");
+	
+}
+
+proc roller.addAttrs(string $particle) {
+	string $atts[] = { "view:vectorArray",	"upVector:vectorArray",	"lastView:vectorArray"};
+	attr.addAttrs( $particle,$atts);
+}
+
+proc roller.createCreationExpression(string $particle) {
+	string $expr =( "lastView = view;\n"  );
+	dynamics.appendToDynExpression( $particle, $expr, " ROLLER ", 0);
+}
+
+proc roller.createRuntimeBeforeExpression(string $particle) {
+	string $expr =( "lastView = view;\n"  );
+	dynamics.prependToDynExpression( $particle, $expr, " ROLLER ", 1);
+}
+
+global proc roller.dynamicConnections(string $p,string $roller) {
+	
+	string $tumblers[] = `listConnections -s 1 -d 0 -type "tumbler" $p`;
+	
+	string $connectionPairs[] = {
+		"view:currentViewPP",
+		"lastView:lastViewPP",
+		"upVector:upPP"	
+	};
+	attr.connectPairs($p, $roller, $connectionPairs);
+
+	connectAttr -f "time1.o" ($roller+".currentTime");
+	
+	string $magNorm = connection.ensureOutputNode( ($p+".velocity"), "magNormPP" ,  "input");
+	string $orthog = connection.ensureOutputNode( ($magNorm+".outputNormal"), "orthogonalPP" ,  "front");
+
+
+	connectAttr -f ($magNorm + ".omag") ($roller+".speedPP");
+
+	connectAttr -f ($roller+".output") ($orthog+".up");
+	
+	
+	
+}
+
+
+proc roller.configDefaults(string $roller) {
+	setAttr -s 2 ($roller+".bankingSpeedRamp");
+	setAttr -s 2 ($roller+".rollingSpeedRamp");
+	
+	setAttr ($roller+".bankingSpeedRamp[0].bankingSpeedRamp_Position") 0;
+	setAttr ($roller+".bankingSpeedRamp[0].bankingSpeedRamp_FloatValue") 1;
+	setAttr ($roller+".bankingSpeedRamp[1].bankingSpeedRamp_Position") 1;
+	setAttr ($roller+".bankingSpeedRamp[1].bankingSpeedRamp_FloatValue") 1;
+	setAttr ($roller+".rollingSpeedRamp[0].rollingSpeedRamp_Position") 0;
+	setAttr ($roller+".rollingSpeedRamp[0].rollingSpeedRamp_FloatValue") 1;
+	setAttr ($roller+".rollingSpeedRamp[1].rollingSpeedRamp_Position") 1;
+	setAttr ($roller+".rollingSpeedRamp[1].rollingSpeedRamp_FloatValue") 1;
+	
+	setAttr ($roller+".doBanking") 0;
+	setAttr ($roller+".bankingStability") 0.05;
+	setAttr ($roller+".bankingWorldStability") 0;
+	setAttr ($roller+".doRolling") 1;
+	setAttr ($roller+".rollingStability") 0.1;
+	setAttr ($roller+".rollingWorldStability") 0.1;
+}
+
+
+
+global proc roller.create() {
+	
+	string $particle = selection.firstOfType("particle");
+	
+	string $roller = `createNode "roller" -n "roller"`;
+
+	roller.addAttrs( $particle);
+
+	roller.createCreationExpression($particle);
+
+	roller.createRuntimeBeforeExpression( $particle);
+
+	roller.dynamicConnections( $particle, $roller);
+
+	roller.configDefaults( $roller);
+	
+ 	roller.attachDiagnostics( $particle,  $roller);
+
+
+}

@@ -1,0 +1,29 @@
+maya_version: ${MAYA_VERSION}
+
+dg_convert_cmd: 'convert  -resize 32x32'
+
+outliner_convert_cmd: 'convert  -resize 20x20'
+
+icon_convert_cmd: 'convert'
+
+maya_icon_destination: 'maya/icons'
+
+maya_script_destination:  'maya/scripts'
+
+maya_python_script_destination:  'maya/scripts'
+
+maya_scripted_plugin_destination:  'maya/plug-ins'
+
+maya_precompiled_plugin_destination:  'maya/plug-ins'
+
+maya_modules_destination: 'maya'
+
+os_linux64:
+    maya_location: "${MAYA_LOCATION}"
+
+os_darwin64:
+    maya_location: "/Applications/Autodesk/maya${MAYA_VERSION}"
+
+os_win64:
+    maya_location: "C:/Program Files/Autodesk/Maya${MAYA_VERSION}"
+

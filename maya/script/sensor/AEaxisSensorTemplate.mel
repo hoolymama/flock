@@ -1,0 +1,28 @@
+
+global proc AEaxisSensorTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+	
+	
+	AEsensorInclude($nodeName);
+	
+	
+	editorTemplate -cl 0  -beginLayout "Axis Components";		
+	editorTemplate -addControl "pointNormal";
+	editorTemplate -addControl "axisNormal";
+	editorTemplate -addControl "axisDirection";
+	editorTemplate -addControl "axisOrbit";
+	editorTemplate -addControl "easyOrbit";
+	
+	editorTemplate -endLayout;
+	
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+	
+	editorTemplate -suppress "axisPP";
+}
+
+
+	

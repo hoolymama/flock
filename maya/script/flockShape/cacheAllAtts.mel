@@ -1,0 +1,16 @@
+
+
+global proc cacheAllAtts(string $clapperNode){
+
+	string $filename = AEclapperGenerateFilename($clapperNode,0);
+	float $startTime = AEclapperCalcRunupTime($clapperNode) ;
+	float $endTime = AEclapperCalcEndTime($clapperNode) ;
+
+
+	setAttr "dynGlobals1.readCacheUntil" 14000;
+	setAttr "EMISSION.testEmission" 0;
+	string $cmd = ("dynExport -path \"" + $filename + "\" -f cache -mnf "+ $startTime +" -mxf "+$endTime+" -oup 1 \"particleShape2\"");
+
+	evalEcho($cmd+"\n");
+
+}

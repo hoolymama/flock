@@ -1,0 +1,19 @@
+
+global proc string flock.reference(string $flock) {
+
+	string $destNodes[] = `listConnections -s 0 -d 1 ($flock+".translateTarget")`;	
+	for ($d in $destNodes) {
+		if (`referenceQuery -inr  $d`){
+			return `referenceQuery -referenceNode $d` ;
+		}
+	}
+	return "";
+}
+
+global proc string flock.referenceFile(string $flock) {
+	string $ref = flock.reference( $flock);
+	if ( $ref !="") 	return  `referenceQuery -filename $ref` ;
+
+	return "";
+}
+

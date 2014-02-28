@@ -1,0 +1,47 @@
+
+global proc AErollerTemplate(string $nodeName)
+{
+	
+	
+
+	editorTemplate -beginScrollLayout;
+	
+	
+	editorTemplate -cl 0 -beginLayout "Speed";	
+	editorTemplate -addControl "speedInputMax";	
+	editorTemplate -endLayout;
+	
+	
+	
+	
+	editorTemplate -cl 0 -beginLayout "Banking";	
+	editorTemplate -addControl "doBanking";			
+	editorTemplate -addControl "bankingStability";	
+	editorTemplate -addControl "bankingWorldStability";	
+	AEaddRampControl ($nodeName+".bankingSpeedRamp");	
+	editorTemplate -endLayout;
+	
+	
+	editorTemplate -cl 0 -beginLayout "Rolling";	
+	editorTemplate -addControl "doRolling";			
+	editorTemplate -addControl "rollingStability";	
+	editorTemplate -addControl "rollingWorldStability";	
+	AEaddRampControl ($nodeName+".rollingSpeedRamp");	
+	editorTemplate -endLayout;
+	
+
+	editorTemplate -cl 0 -beginLayout "Time";		
+	editorTemplate -addControl "currentTime";	
+	editorTemplate -endLayout;
+	
+	editorTemplate -suppress "currentViewPP";
+	editorTemplate -suppress "lastViewPP";
+	editorTemplate -suppress "speedPP";
+	editorTemplate -suppress "upPP";
+	editorTemplate -suppress "output";
+
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}
+

@@ -1,0 +1,12 @@
+
+global proc AEexposureTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+	
+	
+	AEsensorInclude($nodeName);
+
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}

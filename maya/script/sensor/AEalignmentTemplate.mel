@@ -1,0 +1,17 @@
+
+global proc AEalignmentTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+	
+	
+	AEsensorInclude($nodeName);
+	
+	editorTemplate -cl 0  -beginLayout "Alignment Attributes";		
+	editorTemplate -addControl "measureVelocity";	
+	editorTemplate -addControl "relativeBlend";	
+	
+	editorTemplate -endLayout;
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}

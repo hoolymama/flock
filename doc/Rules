@@ -1,0 +1,77 @@
+#!/usr/bin/env ruby
+
+# A few helpful tips about the Rules file:
+#
+# * The string given to #compile and #route are matching patterns for
+#   identifiers--not for paths. Therefore, you can't match on extension.
+#
+# * The order of rules is important: for each item, only the first matching
+#   rule is applied.
+#
+# * Item identifiers start and end with a slash (e.g. "/about/" for the file
+#   "content/about.html"). To select all children, grandchildren, ... of an
+#   item, use the pattern "/about/*/"; "/about/*" will also select the parent,
+#   because "*" matches zero or more characters.
+
+# filter page.scss with sass
+compile '/assets/css/page/' do
+  filter :sass,  :syntax => :scss
+end
+
+# dont try to compile the sass include file
+compile '/assets/css/include/' do
+  nil
+end
+
+# dont copy the sass include file
+route '/assets/css/include/' do
+  nil
+end
+
+# put css in css/page.css - not /assets/css/page.css
+route '/assets/css/page/' do
+  item.identifier.gsub('/assets','').chop + '.css' 
+end
+
+# dont try to compile files in the scenes directory
+compile '/scenes/*' do
+  nil
+end
+
+# dont copy files in the scenes directory
+route '/scenes/*' do
+  nil
+end
+
+
+# filter all non binary files 
+# - first with embedded ruby
+# - then with redcloth, (ruby library for marking up textile)
+compile '*' do
+  unless item.binary?
+    filter :erb
+    filter :redcloth
+    layout 'default'
+  end
+end
+
+# the module index file
+route '/' do
+  '/index.html'
+end
+
+# there will be no assets directory in the destination
+# so strip the assets string from the identifier when copying assets.
+# NOTE: binary in this case means anything that is not intended to be html
+# for example, CSS is treated as binary.
+# For other files, strip the trailing slash from the identifier
+# and add the html extension.
+route '*' do
+  if item.binary?
+    item.identifier.gsub('/assets','').chop + '.' + item[:extension]
+  else
+    item.identifier.chop + '.html'
+  end
+end
+
+layout '*', :erb

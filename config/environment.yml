@@ -1,0 +1,29 @@
+
+---
+configuration: debug
+product_name: flock
+product_description: Artificial Life Toolkit
+configuration_debug:
+  product_revision: ${FLAK_DEBUG_REVISION}
+configuration_release:
+  product_revision: 0.1.0
+author_name: Julian Mann
+author_email: julian.mann@gmail.com
+os_darwin64:
+  platform_id: darwin64
+  configuration_debug:
+    tools_directory: ${MY_TOOLS}
+  configuration_release:
+    tools_directory: ${MY_TOOLS}
+os_linux64:
+  platform_id: ${PLATFORM_ID}
+  configuration_debug:
+    tools_directory: ${MY_TOOLS}
+  configuration_release:
+    tools_directory: ${FLAK_RELEASE_TOOLS}
+os_win64:
+  platform_id: win64
+  configuration_debug:
+    tools_directory: /cygdrive/c/cygwin/${MY_TOOLS}
+  configuration_release:
+    tools_directory: ${MY_TOOLS}

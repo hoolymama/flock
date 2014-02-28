@@ -1,0 +1,14 @@
+delight_version: '10.0.12'
+
+# target_release_prefix: 'delight/procedural'
+
+shader_release_prefix: 'delight/shader'
+
+os_linux64:
+    delight_location:    '/software/3delight'
+    
+os_darwin64:
+    delight_location:    '/Applications/Graphics/3Delight'
+    
+os_win64:
+    delight_location:    'C:/Program Files/3Delight'

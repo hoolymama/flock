@@ -1,0 +1,52 @@
+$headings_color        	: #b4416a;
+$bg1_color         		: #eee   ;
+$bg2_color        		: #ddd   ;
+$bq1_color        		: #eec   ;
+$borders_color        	: #ccc   ;
+$src_code_color     	: #a0a   ;
+
+$toc_headings_bg_color : #b4416a;
+$reliance_blue : #999999;
+$reliance_light_blue: $reliance_blue + #333;
+$toc_current_bg_color:#f1c7bf;
+
+
+$brand_color :#16a79d;
+$header_bg_color: #4d505b;
+$secondary_bg_color: $header_bg_color * 1.2;
+
+
+@mixin shadow_box {
+  box-shadow: 0px 2px  5px #606060;
+}
+
+$primary-1 :     #A4947C ;
+$primary-2 :     #867C6B ;
+$primary-3 :     #7A613B ;
+$primary-4 :     #F3E5D1 ;
+$primary-5 :     #eee ;
+
+$secondary-a-1 : #585C70 ;
+$secondary-a-2 : #4C4E5C ;
+$secondary-a-3 : #2A3054 ;
+$secondary-a-4 : #CFD3EC ;
+$secondary-a-5 : #E0E2EC ;
+
+$secondary-b-1 : #8f9497 ;
+$secondary-b-2 : #425052 ;
+$secondary-b-3 : #24464B ;
+$secondary-b-4 : #CAE6EA ;
+$secondary-b-5 : #DDE8EA ;
+
+$c1:	 #6A1E28;
+$c2:	 #EECD86;
+$c3:	 #E18942;
+$c4:	 #B95835;
+$c5:	 #3D3242;
+$c6: 	 #d4cDbb;
+$c7:	$c5*1.6;
+$c8:	#E0E2EC ;
+$c9: 	#e2e2e2 ;
+$c10: #c9c9c9;
+// $code_block_color:#eeeeee;
+// $code_block_border_color:#b8c2e3;

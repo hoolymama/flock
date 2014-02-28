@@ -1,0 +1,37 @@
+---
+name: Flock
+maya_script_copy_files:
+- script/**/*.mel
+maya_python_script_copy_files:
+- script/**/*.py
+- script/**/*.pyc
+maya_python_script_relative: maya/script
+maya_scripted_plugin_copy_files:
+- script/plugin/**/*.py
+- script/plugin/**/*.pyc
+maya_modules_erb_files:
+- ./*.mod.erb
+maya_node_icon_files:
+- icons/**/node/*
+maya_icon_files:
+- icons/*/*.jpg
+maya_icon_copy_files:
+- icons/*/*.png
+- icons/*/*.xbm
+- icons/*/*.xpm
+include_paths:
+- ../../kettle/src
+- ../../kettle/src/maya
+libs:
+- OpenMayaAnim
+- OpenMayaUI
+- OpenMayaFX
+templates:
+- cpp
+- maya
+- maya_plugin
+- gl
+source_files:
+- src/**/*.cpp
+- ../../kettle/src/maya/lookup.cpp
+- ../../kettle/src/maya/mayaMath.cpp

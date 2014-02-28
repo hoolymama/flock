@@ -1,0 +1,33 @@
+global proc string flock.cameraCull() {
+	string $cam[] = `ls -sl -dag -leaf -type "camera"`;
+	if (! size($cam)) error("Pick a camera and a particle object");
+	string $camX = firstParentOf($cam[0]);
+	string $particles[] = `ls -sl -dag -leaf -type "particle"`;
+	if (! size($particles)) error("Pick a camera and a particle object");
+
+	string $colorSampler = `createNode colorSampler`;
+	connectAttr -f ($particles[0] + ".position") ($colorSampler + ".points");
+	connectAttr -f ($particles[0] + ".position") ($colorSampler + ".refPoints");
+
+	string $proj = `shadingNode -asTexture projection`;
+	setAttr ($proj + ".defaultColor") -type double3 0 0 0 ;
+	setAttr ($proj + ".image") -type double3 1 1 1 ;
+	setAttr ($proj + ".projType") 8;
+	setAttr ($proj + ".wrap") 0;
+
+	string $_3d = `shadingNode -asUtility place3dTexture`;
+	connectAttr ($_3d + ".wim[0]") ($proj+".pm");
+	connectAttr ($proj+".outColor") ($colorSampler+".color");
+	parent -r $_3d $camX;
+
+	// add new attrib with initialState if it doesn't already exist
+	string $flocks[] = `listConnections -shapes 1 -s  0 -d 1 ($particles[0] +".sortedId")`;
+	$flocks = `ls -type "flockShape" $flocks`;
+
+	for ($flock in $flocks) {
+		connectAttr -f  ($colorSampler +".outRed") ($flock +".active");
+	}
+
+	return $colorSampler;
+}
+

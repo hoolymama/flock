@@ -1,0 +1,388 @@
+@import "include.scss";
+
+// html {
+// 	padding:0;
+// }
+
+body {
+	font-family: "Trebuchet MS", Helvetica, sans-serif;
+	font-size: 0.9em;
+	margin:0;
+	background-color:$c8;	
+	height: 100%;
+}	
+
+p {display:block;}
+
+.page {		
+
+	
+
+	#header {
+		width: 100%;
+		height:3em;
+		background-color:$c5;	
+border-bottom: 3px solid $c3;
+		ul
+		{
+			list-style-type:none;
+			padding-left:2em;
+			#margin-left:0;
+			li {
+				display:inline-block;
+				line-height: 1.5em;
+				// padding-left:0!important;
+
+			}
+			.brand {
+				font-size: 2em;
+				font-weight: bold;
+				color: $c2;
+				text-indent:0;
+				// text-shadow: 0px 2px 3px #555;
+			}
+			.tag {
+				font-size: 1em;
+				font-style: italic;
+				color: #fff;
+				text-indent:1em;
+			}
+		}
+	}
+
+	position:relative;
+	width: 1000px;
+	margin:auto;
+	top:0;
+	border:0;
+	background-color:$c9;
+	@include shadow_box;
+
+	h3, h2 {
+		text-indent:0;
+		color: $c4;	
+		font-weight: bold;
+	}
+	// h4 {	}
+
+
+
+
+	code {
+		font-size: 1.1em;
+	 	border : 1px solid  $c3;
+		background-color:#fff;
+		line-height:1.2em;
+		padding: 0.05em 1em;
+
+	}
+	
+	
+	pre {
+		width: 650px;
+			// min-width: 650px;
+			// max-width:650px;
+		overflow:auto;
+		// max-width:650px;
+		border : 1px solid $c3;
+		background-color:white;
+		// border-radius:5px;
+		display:inline-block;
+		padding: 0.05em 1em;
+	    code {
+			background-color:none;
+			border :none;
+			line-height:1.5em;
+			padding: 0;
+
+	    }
+	}
+	
+	
+	
+
+	hr {
+		clear:both;
+		width: 100%;
+		border-style: none;
+	}
+
+	blockquote {
+
+		//	width: 90%;
+		background-color:white;
+		font-style: italic;
+		text-align: center;
+		padding-top: 3px;
+		padding-bottom: 3px;
+		padding: 20px;
+		border-radius: 10px 10px  10px 10px;
+	}
+
+
+
+	div.figure {
+		min-width:300px;
+		margin:0 20px 20px 20px;
+		/*float: right;*/
+		border: 1px solid $c10;
+		background-color:$c6;
+
+		img {
+			max-width: 600px;
+			height : auto;
+		}
+	}
+
+	.left {
+		float: left;
+	}
+
+	.right {
+		float: right;
+	}
+
+
+
+	div.figure p{
+
+		margin:0px;
+	}
+	div.figure img {
+		margin-left: auto;
+		margin-right: auto;
+		display: block;
+
+		border: 1px solid $c10;
+	}
+
+	div.figure object {
+		margin-left: auto;
+		margin-right: auto;
+		display: block;
+		margin-top:0;
+		margin-bottom:0;
+		padding:0;
+		border: 1px solid $c10;
+	}
+
+
+	div.figure p.title {
+		font-size:0.8em;
+		text-align: center;
+		font-weight: bold;
+		margin:0;
+	}
+
+	div.figure p.caption {
+		text-align: center;
+		font-size:0.8em;
+		font-style: italic;
+		padding:0;
+		max-width:400px;
+		margin-left: auto;
+		margin-right: auto;
+		display: block;
+	}
+
+
+	.illustration {
+		border: 1px solid $c10;
+		margin-left: 20px;
+		float: right;
+	}
+
+
+
+
+	#logos {
+		//	clear: both;
+		display:table-row;
+		padding:1em 0 0 1em;
+		li {
+			padding:1em 0 0 1em;
+			list-style:none;
+			display:table-cell;
+			.logo {
+				border:0;
+			}
+			.module_logo {
+				height:50px;
+				width:auto;
+			}
+		}
+
+
+	}
+
+	.meta_container {	
+		// border-bottom: 1px solid $borders_color;
+		// margin-top: 20px;
+	}
+	.metainfo {	
+
+		text-indent:2em;
+		width: 100%;
+		padding-top: 3px;
+		padding-bottom: 3px;
+		margin-bottom: 3px;
+		background-color: $c6;
+		 border-bottom: 1px solid $c6*0.9;
+	}
+
+
+	#main_container {
+		display:table;	
+		height:100%;
+		width: 100%;
+		table-layout:fixed;
+
+	}
+	
+	#body_container {
+		display:table-cell;
+		list-style:none;
+	}
+
+	#body_inner_container {
+		width:700px;
+		padding: 0 2em;
+	}
+	
+	
+	#sidebar {	
+		width: 250px;
+
+		display:table-cell;
+		list-style:none;
+		border:0;
+		border-right: 1px solid $c5;
+		height:100%;
+		// margin-top: 0;
+		padding-bottom: 5em;
+		background-color: $c4;
+
+		/*font-family: "Helvetica Neue";*/
+		font-weight: bold;
+		font-stretch: condensed;
+		font-size: 1.2em;
+
+
+		.toc_block {	
+			padding:0 0 0.5em 0;
+			margin:0;
+			font-size: 0.85em;
+
+			h4 {
+				margin:0;	
+				background-color: $c5;
+				color:$c2;
+				text-indent:2em;
+				line-height: 1.5em;
+			}
+
+			ul {
+				margin: 0.4em;
+				list-style:none;
+				padding-left:0;
+				text-indent:2em;
+			}
+			.current {
+				background-color: 	$c4*1.15;			
+			}
+
+		}
+		hr {
+			border-style: 	inset;
+			width:90%;
+			border-color: $c4;
+		}
+
+	}
+
+	#footer {
+
+		border-top: 3px solid $c3;
+		background-color: $c5;
+		color:$c7;
+		padding: 2em;
+		font-size: 0.8em;
+	}	
+}
+
+#vfxoverflow {
+	position: absolute; 
+	top: 0; 
+	right: 0; 
+	border: 0; 
+}
+
+a, a:visited {
+	color:$c1;
+	font-weight: bold;
+	text-decoration:  none;
+}
+a:hover {
+	color:$c10;	
+}
+
+
+/**
+table properties for node attributes and command flgs
+*/
+table  {
+	border-style:solid;
+	border-width:1px;
+	border-color:$c10;
+	margin-bottom:5px;
+}
+
+tr {
+	height:auto;
+	min-width:600px;	
+	margin-top:5px;
+	background-color: $c6;
+	margin-bottom:5px;
+
+}
+
+th, td {
+	text-align:left;
+	padding-left:5px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+
+
+/**
+cell widths and indents for node attributes
+*/
+.atname {width:35%;}
+.attype {width:35%;}
+.atdefault {width:15%;}
+.atflags {width:15%;}
+.atdesc {width:100%;background-color: #eee;}
+
+.projname {width:30%;}
+.projauth {width:35%;}
+.projdate {width:35%;}
+.projdesc {width:100%;background-color: #eee;}
+
+
+
+
+.atflags img {padding-right:5px;}
+
+.d1 {width:100%;}
+.d2 {width:99%;left: 1%;position: relative;}
+.d3 {width:98%;left: 2%;position: relative;}
+.d4 {width:97%;left: 3%;position: relative;}
+
+/**
+cell widths for command flags
+*/
+.flagname {width:50%;}
+.flagargtype {width:30%;}
+.flagproperties {width:20%;}
+.flagproperties img {padding-right:10px;}
+

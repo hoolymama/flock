@@ -1,0 +1,3 @@
+nuke_version: ${NUKE_VERSION}
+
+nuke_script_destination: 'nuke/scripts'

@@ -1,0 +1,221 @@
+global proc int sensor.connectCurveToSplineReceiver(string $srcNode, string $dstNodeAttr) {
+
+	// dont trust the $dstNodeAttr to have an attr 
+	string $attr = attr.attrFromNodeAttr($dstNodeAttr);
+
+	string $splineReceiver = attr.nodeFromNodeAttr($dstNodeAttr);
+	if ($splineReceiver == $dstNodeAttr ) { // no attr was given
+		$dstNodeAttr = ($splineReceiver+".inputCurves");
+	}  
+
+
+
+
+			//print ("---------\n"+  $dstNodeAttr +"\n");
+	if (`nodeType  $srcNode` != "nurbsCurve") {
+				// try to find a single nurbsCurve child
+		string $src[] = `ls -dag -leaf -ni -type "nurbsCurve"  $srcNode`;
+		if (! (size($src) == 1)) {
+			error("Cannot connect " + $srcNode + " to " + $dstNodeAttr);
+			return 0;
+		}
+		$srcNode =  $src[0] ;
+	}
+
+			// make sure this curve is not already attached to this splineVectors
+
+	if (sensor.curveAffectsSplineReceiver($srcNode,$splineReceiver)) { 	
+		error($srcNode + " already affects " + $splineReceiver);
+		return 0;	
+	}
+
+	string $geo = dynamics.getGeoConnector($srcNode);
+
+			// connect the curve
+				///////////////////////////
+				//print ($dstNodeAttr +"\n");
+
+	int $ni =  attr.findNextUnconnectedIndex($dstNodeAttr);
+
+	if (`nodeType $splineReceiver ` == "splinePool") {
+		connectAttr -f ($geo+".sweptGeometry") ($dstNodeAttr+"["+$ni+"]");
+
+	} else {
+		connectAttr -f ($geo+".sweptGeometry") ($dstNodeAttr+"["+$ni+"].curve");
+	}
+			////////////////////////////	
+	select $splineReceiver;
+			// AEsplineVectorsInputListReplace ( $dstNodeAttr) ;
+	return 0;
+}
+
+global proc int sensor.curveAffectsSplineReceiver(string $srcCrv, string $splineReceiver){
+	string $geos[] = `listConnections -s 1 -d 0  ($splineReceiver)`;
+	if (!size($geos)) return 0;
+
+	for ($g in $geos) {
+		string $curves[] = `listConnections -s 1 -d 0 ($g+".localGeometry")`;
+		for ($c in $curves) {
+			if ($srcCrv == $c) return 1;
+		}
+	} 
+	return 0;
+}
+
+
+
+
+global proc int sensor.typeIsSensor(string $type){
+	if ($type == "alignment") return 1;
+	if ($type == "approach") return 1;
+	if ($type == "axisSensor") return 1;
+	if ($type == "cohesion") return 1;
+	if ($type == "exposure") return 1;
+	if ($type == "separation") return 1;
+	if ($type == "splineSensor") return 1;
+	if ($type == "geometrySensor") return 1;
+	if ($type == "jerkSensor") return 1;
+	return 0;
+}
+
+
+
+global proc sensor.connectParticle(string $ps, string $sn, string $pr) {
+
+	// connect particles
+	connectAttr -f ($ps+".position") ( $sn+".positionPP");
+	connectAttr -f ($ps+".velocity") ( $sn+".velocityPP");
+	if (`attributeQuery -n $ps -exists "view"`){
+		connectAttr -f ($ps+".view") ( $sn+".viewVectorPP");
+	}
+
+	string $dest;
+
+
+	int $psid  = attr.findNextUnconnectedIndex( $ps+".inputForce");
+
+	if ($pr == "") {
+		$dest = ( $ps+".inputForce["+$psid+"]");
+	} else {
+		int $prid  = attr.findNextUnconnectedIndex( $pr+".inputData");
+		$dest = (  $pr+".inputData["+$prid+"].inSignal");
+
+		// make sure prioritize is connected to psys already
+		string $oConns[] = `listConnections -d 1 ($pr+".outSignal")`;
+		if (!size($oConns)) {
+			connectAttr -f ($pr +".outSignal")  ( $ps+".inputForce["+$psid+"]");
+		}
+	}
+	connectAttr -f ($sn+".assessment" ) $dest;
+
+
+
+	// make sure the sensor is conected to a pool (unless its a splineSensor or geometrySensor)
+	string $nt = `nodeType $sn`;
+	if (($nt != "splineSensor") && ($nt != "geometrySensor")) {
+		string $pools[] = `listConnections -d 1 -type "pool" $ps`;
+		if (!size($pools)) {
+			$pools[0] = `createNode "pool"`;
+			connectAttr ($ps+".position") ($pools[0]+".position");
+		}
+		if (!(isConnected(  ($pools[0]+".output"), ($sn +".pool")  ))) {
+			connectAttr  ($pools[0]+".output") ($sn +".pool");
+		}
+	} else if ($nt == "splineSensor") { // it is a spline
+		string $pool = `createNode "splinePool"`;
+		connectAttr ($pool+".output") ($sn +".splinePool");	
+	}
+}
+
+global proc string sensor.doAdd(string $ps, string $type, string $pr){
+
+	if (! sensor.typeIsSensor($type)) return "";
+
+	string $sn = "";
+	if (`nodeType $ps` == "particle") {
+		$sn= `createNode $type`;
+		sensor.connectParticle($ps,$sn,$pr);
+	}
+	return $sn;
+
+}
+
+global proc string[]  sensor.add(string $type){
+// add sensors based on selection
+	string $result[] ;
+	if (! sensor.typeIsSensor($type)) return {};
+	string $prs[] = `ls -sl -dag -leaf -type "prioritize"`;	
+	string $pr;
+	if (! size($prs)) {$pr = "";} else {$pr = $prs[0];}
+
+	string $pss[] = `ls -sl -dag -leaf -type "particle"`;	
+
+	for ($ps in $pss) {
+		$result[size($result)] = sensor.doAdd($ps,$type,$pr);
+	}
+	return $result;
+
+
+}
+global proc sensor.connectCurveToSplineSensor () {
+	string $selCrv[] = `ls -sl -dag -leaf -ni -type "nurbsCurve"`;
+	string $selSensor[] = `ls -sl -type "splineSensor"`;
+
+
+	if (! ((size($selCrv)) && (size($selSensor)))) return ;
+	string $splinePool;
+	string $splinePools[] = `listConnections -s 1 -d 0 ($selSensor[0]+".splinePool") `;
+	if (size($splinePools)) {
+		$splinePool = $splinePools[0];
+	} else {
+		$splinePool = `createNode "splinePool"`;
+		connectAttr -f ($splinePool+".output") ($selSensor[0]+".splinePool");
+	}
+	for  ($c in $selCrv) {
+		sensor.connectCurveToSplineReceiver($c, ($splinePool+".input")) ;
+	}
+}
+
+
+// connect multiple meshes throuhg a polyUnite node
+// If something already connected, and its a mesh - disconenct and reconnect through the polyUnite
+global proc sensor.connectMeshToGeometrySensor() {
+	string $selGeo[] = `ls -sl -dag -leaf -ni -type "mesh"`;
+	string $selSensor[] = `ls -sl -type "geometrySensor"`;
+
+	if (! (   size($selGeo) && (size($selSensor) == 1 )   )) return ;
+	string $polyUnite;
+	string $conns[] = `listConnections -s 1 -d 0 ($selSensor[0]+".inMesh") `;
+	if (size($conns)) {
+		string $node = attr.nodeFromNodeAttr($conns[0]);
+		if (`nodeType $conns[0]` == "polyUnite") {
+			$polyUnite = $conns[0];
+		} else {
+			$polyUnite = `createNode "polyUnite"`;
+			connectAttr -f ($polyUnite+".output")  ($selSensor[0]+".inMesh");
+			if (`nodeType $conns[0]` == "mesh") $selGeo[`size  $selGeo`] = $conns[0]; // it just git disconnected - so add it to the list for reconnection
+		}
+	} else {
+		$polyUnite = `createNode "polyUnite"`;
+		connectAttr -f ($polyUnite+".output")  ($selSensor[0]+".inMesh");
+	}
+
+
+	for ($g in $selGeo) {
+		int $index = attr.findNextUnconnectedIndex( $polyUnite+ ".inputPoly");
+		connectAttr -f ($g +".outMesh") ($polyUnite+ ".inputPoly["+$index+"]");
+		connectAttr -f ($g +".worldMatrix[0]") ($polyUnite+ ".inputMat["+$index+"]");
+	} 
+}
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,60 @@
+libs:
+- 'OpenMaya'
+
+os_linux64:
+    libs:
+    - 'OpenMayalib'
+    - 'dl'
+    maya_relative_lib_path: 'lib'
+    maya_relative_inc_path: 'include'
+    linker_options: 
+    - '-m64'
+    - '-pthread'
+    compiler_options:
+    - '-Wno-deprecated'
+    - '-Wno-multichar'
+    - '-Wno-comment'
+    - '-Wno-reorder'
+    - '-Wno-sign-compare'
+    - '-Wall'
+    target_extension: 'so'
+
+os_darwin64:
+    libs:
+    - 'Foundation'
+    - 'OpenMaya'
+    maya_relative_lib_path: 'Maya.app/Contents/MacOS'
+    maya_relative_inc_path: 'devkit/include'
+    compiler_options:
+    - '-gdwarf-2' 
+    - '-mfix-and-continue'
+    - '-fmessage-length=0'
+    - '-fno-gnu-keywords' 
+    - '-fpascal-strings'
+    - '-pthread'
+    - '-pipe'
+    - '-DCC_GNU_' 
+    - '-DOSMac_' 
+    - '-DOSMacOSX_' 
+    - '-DREQUIRE_IOSTREAM' 
+    - '-DOSMac_MachO_' 
+    - '-O0'  
+    - '-D_LANGUAGE_C_PLUS_PLUS'
+    target_extension: 'bundle'
+    includes:
+    - 'maya/OpenMayaMac.h'
+
+os_win64:
+    libs:
+    - 'Foundation'
+    - 'OpenMaya'
+    maya_relative_inc_path: 'include'
+    maya_relative_lib_path: 'lib'
+    compiler_options:
+    - '/D_BOOL'
+    - '/DREQUIRE_IOSTREAM' 
+    - '/DAW_NEW_IOSTREAMS' 
+    target_extension: 'mll'
+    dso_options:
+    - '/export:initializePlugin'
+    - '/export:uninitializePlugin'

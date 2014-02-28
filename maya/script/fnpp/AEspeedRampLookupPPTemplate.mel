@@ -1,0 +1,19 @@
+global proc AEspeedRampLookupPPTemplate(string $nodeName) {
+	
+	editorTemplate -beginScrollLayout;
+	
+	
+	editorTemplate -cl 0  -beginLayout "Attributes";		
+	
+	editorTemplate -addControl "inputMin"  ;
+	editorTemplate -addControl "inputMax"  ;
+	editorTemplate -addControl "outputMin" ;
+	editorTemplate -addControl "outputMax" ;
+
+	AEaddRampControl ($nodeName+".ramp");	
+	editorTemplate -endLayout;
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}

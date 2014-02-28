@@ -1,0 +1,12 @@
+build
+doc/.sass*
+doc/output
+doc/tmp
+tmp/
+.DS_Store
+*.idb
+*.bak
+*~
+*/examples/
+*.sublime-workspace
+*.sublime-project

@@ -1,0 +1,88 @@
+
+global proc string  flock.connectedReferenceNode(string $flockNode){
+	// search for connected referencce - return filename of the first one we find
+	string $conns[] = `listConnections -d 1 -s 0 ($flockNode+".translateTarget")`;
+	for ($conn in $conns) {	
+		if (`referenceQuery -inr $conn`) {
+			return `referenceQuery -rfn $conn`;
+		}
+	}
+	return "";
+	
+}
+
+
+global proc flock.extractHeroes.doit(string $flock, int $ids[], int $start, int $end){
+	string $currRefNode = flock.connectedReferenceNode($flock);
+ 	string $fn = `referenceQuery -filename $currRefNode`;  
+	string $origNamespace = string.rstrip($currRefNode,2) ;
+	$origNamespace += ":";
+	
+	string $conns[] = `listConnections -s 0 -d 1 -p 1 -c 1  ($flock + ".translateTarget") ($flock + ".rotateTarget") ($flock + ".scaleTarget")  ($flock + ".userMap")`;
+	
+	//string $edits[] = `referenceQuery -editStrings $currRefNode` ;	
+	//$edits = string.grep( $edits , "setAttr*");
+
+
+	string $flockTF = firstParentOf($flock);
+	
+	// one at a time - go through IDs, import reference file, bake it
+	for ($id in $ids) {
+		
+		setAttr ($flock + ".targetId") $id;
+		string $namespace = ("agent_"+$id+"_0") ;
+		
+		while (`namespace -exists (":"+$namespace)`) {
+			$namespace = string.increment($namespace);
+		}
+		
+		file -r -shd "shadingNetworks" -namespace $namespace  $fn;
+		// find attributes that have been changed in the original reference, and apply them to the new reference
+		//for ($edit in $edits) {
+		//	$edit = substituteAllString($edit, $origNamespace , ($namespace+":"));
+		//	catch(`evalEcho $edit`);
+		//}
+		// connect the reference and at the same time build up the bake command
+		string $bakeCmd = ("bakeResults -simulation 1 -t \""+$start+":"+$end+"\"  -sb 1 ");	
+		int $n = size($conns) ;
+		string $filterCmd = "filterCurve ";
+		string $disableSrc[];
+		string $disableDest[];
+		
+		for ($i=0;$i<$n;$i+=2) {
+			string $destConn = `substitute $origNamespace  $conns[$i+1] ($namespace+":")`;
+			connectAttr -f $conns[$i] $destConn; 
+			$disableSrc[`size $disableSrc`] = $conns[$i];
+			$disableDest[`size $disableDest`] = $destConn;
+			
+			$bakeCmd += (" "+$destConn+" ");
+			string $attr = attr.attrFromNodeAttr($conns[$i]);
+			if ($attr == "rotateTarget") $filterCmd += ($destConn + " ");
+		}	
+	
+		evalEcho $bakeCmd ;
+		
+		for ($i=0;$i<($n/2);$i++) {
+			if (`isConnected $disableSrc[$i] $disableDest[$i]`) disconnectAttr $disableSrc[$i] $disableDest[$i];
+		}
+		
+		evalEcho $filterCmd ;
+	}
+}
+
+
+global proc flock.extractHeroes(){
+	string $sel[] = `ls -sl`; 
+	int $ids[] = selection.componentIndices($sel);
+	if (! `size $ids`) error("No IDs");
+	string $particle = attr.nodeFromNodeAttr($sel[0]);
+	
+	string $flocks[] = `listHistory -f 1  $particle`;
+	$flocks = `ls -type "flockShape" $flocks`;
+	if (! `size $flocks`) error("No Flocks");
+	int $startFrame = `playbackOptions -q -min`;
+	int $endFrame = `playbackOptions -q -max`;
+	
+	flock.extractHeroes.doit( $flocks[0] ,  $ids,  $startFrame,  $endFrame);
+}
+

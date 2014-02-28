@@ -1,0 +1,72 @@
+
+
+
+
+
+
+global proc AEtumblerTemplate(string $nodeName)
+{
+
+
+	//source "AEfeatherUtils.mel";
+	//AEfeatherRegisterNodeDoc($nodeName);
+
+	editorTemplate -beginScrollLayout;
+
+	editorTemplate -cl 0 -beginLayout "Goal Attributes";	
+	editorTemplate -addControl "frontAxis";		
+	editorTemplate -addControl "upAxis";	
+	editorTemplate -addControl "goalWeight";
+		editorTemplate -addControl "conserveSpin";	
+			editorTemplate -addControl "rotateOrder";			
+	editorTemplate -addControl "angularUnit";	
+		editorTemplate -addControl "currentTime";	
+	//editorTemplate -addControl "collisionGoalRange";		
+	//AEaddRampControl ($nodeName+".collisionGoalWeightMap");	
+//	
+	//editorTemplate -addControl "impulseGoalRange";		
+	//AEaddRampControl ($nodeName+".impulseGoalWeightMap");	
+
+	
+//	editorTemplate -addControl "velocityGoalRange";		
+//	AEaddRampControl ($nodeName+".velocityGoalWeightMap");	
+//	
+	editorTemplate -endLayout;	
+
+
+
+//	editorTemplate -cl 0 -beginLayout "Force Attributes";	
+//	editorTemplate -addControl "sphereSize";		
+//	editorTemplate -addControl "spinMag";				
+//	editorTemplate -endLayout;	
+
+
+
+	editorTemplate -suppress "position";
+	editorTemplate -suppress "velocity";
+	editorTemplate -suppress "mas";
+	editorTemplate -suppress "particleData";
+	editorTemplate -suppress "fieldDataPoints";
+	editorTemplate -suppress "fieldDataVelocities";
+	editorTemplate -suppress "fieldDataMasses";
+	editorTemplate -suppress "fieldDataDeltaTime";
+	editorTemplate -suppress "fieldData";
+	editorTemplate -suppress "goalFrontVector";
+	editorTemplate -suppress "goalUpVector";
+	editorTemplate -suppress "goalWeightPP";
+	editorTemplate -suppress "inputForce";
+	editorTemplate -suppress "impulse";
+	editorTemplate -suppress "collisionImpulse";
+	editorTemplate -suppress "phi";
+	editorTemplate -suppress "omega";
+	editorTemplate -suppress "outPhi";
+	editorTemplate -suppress "outOmega";
+	editorTemplate -suppress "outFront";
+	editorTemplate -suppress "outUp";
+	editorTemplate -suppress "outRotation";
+	editorTemplate -suppress "outRotationData";
+	editorTemplate -suppress "currentTime";
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}

@@ -1,0 +1,40 @@
+
+
+global proc cacheFlockParticles(string $clapperNode){
+
+	string $flocks[] = `ls -type "flockShape"`;
+	if (! `size $flocks`)  error ("No Flocks in scene");
+	string $flockShape = $flocks[0];
+
+	string $filename = AEclapperGenerateFilename($clapperNode,0);
+	float $startTime = AEclapperCalcRunupTime($clapperNode) ;
+	float $endTime = AEclapperCalcEndTime($clapperNode) ;
+
+
+
+	string $tmp[] = `listConnections -d 0 -s 1 -sh 1 ($flockShape+".sortedId")`;
+	if (! `size $tmp`)  error ("No Connected particle object");
+	string $pShape =  $tmp[0];
+
+
+	string $flockAtts[] = {
+   // ($flockShape+".particleId") ,
+    ($flockShape+".translatePP"),
+    ($flockShape+".rotatePP"),
+    ($flockShape+".rotateUpPP"),
+    ($flockShape+".scalePP"),
+    ($flockShape+".userMap"),
+    ($flockShape+".userVectorMap")
+	};
+
+	string $attributes[] = `listConnections -d 0 -s 1 -p 1 -sh 1 $flockAtts`;
+	$attributes[`size $attributes`] = ($pShape+".particleId");
+	string $cmd = ("dynExport -path \"" + $filename + "\" -f cache -mnf "+ $startTime +" -mxf "+$endTime+" -oup 1 ");
+	for ($att in  $attributes) {
+		string $attr = attr.attrFromNodeAttr($att);
+		$cmd += (" -atr \""+ $attr+"\" ");
+	}
+	$cmd += ("\""+$pShape+"\"");
+	evalEcho($cmd+"\n");
+
+}

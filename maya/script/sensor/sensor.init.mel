@@ -1,0 +1,42 @@
+global proc sensor.init(string $moduleName) {
+	
+	string $moduleMenu = module.menuName( $moduleName );
+
+	setParent -m $moduleMenu;
+
+	string $sensorTypes[] = {
+		"alignment",
+		"approach",
+		"axisSensor",
+		"cohesion",
+		"exposure",
+		"separation",
+		"splineSensor",
+		"geometrySensor",
+		"jerkSensor"
+	};
+		
+	module.subMenu($moduleMenu, "Sensor|Add");
+
+	for ($s in $sensorTypes) {
+		string $c = capitalizeString($s);
+		menuItem -l $c	
+		-annotation ("Add "+$s +" sensor to selected particle object")	
+		-c ("sensor.add \""+$s+"\"") ;
+	}
+
+	module.subMenu($moduleMenu, "Sensor");
+
+	menuItem -l "Connect curve to splineSensor"
+		-annotation ("Pick a splineSensor and a nurbs curve.")
+		-c "sensor.connectCurveToSplineSensor()" ;	
+
+	menuItem -l "Connect meshes to Geometry Sensor"
+		-annotation ("Pick a geometrySensor and some meshes.")
+		-c "sensor.connectMeshToGeometrySensor()" ;	
+
+
+	setParent -m $moduleMenu;
+
+
+}

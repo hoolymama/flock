@@ -1,0 +1,71 @@
+
+
+global proc cacheFlockAndNav(string $clapperNode){
+
+	string $flocks[] = `ls -type "flockShape"`;
+	if (! `size $flocks`)  error ("No Flocks in scene");
+	string $flockShape = $flocks[0];
+
+	string $filename = AEclapperGenerateFilename($clapperNode,0);
+	float $startTime = AEclapperCalcRunupTime($clapperNode) ;
+	float $endTime = AEclapperCalcEndTime($clapperNode) ;
+
+
+
+	string $tmp[] = `listConnections -d 0 -s 1 -sh 1 ($flockShape+".sortedId")`;
+	if (! `size $tmp`)  error ("No Connected particle object");
+	string $pShape =  $tmp[0];
+
+
+	string $flockAtts[] = {
+   // ($flockShape+".particleId") ,
+    ($flockShape+".translatePP"),
+    ($flockShape+".rotatePP"),
+    ($flockShape+".rotateUpPP"),
+    ($flockShape+".scalePP"),
+    ($flockShape+".userMap"),
+    ($flockShape+".userVectorMap")
+	};
+
+	string $nodeAttrs[] = `listConnections -d 0 -s 1 -p 1 -sh 1 $flockAtts`;
+
+	string $navNodeAttrs[] = {
+		($pShape + ".particleId"),
+		($pShape + ".acceleration"),
+		($pShape + ".age"),
+		($pShape + ".birthTime"),
+		($pShape + ".emitterId"),
+		($pShape + ".finalLifespanPP"),
+		($pShape + ".lastPosition"),
+		($pShape + ".lastVelocity"),
+		($pShape + ".lastWorldPosition"),
+		($pShape + ".lastWorldVelocity"),
+		($pShape + ".lifespanPP"),
+		($pShape + ".mass"),
+		($pShape + ".position"),
+		($pShape + ".velocity"),
+		($pShape + ".worldPosition"),
+		($pShape + ".worldVelocity"),
+		($pShape + ".worldVelocityInObjectSpace"),
+		($pShape + ".radiusPP")
+	};
+	string $attributes[];
+ 	$nodeAttrs = stringArrayCatenate($navNodeAttrs , $nodeAttrs);
+ 	for ($na in $nodeAttrs) {
+		$attributes[`size $attributes`] =  attr.attrFromNodeAttr($na);
+ 	}
+	$attributes = sort($attributes);
+	$attributes = stringArrayRemoveDuplicates($attributes);
+	setAttr "dynGlobals1.readCacheUntil" 14000;
+	setAttr "EMISSION.testEmission" 0;
+	string $cmd = ("dynExport -path \"" + $filename + "\" -f cache -mnf "+ $startTime +" -mxf "+$endTime+" -oup 1 ");
+	for ($att in  $attributes) {
+		$cmd += (" -atr \""+ $att+"\" ");
+	}
+	$cmd += ("\""+$pShape+"\"");
+	evalEcho($cmd+"\n");
+
+}
+
+
+

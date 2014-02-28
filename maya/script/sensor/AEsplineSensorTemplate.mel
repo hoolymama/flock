@@ -1,0 +1,29 @@
+
+global proc AEsplineSensorTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+	
+	
+	AEsensorInclude($nodeName);
+	
+	editorTemplate -cl 0  -beginLayout "Spline Attributes";		
+	editorTemplate -addControl "tangent";	
+	editorTemplate -addControl "normal";	
+	editorTemplate -addControl "orbital";	
+	editorTemplate -endLayout;
+	
+	editorTemplate -cl 0  -beginLayout "Spline Falloff Curves";	
+	AEfunctionCurveUI ("tangentFalloff");
+	AEfunctionCurveUI ("normalFalloff");
+	AEfunctionCurveUI ("orbitalFalloff");
+	editorTemplate -endLayout;
+	
+	editorTemplate -cl 0  -beginLayout "Spline Param Curves";	
+	AEfunctionCurveUI ("tangentParam");
+	AEfunctionCurveUI ( "normalParam");
+	AEfunctionCurveUI ("orbitalParam");
+	editorTemplate -endLayout;
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}

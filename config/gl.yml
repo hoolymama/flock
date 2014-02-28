@@ -1,0 +1,15 @@
+os_linux64:
+    include_paths:
+    - '/usr/local/include/GL'
+    lib_paths: []
+    frameworks:
+    - 'GL'
+    compiler_options: []
+os_darwin64:
+    frameworks:
+    - 'OpenGL'
+os_win64:
+    libs:
+    - 'opengl32'
+    - 'glu32'
+

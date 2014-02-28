@@ -1,0 +1,118 @@
+global proc string fnPP.insertGenericInVDOutPP(string $srcPlug,string $destPlug, string $inputPlug, string $nodeType) {	
+	string $pp = `createNode $nodeType`;
+	string $type = `attr.getType $srcPlug`;
+	connectAttr -f $srcPlug ($pp+"."+$inputPlug);
+	string $multPPOutPlug = ($type =="vectorArray") ? "outputV" : "outputD";
+	connectAttr -f  ($pp+"."+$multPPOutPlug)  $destPlug ;
+	return $pp;
+}
+
+
+
+
+global proc string mathPP.insertGenericSingleInVDOutPP(string $srcPlug,string $destPlug, string $nodeType) {	
+	return mathPP.insertGenericInVDOutPP( $srcPlug, $destPlug,  "input",  $nodeType);
+}
+
+
+global proc string mathPP.insertGenericMultiInVDOutPP(string $srcPlug,string $destPlug, string $nodeType) {	
+	return mathPP.insertGenericInVDOutPP( $srcPlug, $destPlug,  "input[0]",  $nodeType);
+}
+
+global proc string mathPP.insertInOutPP(string $srcPlug,string $destPlug, string $nodeType) {
+	string $pp = `createNode $nodeType`;
+	connectAttr -f $srcPlug ($pp+".input");
+	connectAttr -f  ($pp+".output")  $destPlug ;
+	return $pp;		
+}
+
+global proc string mathPP.insert_addPP(string $srcPlug,string $destPlug) {
+	return mathPP.insertGenericMultiInVDOutPP( $srcPlug, $destPlug, "addPP");	
+}
+
+global proc string mathPP.insert_multPP(string $srcPlug,string $destPlug) {
+	return mathPP.insertGenericMultiInVDOutPP( $srcPlug, $destPlug, "multPP");		
+}
+
+global proc string mathPP.insert_lookupPP(string $srcPlug,string $destPlug) {
+	return mathPP.insertGenericSingleInVDOutPP( $srcPlug, $destPlug, "lookupPP");		
+}
+
+global proc string mathPP.insert_rampLookupPP(string $srcPlug,string $destPlug) {
+	return mathPP.insertInOutPP( $srcPlug, $destPlug, "rampLookupPP");		
+}
+
+global proc string mathPP.insert_reversePP(string $srcPlug,string $destPlug) {
+	return mathPP.insertInOutPP( $srcPlug, $destPlug, "reversePP");		
+}
+global proc string mathPP.insert_signPP(string $srcPlug,string $destPlug) {
+	return mathPP.insertInOutPP( $srcPlug, $destPlug, "signPP");		
+}
+
+// TODO Dry this up
+global proc string mathPP.insert_crossPP(string $srcPlug,string $destPlug) {
+	string $type = `attr.getType $srcPlug`;
+	if ($type != "vectorArray")  return "";
+	
+	string $pp = `createNode "crossPP"`;
+	connectAttr -f $srcPlug ($pp+".input1");
+	connectAttr -f  ($pp+".output")  $destPlug ;
+	return $pp;		
+}
+
+global proc string mathPP.insert_binormalPP(string $srcPlug,string $destPlug) {
+	string $type = `attr.getType $srcPlug`;
+	if ($type != "vectorArray")  return "";
+	
+	string $pp = `createNode "binormalPP"`;
+	connectAttr -f $srcPlug ($pp+".input1");
+	connectAttr -f  ($pp+".output")  $destPlug ;
+	return $pp;		
+}
+
+global proc string mathPP.insert_coordSysComponentPP(string $srcPlug,string $destPlug) {
+	string $type = `attr.getType $srcPlug`;
+	if ($type != "vectorArray")  return "";
+	
+	string $pp = `createNode "coordSysComponentPP"`;
+	connectAttr -f $srcPlug ($pp+".input");
+	connectAttr -f  ($pp+".output")  $destPlug ;
+	return $pp;		
+}
+
+
+global proc string mathPP.insert_orthogonalPP(string $srcPlug,string $destPlug) {
+	string $type = `attr.getType $srcPlug`;
+	if ($type != "vectorArray")  return "";
+	
+	string $pp = `createNode "orthogonalPP"`;
+	connectAttr -f $srcPlug ($pp+".up");
+	connectAttr -f  ($pp+".output")  $destPlug ;
+	return $pp;
+}
+
+
+
+global proc string[]  mathPP.insert(string $nodeType){
+	// TODO - Implement this properly
+	string $result[];
+	string $sel[] = `ls -sl`;
+
+	if (!(`size $sel` ==2)) error("Need 2 objects selected");
+	string $conns[] = `listConnections -s 0 -d 1 -p 1 -c 1 $sel[0]`;
+	int $n = `size $conns`;
+	for ($i =0;$i<$n ;$i+=2) {
+		string $destNode = attr.nodeFromNodeAttr( $conns[($i+1)] );
+		if ($destNode == $sel[1]) {
+			string $type = `attr.getType $conns[$i]`;
+			if (($type != "vectorArray") && ($type != "doubleArray")) continue;
+			string $resultNode;
+			
+			string $cmd = ("mathPP.insert_"+$nodeType+" "+ $conns[$i]+" "+ $conns[($i+1)]);
+			$result[`size $result`] = evalEcho($cmd);
+
+		}
+	}
+	return $result;
+}
+

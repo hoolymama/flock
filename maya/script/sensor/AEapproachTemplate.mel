@@ -1,0 +1,18 @@
+
+global proc AEapproachTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+	
+	
+	AEsensorInclude($nodeName);
+	
+	editorTemplate -cl 0  -beginLayout "Approach Attributes";		
+	editorTemplate -addControl "maxSeparation";	
+	editorTemplate -addControl "separationDecay";	
+	editorTemplate -addControl "maxTime";	
+	editorTemplate -addControl "timeDecay";	
+	editorTemplate -endLayout;
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}

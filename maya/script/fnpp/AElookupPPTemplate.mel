@@ -1,0 +1,14 @@
+
+global proc AElookupPPTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+	
+	
+	editorTemplate -cl 0  -beginLayout "Spline Attributes";		
+	editorTemplate -addControl "curveResolution";	
+	AEfunctionCurveUI ("functionCurve");
+	editorTemplate -endLayout;
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}

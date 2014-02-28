@@ -1,0 +1,144 @@
+global proc onUseMaxDistPPChange(string $nodeAttr, int $value) {
+	string $attr = attr.attrFromNodeAttr($nodeAttr);	
+	string $node = attr.nodeFromNodeAttr($nodeAttr);
+	editorTemplate -dimControl $node "maxDistance" $value;
+}
+
+global proc AEuseMaxDistancePPNew(string $nodeAttribute) {
+	setUITemplate -pst attributeEditorTemplate;
+	global int $gTextColumnWidthIndex;	
+	string $attr = attr.attrFromNodeAttr($nodeAttribute);
+
+	string $controlName = ("sensor_"+$attr+"CB");
+
+
+	rowLayout -nc 2  -columnWidth 1  $gTextColumnWidthIndex;
+	
+	text -l $attr;
+	checkBox -l "" $controlName;
+	setUITemplate -ppt;
+	AEuseMaxDistancePPReplace $nodeAttribute;
+}
+
+
+global proc AEuseMaxDistancePPReplace(string $nodeAttribute){
+	setUITemplate -pst attributeEditorTemplate;
+	string $attr = attr.attrFromNodeAttr($nodeAttribute);
+	string $node = attr.nodeFromNodeAttr($nodeAttribute);
+
+	string $controlName = ("sensor_"+$attr+"CB");
+
+	connectControl $controlName  $nodeAttribute ;
+	checkBox -e -onc ("onUseMaxDistPPChange(\""+$nodeAttribute+"\", 1)") $controlName;
+	checkBox -e -ofc ("onUseMaxDistPPChange(\""+$nodeAttribute+"\", 0)") $controlName;
+
+
+	int $useMaxDistPP = getAttr ($node+".useMaxDistancePP");
+	onUseMaxDistPPChange($nodeAttribute, $useMaxDistPP); 
+	setUITemplate -ppt;
+	
+}
+
+
+
+
+global proc onUseRampChange(string $nodeAttr, int $value) {
+	string $attr = attr.attrFromNodeAttr($nodeAttr);	
+	string $node = attr.nodeFromNodeAttr($nodeAttr);
+	editorTemplate -dimControl $node "fieldOfView" $value;
+	editorTemplate -dimControl $node "dropOff"  $value;
+	editorTemplate -dimControl $node "decay" $value;
+	editorTemplate -dimControl $node "fovProfile" (! $value);
+	editorTemplate -dimControl $node "decayProfile" (! $value);
+}
+
+global proc AEsensorUseRampNew(string $nodeAttribute) {
+	setUITemplate -pst attributeEditorTemplate;
+	global int $gTextColumnWidthIndex;	
+	string $attr = attr.attrFromNodeAttr($nodeAttribute);
+
+	string $controlName = ("sensor_"+$attr+"CB");
+
+
+	rowLayout -nc 2  -columnWidth 1  $gTextColumnWidthIndex;
+	
+	text -l $attr;
+	checkBox -l "" $controlName;
+	setUITemplate -ppt;
+	AEsensorUseRampReplace $nodeAttribute;
+	
+	
+}
+
+
+global proc AEsensorUseRampReplace(string $nodeAttribute){
+	setUITemplate -pst attributeEditorTemplate;
+	string $attr = attr.attrFromNodeAttr($nodeAttribute);
+	string $node = attr.nodeFromNodeAttr($nodeAttribute);
+
+	string $controlName = ("sensor_"+$attr+"CB");
+
+	connectControl $controlName  $nodeAttribute ;
+	checkBox -e -onc ("onUseRampChange(\""+$nodeAttribute+"\", 1)") $controlName;
+	checkBox -e -ofc ("onUseRampChange(\""+$nodeAttribute+"\", 0)") $controlName;
+
+
+	int $useRamps = getAttr ($node+".useRampAttenuation");
+	onUseRampChange($nodeAttribute, $useRamps); 
+	setUITemplate -ppt;
+	
+}
+
+
+
+
+global proc AEsensorInclude ( string $nodeAttr )
+{
+	
+	editorTemplate -cl 0  -beginLayout "View Attributes";		
+
+	editorTemplate -addControl "acuity";	
+	editorTemplate -addControl "fieldOfView";	
+	editorTemplate -addControl "dropOff";	
+	editorTemplate -addControl "maxDistance";	
+
+	editorTemplate -callCustom "AEuseMaxDistancePPNew" "AEuseMaxDistancePPReplace" "useMaxDistancePP";
+
+	//editorTemplate -addControl "useMaxDistancePP";	
+	editorTemplate -addControl "decay";
+	editorTemplate -addControl "maxNeighbors";	
+
+
+
+	//editorTemplate -addControl "useRampAttenuation";	
+	editorTemplate -callCustom "AEsensorUseRampNew" "AEsensorUseRampReplace" "useRampAttenuation";
+
+
+	editorTemplate -as;
+
+	string $nodeName = attr.nodeFromNodeAttr( $nodeAttr);
+	AEaddRampControl ($nodeName+".fovProfile");	
+	AEaddRampControl ($nodeName+".decayProfile");	
+	editorTemplate -endLayout;
+	
+
+	editorTemplate -cl 0  -beginLayout "Adjust Output";		
+
+	editorTemplate -addControl "multX";	
+	editorTemplate -addControl "multY";	
+	editorTemplate -addControl "multZ";	
+	editorTemplate -endLayout;
+	
+	
+
+	editorTemplate -suppress "positionPP";
+	editorTemplate -suppress "velocityPP";
+	editorTemplate -suppress "viewVectorPP";
+	editorTemplate -suppress "assessment";
+	editorTemplate -suppress "pool";
+	editorTemplate -suppress "splinePool";
+	editorTemplate -suppress "aMaxDistancePP";
+
+
+	
+}

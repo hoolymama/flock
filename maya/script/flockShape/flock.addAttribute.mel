@@ -1,0 +1,141 @@
+
+
+////////////////////////////////////////////////////////
+
+global proc flock.addAttribute.doit(string $from, string $to, int $pp,int  $isVec, string $particle, string $flock, string $dest){
+	
+
+
+	// add src attribute if it doesn't already exist
+	string	$srcAttPair;
+	if ($pp) {
+		// make sure att name ends in PP
+		if (! `endsWith $from "PP"`) $from = ($from +"PP");
+		if ( $isVec ) {
+			$srcAttPair =	($from+":vectorArray");
+		} else {
+			$srcAttPair =	($from+":doubleArray");
+		}
+	} else {
+		if ( $isVec ) {
+			$srcAttPair =	($from+":float3");
+		} else {
+			$srcAttPair =	($from+":float");
+		}
+	}
+	
+	attr.addAttrs( $particle,{$srcAttPair});
+
+	// add dest attribute if it doesn't already exist
+	int $doDest =  (! ($to == ""));
+
+	if ($doDest) {
+		string	$destAttPair =	($to+":float");
+		if ( $isVec ) {
+			$destAttPair =	($to+":float3");
+		}
+		attr.addAttrs( $dest,{$destAttPair});
+	}
+
+	// make connections
+	int $id ;
+	if ($isVec) {
+		$id = attr.findNextNonExistentIndex($flock+".userVectorMap");
+		if ($pp){
+			connectAttr -f ($particle+"."+$from) ($flock+".userVectorMap["+$id+"].userVectorPP");
+		} else {
+			connectAttr -f ($particle+"."+$from) ($flock+".userVectorMap["+$id+"].userVectorTarget");
+		}
+		if ($doDest) connectAttr -f ($flock+".userVectorMap["+$id+"].userVectorTarget") ($dest+"."+$to);
+	} else {
+		 $id = attr.findNextNonExistentIndex($flock+".userMap");
+		 if ($pp){
+			connectAttr -f ($particle+"."+$from) ($flock+".userMap["+$id+"].userPP");
+		} else {
+			connectAttr -f ($particle+"."+$from) ($flock+".userMap["+$id+"].userTarget");
+		}
+		if ($doDest) connectAttr -f ($flock+".userMap["+$id+"].userTarget") ($dest+"."+$to);
+	}
+}
+
+
+global proc flock.addAttribute.getUI(string $fromAttrTF,string $toAttrTF,string $isPPCB, string $isVectorCB) {
+
+
+	
+	string $from = `textFieldGrp -q -text $fromAttrTF`;
+	string $to = `textFieldGrp -q -text $toAttrTF`;
+	int $pp = `checkBoxGrp -q -v1 $isPPCB`;
+	int $isVec = `checkBoxGrp -q -v1 $isVectorCB`;
+	
+	int $doToAttr =  (! ($to == ""));
+
+	string $flockShape = selection.firstOfType("flockShape");
+	if ($flockShape == "") error("Must pick a flock");
+	
+	string $dest = "";
+	if ($doToAttr) {
+		string $conns[] = `listConnections -d 1 -s 0 ($flockShape+".translateTarget")`;
+		if (!`size $conns`) {
+			$doToAttr = 0;
+			$to = "";
+			warning("No destination object. I will only make particle connections");
+		} else {
+			$dest = $conns[0];
+		}
+	}
+
+	$conns = `listConnections -d 0 -s 1 -sh 1 -type "particle" ($flockShape+".sortedId")`;
+	if (!`size $conns`) error("Must pick a flock that is connected to a particleObject");
+	string $psys = $conns[0];
+	
+	flock.addAttribute.doit( $from,  $to,  $pp, $isVec,   $psys,  $flockShape,  $dest);
+
+
+}
+
+
+global proc string flock.addAttribute()
+{
+	
+	// string $flockShape = selection.firstOfType("flockShape");
+	
+	$win = window.uniqueWindow("Add Flock Attributes", "");	
+
+	string $form = `formLayout`;
+	
+	string $col = `columnLayout -adj 1`;  // to stack up sliders in
+	string $isPPCB = `checkBoxGrp -label "Per Particle Attibute" -v1 1 "flock_add_attr_CB"`;
+	string $isVectorCB = `checkBoxGrp -label "Vector Attibute" -v1 1 "flock_add_attr_Vec_CB"`;
+	string $fromAttrTF = `textFieldGrp -l "From" -text "particleAttr<PP>"`;
+	string $toAttrTF = `textFieldGrp -l "To" -text "destinationAttr"`;
+
+	string $applyCmd = ( "flock.addAttribute.getUI(\"" +$fromAttrTF+ "\",\"" +$toAttrTF+ "\",\"" +$isPPCB+ "\",\"" +$isVectorCB+ "\")" );
+
+	setParent $form;
+
+	string $closeCmd = ("deleteUI "+ $win);
+
+	// attach the callbacks to the buttons
+	button -l "Apply and Close" -align "center"	-c ($applyCmd+";"+$closeCmd)	;
+	button -l "Apply" -align "center" -c $applyCmd ; 
+	button -l "Close" -align "center" -c $closeCmd  ;
+
+	setParent ..;
+
+	form.layoutButtonsTopOrBottom($form , 3, 0);
+
+	showWindow $win;		
+	window	-e -rtf 1  $win;
+	return 	$win;
+}
+
+
+
+
+
+
+
+
+
+

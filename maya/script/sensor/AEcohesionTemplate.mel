@@ -1,0 +1,17 @@
+
+global proc AEcohesionTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+	
+	
+	AEsensorInclude($nodeName);
+	
+	editorTemplate -cl 0  -beginLayout "Cohesion Attributes";		
+	editorTemplate -addControl "goalDecay";	
+	editorTemplate -addControl "swirlMag";		
+	editorTemplate -addControl "goalMag";		
+	editorTemplate -endLayout;
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}

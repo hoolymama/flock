@@ -1,0 +1,246 @@
+
+
+global proc tumbler.performConnectFieldTorque(string $p,string $f, string $t) {
+	
+	string $connectionPairs[] = {
+	    "position:position",
+	    "velocity:velocity",
+	    "mass:mass"
+	};
+	attr.connectPairs($p, $t, $connectionPairs);
+
+	int $fInId = attr.findNextUnconnectedIndex($f+".inputData");
+	int $fOutId = attr.findNextUnconnectedIndex($f+".outputForce");
+	int $fid =  max($fInId, $fOutId);
+	int $cid  = attr.findNextUnconnectedIndex( $t+".inputForce");
+	connectAttr -f ($t+".fieldData") ( $f+".inputData["+$fid+"]");
+	connectAttr -f ($f+".outputForce["+$fid+"]" ) ( $t+".inputForce["+$cid+"]");
+ 
+}
+
+global proc tumbler.performConnectFieldImpulse(string $p, string $f, string $t) {
+
+	int $fInId = attr.findNextUnconnectedIndex($f+".inputData");
+	int $fOutId = attr.findNextUnconnectedIndex($f+".outputForce");
+	int $fid =  max($fInId, $fOutId);
+	
+	
+	string $connectionPairs[] = {
+	    "position:inputData["+$fid+"].inputPositions",
+	    "velocity:inputData["+$fid+"].inputVelocities",
+	    "mass:inputData["+$fid+"].inputMass"
+	};
+	attr.connectPairs($p, $f, $connectionPairs);
+
+	// if there is already an imulse input then use an addPP to accumulate the fields
+	string $conns[] = `listConnections -s 1 -d 0 -p 1 ( $t+".impulse")`;
+	if (! `size $conns`) {
+		connectAttr -f ($f+".outputForce["+$fid+"]" ) ( $t+".impulse");
+ 	} else {
+		string $nt = `nodeType  $conns[0]`;
+		string $addPP;
+		if ($nt == "addPP") {
+			$addPP = attr.nodeFromNodeAttr($conns[0]);
+		} else {
+		 	$addPP = `createNode "addPP"`;
+			connectAttr $conns[0] (	$addPP+".input[0]");
+			connectAttr -f ($addPP+".outputV") ( $t+".impulse");
+		}
+		int $tId = attr.findNextUnconnectedIndex($addPP+".input");
+		connectAttr -f ($f+".outputForce["+$fid+"]" )  ($addPP+".input["+$tId+"]");		
+	}
+}
+
+
+global proc tumbler.addGoalWeightPP() {
+
+	string $t = selection.firstOfType("tumbler") ;
+	
+	string $psys[] = `listHistory $t`;
+	$psys = `ls -type "particle" $psys`;
+	if (!`size $psys`) error("Cant find particles associated with this tumbler");			
+	string $p = $psys[0];	
+	
+	attr.addAttrs($p,{"tumblerGoalWeightPP:doubleArray"});
+	
+	connectAttr -f ($p+".tumblerGoalWeightPP") ($t+".goalWeightPP");
+	
+	string $expr =	"tumblerGoalWeightPP = 1.0;\r";
+	dynamics.appendToDynExpression( $p, $expr, " TUMBLER GW ", 1);
+	
+}
+
+
+global proc tumbler.addField (string $mode) {
+	// mode 0 = asTorque
+	// mode 1 = asImpulse
+	
+
+	string $t;
+	string $tumblers[] = `ls -sl -type "tumbler"`;	
+	if (`size $tumblers`) $t =  $tumblers[0];
+
+	string $fields[] = `ls -sl -type "field"`;
+	if (!size($fields)) {error("No Fields Selected");}
+		
+	string $psys[] = `listHistory $t`;
+	$psys = `ls -type "particle" $psys`;
+	if (!`size $psys`) error("Cant find particles associated with this tumbler");			
+	string $p = $psys[0];
+	
+	for ($f in $fields){
+		if ($mode){		
+			tumbler.performConnectFieldImpulse($p, $f,  $t);
+		} else {
+			tumbler.performConnectFieldTorque($p, $f,  $t);				
+		}
+	}
+}
+
+
+
+
+
+
+// create matrixGlyph visualizations
+proc tumbler.attachDiagnostics(string $particle, string $tumbler) {
+	string $p;
+	string $g;
+	
+	$g =   `createNode matrixGlyphShape`;
+	connectAttr ($particle+".position")  ($g+".points");
+	connectAttr ($particle+".goalView")  ($g+".frontVector");
+	connectAttr ($particle+".goalUp")  ($g+".upVector");
+	setAttr ($g+".colorMult" ) 0.5;
+	setAttr ($g+".colorOffset" ) 0.0;
+	setAttr  ($g+".rotateType" ) 0;
+	setAttr  ($g+".frontAxis" ) 0;
+	setAttr  ($g+".upAxis" ) 1;
+	
+	connectAttr -f ($tumbler+".frontAxis") ($g+".frontAxis");
+	connectAttr -f ($tumbler+".upAxis") ($g+".upAxis");	
+	
+	$p = firstParentOf($g);
+	rename $p "goalGlyph";
+
+
+
+
+	$g =   `createNode matrixGlyphShape`;
+	connectAttr ($particle+".position")  ($g+".points");
+	connectAttr ($particle+".phi")  ($g+".axisAngle");
+	setAttr ($g+".colorMult" ) 1.0;
+	setAttr ($g+".colorOffset" ) 0.0;
+	setAttr  ($g+".rotateType" ) 1;
+	$p = firstParentOf($g);
+	rename $p "phiGlyph";
+
+}
+
+global proc tumbler.attachDiagnosticsFromSel(){
+	string $tumblers[] = `ls -sl -type "tumbler"`;
+	if (!`size $tumblers`) error("No tumblers selected");
+	string $t = $tumblers[0] ;
+	string $psys[] = `listHistory $t`;
+	$psys = `ls -type "particle" $psys`;
+	if (!`size $psys`) error("Cant find particles associated with this tumbler");
+	string $p = $psys[0];
+	tumbler.attachDiagnostics( $p,  $t);
+}
+
+
+proc tumbler.addAttrs(string $particle) {
+
+	string $atts[] = { 
+		"goalView:vectorArray",		
+		"goalUp:vectorArray",	
+		"view:vectorArray",		
+		"upVector:vectorArray",	
+		"phi:vectorArray",
+		"omega:vectorArray",	
+		"rotation:vectorArray"
+	};
+	attr.addAttrs( $particle,$atts);
+}
+proc tumbler.createCreationExpression(string $particle) {
+
+	
+	string $expr =( 
+		"phi = sphrand(3.1415927);\n" + 
+		"omega = sphrand(3.1415927);\n" + 
+		"goalView = <<1,0,0>>;\r"+
+		"goalUp = <<0,1,0>> ;\r"
+		);
+
+	dynamics.appendToDynExpression( $particle, $expr, " TUMBLER ", 0);
+
+}
+
+proc tumbler.createRuntimeBeforeExpression(string $particle) {
+	string $expr = (	
+		"// goalView = unit(velocity);\r"+
+		"// goalUp = unit(cross(cross(goalView , <<0,1,0>>) , goalView )) ;\r"
+		);
+	dynamics.appendToDynExpression( $particle, $expr, " TUMBLER ", 1);
+
+}
+
+proc tumbler.createRuntimeAfterExpression(string $particle,string $tumbler) {
+	
+
+	string $expr = ( "phi = "+$tumbler+".outPhi;\n"+
+	  "omega  = "+$tumbler+".outOmega;\n" +
+	  "view  = "+$tumbler+".outFront;\n" +
+	  "upVector  = "+$tumbler+".outUp;\n" +
+	  "rotation = "+$tumbler+".outRotation;\n"
+		);
+	
+	dynamics.appendToDynExpression( $particle, $expr, " TUMBLER ", 2);
+}
+
+global proc tumbler.dynamicConnections(string $p,string $t) {
+	string $connectionPairs[] = {
+		"goalView:goalFrontVector",
+		"goalUp:goalUpVector",
+		"phi:phi",
+		"omega:omega"
+	};
+	attr.connectPairs($p, $t, $connectionPairs);
+	
+	connectAttr -f "time1.o" ($t+".currentTime");
+}
+
+proc tumbler.configDefaults(string $tumbler) {
+	
+	setAttr  ($tumbler+".angularUnit") 0 ;
+	setAttr  ($tumbler+".conserveSpin") 0.85 ;
+
+
+
+}
+
+global proc tumbler.create() {
+	
+	string $particle = selection.firstOfType("particle");
+	
+	string $tumbler = `createNode "tumbler" -n "tumbler"`;
+
+	tumbler.addAttrs( $particle);
+	
+	tumbler.createCreationExpression($particle);
+
+	tumbler.createRuntimeBeforeExpression( $particle);
+
+	tumbler.createRuntimeAfterExpression( $particle,$tumbler);
+
+
+
+	tumbler.dynamicConnections( $particle,$tumbler);
+
+	tumbler.configDefaults( $tumbler);
+	
+ 	tumbler.attachDiagnostics( $particle,  $tumbler);
+
+	setAttr  ($tumbler+".angularUnit") 0 ;
+
+}

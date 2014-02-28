@@ -1,0 +1,33 @@
+global proc fn_pp.init(string $moduleName) {
+	
+	string $moduleMenu = module.menuName( $moduleName );
+
+	setParent -m $moduleMenu;
+
+	// make some menu items under the math_pp menu
+	//menuItem -l "Create a menu item" -c "command" ;
+	//menuItem -l "Create another menu item" -c "command" ;
+
+	// make some menu items under the menu: math_pp->Foo->Bar
+	module.subMenu($moduleMenu, "FnPP|Insert");
+
+	string $nodes[] =  {"multPP", "addPP" , "lookupPP" , "rampLookupPP" , "reversePP" ,"binormalPP" ,"crossPP" ,"orthogonalPP", "coordSysComponentPP" };
+	$nodes = sort($nodes);
+	for ($n in $nodes) { 
+		menuItem -l $n -c ("fnPP.insert(\""+$n+"\")");
+	} 
+	
+
+	setParent -m $moduleMenu;
+
+	module.subMenu($moduleMenu, "FnPP|Create");
+	$nodes = `pluginInfo -q -dn "FnPp"`;
+	for ($n in $nodes) { 
+		menuItem -l $n -c ("fnPP.create(\""+$n+"\")");
+	} ;
+
+	setParent -m $moduleMenu;
+
+
+}
+

@@ -1,0 +1,22 @@
+---
+name: FlockProject
+templates:
+- release
+- doc
+default_erb_files:
+- README.*
+- LICENSE.*
+os_darwin64:
+  release_script_copy_files:
+  - resource/*.sh
+os_linux64:
+  release_script_copy_files:
+  - resource/*.sh
+os_win64:
+  release_script_copy_files:
+  - resource/*.BAT
+requirements:
+- name: maya
+  version: ==2014
+- name: litter
+  version: ! '>=0.1.0'

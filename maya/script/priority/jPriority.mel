@@ -1,0 +1,41 @@
+
+// TO
+global proc jConnectSignalToPriority () {
+	string $sel[] = `ls -sl`;
+	int $siz = size($sel);
+	string $last[] = `ls -dag -leaf -type "prioritize" $sel[($siz-1)]`;
+	string $pr = $last[0];
+	if (size($last)){
+		for ($i=0;$i<($siz-1);$i++) {
+			int $prid  = attr.findNextUnconnectedIndex( $pr+".inputData");
+			string $srcAtt = dynamics.getOutSignalAttr($sel[$i]);
+			if ($srcAtt != "") {
+				connectAttr $srcAtt (  $pr +".inputData["+$prid+"].inSignal");
+				//string $rev = `createNode "reverse"`;
+				//connectAttr  (  $pr +".inputData["+$prid+"].active")   ($rev +  ".inputX");
+				//connectAttr -f  ($rev +  ".output")  ($sel[$i] +".nodeState");
+			}
+		}
+	}
+}
+
+
+global proc jRedirectThroughPriority(){
+	string $fields[] = `ls -sl -type field`;
+	for ($f in $fields){
+		string $conns[] = `listConnections -d 1 -s 0 -p 1 -c 1 ($f + ".outputForce")`;
+		int $siz = size($conns);
+		for ($i = 0; $i<$siz ; $i+=2) {
+			string $particle = attr.nodeFromNodeAttr($conns[($i+1)]);
+			string $brains[] = `listHistory $particle`;
+			if (size($brains)) $brains = `ls -type "prioritize" $brains`;
+			if (size($brains)) {
+				string $brain = $brains[0];
+				int $prid  = attr.findNextUnconnectedIndex( $brain +".inputData");
+				disconnectAttr  $conns[$i] $conns[($i+1)];
+				connectAttr $conns[$i] (  $brain  +".inputData["+$prid+"].inSignal");
+			}
+		}	
+	}
+}
+

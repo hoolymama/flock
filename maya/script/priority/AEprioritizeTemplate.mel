@@ -1,0 +1,324 @@
+
+
+global proc AEprioritizeNew (string $nodeAttr) {
+	
+	setUITemplate -pst attributeEditorTemplate;
+
+
+	
+
+	string $nodeName = attr.nodeFromNodeAttr($nodeAttr);
+	string $controlName = AE.controlNameFromNodeAttr($nodeAttr); 
+	
+	//string $conns[] =  `listConnections  -c 1 $nodeAttr`;
+	
+	// int $siz = `size $conns`;
+	//string $buff[];
+	// string $control;
+	button -label "Add Input" ($controlName+"BTN");
+	columnLayout -adj 1 $controlName;
+	
+	setParent ..;
+	AEprioritizeReplace($nodeAttr);
+	
+	setUITemplate -ppt;
+	
+}
+proc float[] getRGBVal(string $frame) {
+	string $forms[] =  `layout -q -ca $frame`; 
+	setParent $forms[0];
+	float $col[] = `attrColorSliderGrp -q -rgb "cSlider"`;
+	return $col;
+}
+
+proc string getCon(string $frame) {
+	string $forms[] =  `layout -q -ca $frame`; 
+	setParent $forms[0];
+	string $nodeAttr = `attrColorSliderGrp -q -at "cSlider"`;
+	//print ($nodeAttr +"\n");
+	string $node = attr.nodeFromNodeAttr($nodeAttr);
+	int $plugIndex = attr.plugIndexFromPlug( $nodeAttr );
+	//print  ($node+".inputData["+$plugIndex+"].inSignal");
+	string $con = `connectionInfo -sfd ($node+".inputData["+$plugIndex+"].inSignal")`;
+	return $con;
+}
+
+global proc AEprioritizeSelectInputNode (string $controlName ) {
+
+	string $form = `symbolButton -q -parent $controlName`;
+	setParent $form;
+	string $nodeAttr = `attrColorSliderGrp -q -at "cSlider"`;
+	string $node = attr.nodeFromNodeAttr($nodeAttr);
+	int $plugIndex = attr.plugIndexFromPlug( $nodeAttr );
+	string $con = `connectionInfo -sfd ($node+".inputData["+$plugIndex+"].inSignal")`;
+	$node = attr.nodeFromNodeAttr($con);
+	//print ("NNNNNNNNNN " + $node +"\n");
+	select -r $node;
+}
+
+
+proc int getPlugIndex(string $frame) {
+	string $forms[] =  `layout -q -ca $frame`; 
+	setParent $forms[0];
+	string $nodeAttr = `attrColorSliderGrp -q -at "cSlider"`;
+	int $plugIndex = attr.plugIndexFromPlug( $nodeAttr );
+	return $plugIndex;
+}
+
+proc int getActive(string $frame) {
+	string $forms[] =  `layout -q -ca $frame`; 
+	setParent $forms[0];
+	string $nodeAttr = `attrColorSliderGrp -q -at "cSlider"`;
+	int $plugIndex = attr.plugIndexFromPlug( $nodeAttr );
+	string $node = `attr.nodeFromNodeAttr $nodeAttr`;
+	return `getAttr ($node+".inputData["+$plugIndex+"].active")`;
+}
+
+global proc  AEprioritizeSwapPriority( string $parent, int $index1, int $index2) {
+	string $frames[] = `layout -q -ca $parent`; // frames
+	string $forms[] =  `layout -q -ca $frames[$index1]`; 
+	setParent $forms[0];
+	string $nodeAttr = `attrColorSliderGrp -q -at "cSlider"`;
+	string $node = attr.nodeFromNodeAttr($nodeAttr);
+	
+	setParent $parent;
+	
+	string $frame1 = $frames[$index1];
+	float $col1[] = getRGBVal($frame1);
+	string $con1 = getCon($frame1);
+	int $plug1 = getPlugIndex($frame1);
+	int $active1 = getActive($frame1);
+	
+	string $frame2 = $frames[$index2];
+	float $col2[] = getRGBVal($frame2);
+	string $con2 = getCon($frame2);
+	int $plug2 = getPlugIndex($frame2);
+	int $active2 = getActive($frame2);
+	
+	connectAttr -f $con1 ($node+".inputData["+$plug2+"].inSignal");
+	setAttr  ($node+".inputData["+$plug2+"].drawColor") $col1[0] $col1[1] $col1[2];
+	setAttr  ($node+".inputData["+$plug2+"].active") $active1;
+	
+	connectAttr -f $con2 ($node+".inputData["+$plug1+"].inSignal");
+	setAttr  ($node+".inputData["+$plug1+"].drawColor") $col2[0] $col2[1] $col2[2];
+	setAttr  ($node+".inputData["+$plug1+"].active") $active2;
+
+	
+	AEprioritizeReplace($node + ".inputData");
+}
+
+proc setEnabledArrowStates(string $parent){
+	
+	string $frames[] = `layout -q -ca $parent`; // frames
+	int $numFrames = size($frames);
+	for ($i=0; $i<$numFrames;$i++ ) {
+		string $forms[] =  `layout -q -ca $frames[$i]`; 
+		setParent $forms[0];
+		symbolButton -e -en 1 "prioritizeUpBtn";
+		symbolButton -e -en 1 "prioritizeDownBtn";
+		if ($i == 0) symbolButton -e -en 0 "prioritizeUpBtn"; // top cant move up
+		if ($i == ($numFrames-1)) symbolButton -e -en 0 "prioritizeDownBtn"; // bottom cant move down
+	}
+}
+
+
+proc createSignalFrame(string $parent) {
+	setParent $parent;
+	frameLayout -cll 0 -lv 0  -borderStyle "etchedOut";
+	
+
+	
+	string $form = `formLayout ` ;
+	attrColorSliderGrp -sb 0 -cw4  150 60 50 1  "cSlider";
+	
+	checkBox  -w 20 -l "" "activeCB";
+	
+	symbolButton  -h 10 -image "upArrow.xpm" "prioritizeUpBtn";
+	symbolButton -h 10 -image "downArrow.xpm" "prioritizeDownBtn";
+	string $s = `symbolButton -h 10 -image "select.xpm" "prioritizeSelectBtn"` ;
+	
+	symbolButton -e -c ("AEprioritizeSelectInputNode " + $s  ) $s ;
+	// symbolButton -h 10 -image "selectObj.xpm" "prioritizeSelectBtn";
+	
+	
+	formLayout -e 
+
+
+		-attachPosition	"activeCB"  "right" 2 10
+		-attachForm		"activeCB" "left" 2  
+		-attachForm		"activeCB" "top" 2
+		-attachForm		"activeCB" "bottom" 2
+
+		-attachNone		"cSlider" "right"  
+		-attachControl	"cSlider" "left" 2 "activeCB"
+		-attachForm		"cSlider" "top" 2
+		-attachForm		"cSlider" "bottom" 2
+
+		-attachForm		"prioritizeUpBtn" "top" 2
+		-attachNone			"prioritizeUpBtn" "right" 
+		-attachPosition	"prioritizeUpBtn" "bottom" 2 50
+		-attachControl		"prioritizeUpBtn" "left" 2 	"cSlider"
+		
+		-attachPosition	 	"prioritizeDownBtn" "top" 2 50
+		-attachNone			"prioritizeDownBtn" "right"   
+		-attachForm			"prioritizeDownBtn" "bottom" 2
+		-attachControl		"prioritizeDownBtn" "left" 2 	"cSlider"
+				
+		-attachForm	 	"prioritizeSelectBtn" "top" 2 
+		-attachForm		"prioritizeSelectBtn" "right"   1
+		-attachForm		"prioritizeSelectBtn" "bottom" 2
+		-attachControl	"prioritizeSelectBtn" "left" 2 	"prioritizeDownBtn"
+		
+		
+		
+	$form;
+}
+
+global proc AEprioritizeReplace (string $nodeAttr) {
+	setUITemplate -pst attributeEditorTemplate;
+	string $node = attr.nodeFromNodeAttr($nodeAttr);
+	string $controlName = AE.controlNameFromNodeAttr($nodeAttr); 
+	string $conns[];
+	button -e -c ("AEprioritizeAddSignalInput "+ $node) ($controlName+ "BTN");
+	
+	// this is a hack because listConnections is broken
+	//////////////////////
+	string $atts[] = `listAttr -m ($nodeAttr)`;
+	for ($att in $atts) {
+		string $buff[];
+		int $nt = `tokenize $att "." $buff`;
+		if ($buff[($nt-1)] == "inSignal") {
+			
+			
+			string $con = `connectionInfo -sfd ($node+"."+$att)`;
+			if (size($con)) {
+				$conns[size($conns)] = ($node+"."+$att);
+				$conns[size($conns)] = $con;
+			}
+		}
+	}
+	//////////////////////
+	/*
+	 Now have connections that go
+	 pri.id[0].is  sen0.ass  pri.id[1].is  sen1.ass ....
+	 */
+	
+	int $doubleNumConns = size($conns) ;
+	int $numConns = $doubleNumConns / 2;
+	string $frames[] = `layout -q -ca $controlName`;
+	int $numExistingConns = size($frames);
+	int $change = $numConns - $numExistingConns;
+	if ($change > 0) { // push
+		
+		for ($i = 0;$i<$change;$i++) {
+			createSignalFrame($controlName);
+		}
+	} else if ($change < 0) { // pop
+		
+		for ($i = 1;$i<=($change*-1);$i++) {
+			deleteUI $frames[($numExistingConns - $i)];
+		}
+	}
+	
+	setEnabledArrowStates($controlName);
+	
+	$frames = `layout -q -ca $controlName`;
+	$numExistingConns = size($frames);	
+
+	if ($numExistingConns !=  $numConns) {
+		error("something went wrong with pop and push - bailing out");
+		return;
+	} 
+	
+	setParent $controlName;
+	for ($i=0; $i<$numConns; $i++) {
+		string $priConn =  $conns[($i*2)];
+		string $srcConn =  $conns[(($i*2)+1)];
+		string  $srcNode =  attr.nodeFromNodeAttr($srcConn);
+		
+		int $plugIndex = attr.plugIndexFromPlug( $priConn );
+		string $children[] = `layout -q -ca $frames[$i] `; // the form
+		setParent $children[0];
+		
+		attrColorSliderGrp -e -at ($node+".inputData["+$plugIndex+"].drawColor") -l $srcNode "cSlider";
+		button -e -c ("AEprioritizeSwapPriority " + $controlName+ " " + $i + " " + ($i - 1)     ) "prioritizeUpBtn";
+		button -e -c ("AEprioritizeSwapPriority " + $controlName+ " " + $i + " " + ($i+ 1)     ) "prioritizeDownBtn";
+		connectControl "activeCB" ($node+".inputData["+$plugIndex+"].active");
+	}
+	
+	setParent $controlName;
+	setParent ..;
+
+	setUITemplate -ppt;
+
+}
+
+global proc  AEprioritizeAddSignalInput(string $node){
+	int $prid  = attr.findNextUnconnectedIndex( $node+".inputData");
+	setAttr ( $node+".inputData["+$prid+"].active") 1;
+	print ( $node+".inputData["+$prid+"] is now available to connect and active" );
+}
+
+
+
+global proc AEprioritizeTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+
+	editorTemplate -cl 0  -beginLayout "Input Signal Priority";		
+	editorTemplate -addControl "maxSignal";	
+	editorTemplate -callCustom	"AEprioritizeNew" "AEprioritizeReplace" "inputData" ;
+	editorTemplate -addControl "magnitude";	
+	editorTemplate -endLayout;
+	
+	editorTemplate  -cl 0 -beginLayout "Diagnostic Display" ;
+	editorTemplate -addControl "drawStyle";
+	editorTemplate -addControl "sampleBy";
+	editorTemplate -addControl "graphHeight";
+	editorTemplate -addControl "graphWidth";
+	editorTemplate -addControl "xOffset";
+	editorTemplate -addControl "yOffset";		
+	editorTemplate -addControl "glyphScale";		
+	editorTemplate -endLayout;	
+	
+	editorTemplate -addExtraControls;
+	// supressed attributes
+	AElocatorInclude $nodeName;
+	
+	editorTemplate -suppress "positionPP" ;
+	editorTemplate -suppress "useObjectColor" ;
+	editorTemplate -suppress "objectColor" ;
+	editorTemplate -suppress "nodeState"; 
+	editorTemplate -suppress "visibility"; 
+	editorTemplate -suppress "intermediateObject"; 
+	editorTemplate -suppress "lodVisibility"; 
+	editorTemplate -suppress "instObjGroups";  
+	editorTemplate -suppress "compInstObjGroups"; 
+	
+	editorTemplate -suppress "caching";
+	editorTemplate -suppress "template";
+	editorTemplate -suppress "drawOverride" ;
+	editorTemplate -suppress "renderInfo" ;
+	editorTemplate -suppress "motionBlur" ;
+	editorTemplate -suppress "visibleInReflections" ;
+	editorTemplate -suppress "visibleInRefractions" ; 
+	editorTemplate -suppress "castsShadows" ;
+	editorTemplate -suppress "maxVisibilitySamplesOverride";
+	editorTemplate -suppress "maxVisibilitySamples";
+	editorTemplate -suppress "geometryAntialiasingOverride";
+	editorTemplate -suppress "antialiasingLevel";
+	editorTemplate -suppress "shadingSamplesOverride";
+	editorTemplate -suppress "shadingSamples";
+	editorTemplate -suppress "maxShadingSamples";
+	editorTemplate -suppress "volumeSamplesOverride";
+	editorTemplate -suppress "volumeSamples";
+	editorTemplate -suppress "primaryVisibility";
+	
+	editorTemplate -suppress "localPosition";
+	
+	editorTemplate -suppress  "inputData";
+	editorTemplate -suppress  "outSignal";
+	editorTemplate -endScrollLayout;
+		
+	
+}

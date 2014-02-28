@@ -1,0 +1,22 @@
+---
+## title, author, email, creation time, and description will be set automatically at compile time. 
+## Uncomment the lines below only if you want to override these fields.
+# title: Alternative title
+# author: Someone Else
+# email: someone.else@example.com
+# created_at: 30 April 2012
+# description: Learn how to use this tool.
+---
+
+h4. Flock is a Maya tool that will fill some geometry with bricks.
+
+
+Gulp currently provides:
+
+* VoxelPreviewShape - Wrap some geometry onto some other geometry.
+* VoxelMesh - Deform geometry based on 2d or 3d textures.
+
+Installation is "easy":install_guide.html
+
+
+

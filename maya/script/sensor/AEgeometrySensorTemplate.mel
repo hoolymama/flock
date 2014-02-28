@@ -1,0 +1,32 @@
+
+
+global proc AEgeometrySensorTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+	
+	
+	AEsensorInclude($nodeName);
+	
+	
+	editorTemplate -cl 0  -beginLayout "Sample Attributes";		
+	editorTemplate -addControl "numSamples";	
+	editorTemplate -addControl "seed";	
+	editorTemplate -endLayout;
+	
+	
+	editorTemplate -cl 0  -beginLayout "Geometry Attributes";		
+	editorTemplate -addControl "surfaceTangent";	
+	editorTemplate -addControl "surfaceNormal";	
+	editorTemplate -addControl "viewDirection";	
+	editorTemplate -endLayout;
+	
+	
+	editorTemplate -cl 0  -beginLayout "Optimization Attributes";		
+	editorTemplate -addControl "inBoundingBox";	
+	editorTemplate -addControl "useBoundingBox";	
+	editorTemplate -endLayout;
+
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}

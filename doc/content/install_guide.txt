@@ -1,0 +1,41 @@
+---
+## author, email, creation time, and description will be set automatically at compile time. 
+## Uncomment the lines below only if you want to override these fields.
+# title: Alternative title
+# author: Someone Else
+# email: someone.else@example.com
+# created_at: 21 March 2012
+# description: Learn how to use this tool.
+type: Install Guide
+---
+
+h3. Install
+
+Make sure your MAYA_MODULE_PATH contains this directory:
+
+bc. gulp/<version>/maya/modules
+
+And because *gulp* depends on *jlib*, it should also contain this directory:
+
+bc. jlib/<latest-jlib-version>/maya/modules
+
+You can do this in your env.csh or .tcshrc by adding the following lines:
+
+bc. setenv JLIB_PROJECT_PATH "<path_to_jlib_intallation>/jlib/<version>"
+setenv MAYA_MODULE_PATH ${JLIB_PROJECT_PATH}/maya/modules:${MAYA_MODULE_PATH}
+setenv GULP_PROJECT_PATH "<path_to_intallation>/gulp/<version>"
+setenv MAYA_MODULE_PATH ${GULP_PROJECT_PATH}/maya/modules:${MAYA_MODULE_PATH}
+
+Or in .bashrc:
+
+bc. export JLIB_PROJECT_PATH="<path_to_jlib_intallation>/gulp/<version>"
+export MAYA_MODULE_PATH=${JLIB_PROJECT_PATH}/maya/modules:${MAYA_MODULE_PATH}
+export GULP_PROJECT_PATH="<path_to_intallation>/gulp/<version>"
+export MAYA_MODULE_PATH=${GULP_PROJECT_PATH}/maya/modules:${MAYA_MODULE_PATH}
+
+Next time you load maya you should see a *Gulp* submenu in the *Litter* menu in the main menu bar.
+
+h3. Done
+
+Have Fun!
+

@@ -1,0 +1,6 @@
+global proc string fnPP.create(string $node) {
+	string $sel[] = `ls -sl`;
+	string $n = `createNode $node`;
+	connectWindowWith $sel[0] $n;
+	return $n;
+}

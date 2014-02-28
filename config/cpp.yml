@@ -1,0 +1,151 @@
+os_linux64:
+    compiler:               'gcc'
+    linker:                 'g++'
+    archiver:               '/usr/bin/ar rv'
+    target_extension: 		''
+    dso_options:
+    -                       '-shared'
+    include_paths:
+    -                       '/usr/X11R6/include'
+    -                       '/usr/include'
+    libs: []
+    lib_paths:
+    -                       '/usr/lib64'
+    -                       '/usr/X11R6/lib'
+    libpath_flag:           '-L'
+    framework_flag:         '-l'
+    lib_flag:               '-l'
+    include_flag:           '-I'
+    object_flag:            '-o '
+    outputfile_flag:        '-o '
+    object_extension:       'o'
+    lib_ext:                ''
+    compiler_options:
+    - '-DBits64_'
+    - '-m64'
+    - '-DUNIX'
+    - '-DLINUX'
+    - '-DFUNCPROTO'
+    - '-D_GNU_SOURCE'
+    - '-DLINUX_64'
+    - '-D_BOOL'
+    - '-fPIC'
+    - '-DREQUIRE_IOSTREAM'
+    - '-DRedHat8_'
+    - '-fno-strict-aliasing'
+    - '-funsigned-char'
+    - '-fno-gnu-keywords'
+    - '-ftemplate-depth-25'
+    - '-pthread'
+    - '-c'
+    configuration_debug:
+        compiler_options:
+        -                   '-g3'
+        -                   '-O0'
+    configuration_release:
+        compiler_options:
+        -                   '-O3'
+        
+os_darwin64:
+    compiler:              '/usr/bin/gcc'
+    linker:                 '/usr/bin/g++'
+    archiver:              '/usr/bin/libtool  -static -arch_only i386'
+    target_extension: 		''
+    dso_options:
+    -                       '-bundle'
+    include_paths:
+    -                       '/usr/include'
+    lib_paths:
+    -                       '/usr/lib'
+    framework_flag:          '-framework'
+    linker_options:
+    -                       '-arch  x86_64'
+    object_flag:            '-o '
+    outputfile_flag:        '-o '
+    libs: []
+    lib_flag:               '-l'
+    libpath_flag:           '-L'
+    include_flag:           '-I'
+    lib_ext:                ''
+    object_extension:       'o'
+    compiler_options:
+    -                       '-arch  x86_64'
+    -                       '-x c++'
+    -                       '-DCC_GNU_'
+    -                       '-DOSMac_'
+    -                       '-DOSMacOSX_'
+    -                       '-DOSMac_MachO_'
+    -                       '-DOSX'
+    -                       '-DAW_NEW_IOSTREAMS'
+    -                       '-D_BOOL'
+    -                       '-DREQUIRE_IOSTREAM'
+    -                       '-D_LANGUAGE_C_PLUS_PLUS'
+    -                       '-Wno-trigraphs'
+    -                       '-c'
+    configuration_debug:
+        compiler_options:
+        -                   '-g3'
+        -                   '-O0'
+    configuration_release:
+        compiler_options:
+        -                   '-O3'
+
+os_win64:
+    compiler:               'C:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/bin/amd64/cl.exe'
+    linker:                 'C:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/bin/amd64/link.exe'
+    archiver:               'C:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/bin/amd64/lib.exe'
+    include_paths:
+    -                       'C:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/include'
+    -                       'C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Include'
+    lib_paths:
+    -                       'C:/Program Files (x86)/Microsoft Visual Studio 10.0/VC/lib/amd64'
+    -                       'C:/Program Files (x86)/Microsoft SDKs/Windows/v7.0A/Lib/x64'
+    dso_options:
+    -                       '/DLL'
+    libs: []
+    lib_ext:                '.lib'
+    lib_flag:               ''
+    libpath_flag:           '/LIBPATH:'
+    framework_flag:         ''
+    include_flag:           '/I'
+    object_flag:            '/Fo'
+    outputfile_flag:        '/OUT:'
+    object_extension:       'obj'
+    target_extension: 		''
+    linker_options:
+    -                       '/OPT:NOREF'
+    -                       '/INCREMENTAL:NO'
+    -                       '/MACHINE:X64'
+    -                       '/DYNAMICBASE'
+    -                       '/NXCOMPAT'
+    compiler_options:
+    -                       '/c'
+    -                       '/nologo'
+    -                       '/Ob1'
+    -                       '/Gy'
+    -                       '/MT'
+    -                       '/GR'
+    -                       '/EHs'
+    -                       '/TP'
+    -                       '/EHsc'
+    -                       '/DNDEBUG'
+    -                       '/DNT_PLUGIN'
+    -                       '/FD'
+    -                       '/D_CRT_SECURE_NO_WARNINGS'
+    -                       '/fp:precise'
+    -                       '/Gd'
+    -                       '/DWIN_NT'
+    -                       '/DWIN32'
+    -                       '/D_WIN32'
+    -                       '/D_WINDOWS'
+    -                       '/D_WINDLL'
+    -                       '/DBits64_'
+    -                       '/D_WIN64'
+    -                       '/D_LANGUAGE_C_PLUS_PLUS'
+    -                       '/W3'
+    configuration_debug:
+        compiler_options:
+        -                   '/Z7'
+    configuration_release:
+        compiler_options:
+        -                   '/O2'

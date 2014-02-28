@@ -1,0 +1,29 @@
+global proc AEmeshProximityPPTemplate(string $nodeAttr) {
+	string $nodeName = attr.nodeFromNodeAttr( $nodeAttr);
+	editorTemplate -beginScrollLayout;
+
+	editorTemplate -beginLayout "Attributes" -collapse 0;
+	editorTemplate -addControl "side";
+
+	editorTemplate -addControl "magnitude";
+	editorTemplate -addControl "falloffDistance";
+
+	editorTemplate -addControl "defaultAlpha";	
+	
+	AEaddRampControl ($nodeName+".falloffFunction");
+
+
+	editorTemplate -endLayout;
+
+
+	AEdependNodeTemplate $nodeName;
+
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+
+	editorTemplate -suppress "positions";
+	editorTemplate -suppress "mesh";
+
+
+}

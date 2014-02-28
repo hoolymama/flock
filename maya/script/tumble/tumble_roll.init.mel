@@ -1,0 +1,40 @@
+global proc tumble_roll.init(string $moduleName) {
+	
+	string $moduleMenu = module.menuName( $moduleName );
+
+	setParent -m $moduleMenu;
+
+
+	module.subMenu($moduleMenu, "Tumbler");
+	
+		menuItem -l "Create" 
+	-annotation "Select particles"
+	-c "tumbler.create" ;
+
+	menuItem -l "Add Field as Torque" 
+	-annotation "Select a tumbler and one or more fields"
+	-c "tumbler.addField(0)" ;
+	
+	menuItem -l "Add Field as Impulse" 
+	-annotation "Select a tumbler and one or more fields"
+	-c "tumbler.addField(1)"  ;
+	
+	menuItem -l "Add GoalWeightPP" 
+	-annotation "Select a tumbler"
+	-c "tumbler.addGoalWeightPP" ;
+
+	menuItem -l "Create Diagnostics" 
+	-annotation "Select tumbler"
+	-c "tumbler.attachDiagnosticsFromSel()" ;
+
+	setParent -m $moduleMenu;
+
+	module.subMenu($moduleMenu, "Roller");
+	
+	menuItem -l "Create" 
+	-annotation ("Pick Some Particles") 
+	-c "roller.create();";
+	
+
+}
+
