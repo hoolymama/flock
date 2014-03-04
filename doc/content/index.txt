@@ -8,15 +8,14 @@
 # description: Learn how to use this tool.
 ---
 
-h4. Flock is a Maya tool that will fill some geometry with bricks.
+h4. <%= item[:product_name] %> is a collection of artificial life tools.
 
+The word *<%= item[:product_name] %>* is a collective noun for birds, camels, sheep and lice.
 
-Gulp currently provides:
+<%= item[:product_name] %> provides:
 
-* VoxelPreviewShape - Wrap some geometry onto some other geometry.
-* VoxelMesh - Deform geometry based on 2d or 3d textures.
-
-Installation is "easy":install_guide.html
-
+* flockShape - A node clones an articulated rig.
+* sensors - inter agent sensor nodes.
+* fnPP - many per-agent math nodes.
 
 

@@ -1,23 +1,21 @@
 @import "include.scss";
 
-// html {
-// 	padding:0;
-// }
-
 body {
 	font-family: "Trebuchet MS", Helvetica, sans-serif;
 	font-size: 0.9em;
 	margin:0;
 	background-color:$c8;	
 	height: 100%;
+	line-height: 1.4em;
 }	
 
-p {display:block;}
+p {
+	display:block;
+
+
+}
 
 .page {		
-
-	
-
 	#header {
 		width: 100%;
 		height:3em;
@@ -63,10 +61,6 @@ border-bottom: 3px solid $c3;
 		color: $c4;	
 		font-weight: bold;
 	}
-	// h4 {	}
-
-
-
 
 	code {
 		font-size: 1.1em;
@@ -80,13 +74,9 @@ border-bottom: 3px solid $c3;
 	
 	pre {
 		width: 650px;
-			// min-width: 650px;
-			// max-width:650px;
 		overflow:auto;
-		// max-width:650px;
 		border : 1px solid $c3;
 		background-color:white;
-		// border-radius:5px;
 		display:inline-block;
 		padding: 0.05em 1em;
 	    code {
@@ -98,8 +88,6 @@ border-bottom: 3px solid $c3;
 	    }
 	}
 	
-	
-	
 
 	hr {
 		clear:both;
@@ -108,18 +96,16 @@ border-bottom: 3px solid $c3;
 	}
 
 	blockquote {
-
-		//	width: 90%;
-		background-color:white;
+		font-size: 0.9em;
+		background-color: $c6;
 		font-style: italic;
 		text-align: center;
+		padding: 8px;
 		padding-top: 3px;
 		padding-bottom: 3px;
-		padding: 20px;
-		border-radius: 10px 10px  10px 10px;
+		@include shadow_box;
+		
 	}
-
-
 
 	div.figure {
 		min-width:300px;
@@ -145,9 +131,9 @@ border-bottom: 3px solid $c3;
 
 
 	div.figure p{
-
 		margin:0px;
 	}
+
 	div.figure img {
 		margin-left: auto;
 		margin-right: auto;
@@ -185,18 +171,14 @@ border-bottom: 3px solid $c3;
 		display: block;
 	}
 
-
 	.illustration {
 		border: 1px solid $c10;
 		margin-left: 20px;
 		float: right;
 	}
 
-
-
-
 	#logos {
-		//	clear: both;
+
 		display:table-row;
 		padding:1em 0 0 1em;
 		li {
@@ -215,10 +197,6 @@ border-bottom: 3px solid $c3;
 
 	}
 
-	.meta_container {	
-		// border-bottom: 1px solid $borders_color;
-		// margin-top: 20px;
-	}
 	.metainfo {	
 
 		text-indent:2em;
@@ -258,11 +236,8 @@ border-bottom: 3px solid $c3;
 		border:0;
 		border-right: 1px solid $c5;
 		height:100%;
-		// margin-top: 0;
 		padding-bottom: 5em;
 		background-color: $c4;
-
-		/*font-family: "Helvetica Neue";*/
 		font-weight: bold;
 		font-stretch: condensed;
 		font-size: 1.2em;
@@ -297,7 +272,6 @@ border-bottom: 3px solid $c3;
 			width:90%;
 			border-color: $c4;
 		}
-
 	}
 
 	#footer {

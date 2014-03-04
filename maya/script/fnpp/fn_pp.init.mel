@@ -21,7 +21,7 @@ global proc fn_pp.init(string $moduleName) {
 	setParent -m $moduleMenu;
 
 	module.subMenu($moduleMenu, "FnPP|Create");
-	$nodes = `pluginInfo -q -dn "FnPp"`;
+	$nodes = `pluginInfo -q -dn "Flock"`;
 	for ($n in $nodes) { 
 		menuItem -l $n -c ("fnPP.create(\""+$n+"\")");
 	} ;

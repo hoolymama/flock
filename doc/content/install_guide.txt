@@ -9,31 +9,44 @@
 type: Install Guide
 ---
 
+<% productname_lower = item[:product_name].downcase %>
 h3. Install
 
-Make sure your MAYA_MODULE_PATH contains this directory:
+Move the <%= productname_lower %> directory into the place you keep your tools, for example:
 
-bc. gulp/<version>/maya/modules
+@/big/server/tools/<%= productname_lower %>/@ or @~/tools/<%= productname_lower %>/@
 
-And because *gulp* depends on *jlib*, it should also contain this directory:
+If <%= productname_lower %> already exists, just move the <%=item[:product_revision]%> directory in there. 
 
-bc. jlib/<latest-jlib-version>/maya/modules
+h3. Mac or Linux using bash
 
-You can do this in your env.csh or .tcshrc by adding the following lines:
+If you are using bash, you can run the install script found in:
 
-bc. setenv JLIB_PROJECT_PATH "<path_to_jlib_intallation>/jlib/<version>"
-setenv MAYA_MODULE_PATH ${JLIB_PROJECT_PATH}/maya/modules:${MAYA_MODULE_PATH}
-setenv GULP_PROJECT_PATH "<path_to_intallation>/gulp/<version>"
-setenv MAYA_MODULE_PATH ${GULP_PROJECT_PATH}/maya/modules:${MAYA_MODULE_PATH}
+bc. <%= productname_lower %>/<%=item[:product_revision]%>/config/INSTALL.sh
 
-Or in .bashrc:
+This will set up your .bashrc file to source ~/.flak - a file that manages this and related tools.
 
-bc. export JLIB_PROJECT_PATH="<path_to_jlib_intallation>/gulp/<version>"
-export MAYA_MODULE_PATH=${JLIB_PROJECT_PATH}/maya/modules:${MAYA_MODULE_PATH}
-export GULP_PROJECT_PATH="<path_to_intallation>/gulp/<version>"
-export MAYA_MODULE_PATH=${GULP_PROJECT_PATH}/maya/modules:${MAYA_MODULE_PATH}
+h3. Windows
 
-Next time you load maya you should see a *Gulp* submenu in the *Litter* menu in the main menu bar.
+Open a command prompt and run the install script, which can be found in:
+
+bc. <%= productname_lower %>/<%=item[:product_revision]%>\config\INSTALL.BAT
+
+This will create a module file: Documents\maya\modules\<%= productname_lower %>.
+
+Next time you start maya the <%= productname_lower %> module will be available.
+
+h3. Activate in Maya.
+
+As <%= item[:product_name] %> contains a plug-in you should load it in the plug-in manager. You should then find a <%= item[:product_name] %> menu within the Litter menu. Within that menu you'll find access to tools in this module and a Help menu containing among other things a link to this documentation. If its not there, then something went wrong with the module path setup.
+
+h3. Notes on .flak
+
+This and other flak tools aim to keep themselves encapsulated. That is, all environment set up is contained within the package. Specifically this setup is in the file:
+
+bc. <%= productname_lower %>/<%=item[:product_revision]%>/config/env.sh
+
+However, the shell must somehow discover the module. So when you run INSTALL, a command is written in a file called ~/.flak that will source the env.sh file, and .bashrc will be made to point to .flak. If you use many modules in the collection you will see many lines in the .flak file. 
 
 h3. Done
 
