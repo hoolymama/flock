@@ -7,11 +7,11 @@ default_erb_files:
 - README.*
 - LICENSE.*
 os_darwin64:
-  release_script_copy_files:
-  - resource/*.sh
+  release_script_erb_files:
+  - resource/*.*sh.erb
 os_linux64:
-  release_script_copy_files:
-  - resource/*.sh
+  release_script_erb_files:
+  - resource/*.*sh.erb
 os_win64:
   release_script_copy_files:
   - resource/*.BAT
