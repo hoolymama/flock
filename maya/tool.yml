@@ -5,6 +5,8 @@ maya_script_copy_files:
 maya_python_script_copy_files:
 - script/**/*.py
 - script/**/*.pyc
+maya_python_script_erb_files:
+- script/**/*.py.erb
 maya_python_script_relative: maya/script
 maya_scripted_plugin_copy_files:
 - script/plugin/**/*.py
