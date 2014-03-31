@@ -8,10 +8,10 @@ default_erb_files:
 - LICENSE.*
 os_darwin64:
   release_script_erb_files:
-  - resource/*.*sh.erb
+  - resource/*.erb
 os_linux64:
   release_script_erb_files:
-  - resource/*.*sh.erb
+  - resource/*.erb
 os_win64:
   release_script_copy_files:
   - resource/*.BAT
