@@ -9,6 +9,7 @@
 type: Install Guide
 ---
 
+
 <% productname_lower = item[:product_name].downcase %>
 h3. Install
 
@@ -16,37 +17,36 @@ Move the <%= productname_lower %> directory into the place you keep your tools, 
 
 @/big/server/tools/<%= productname_lower %>/@ or @~/tools/<%= productname_lower %>/@
 
-If <%= productname_lower %> already exists, just move the <%=item[:product_revision]%> directory in there. 
+If <%= productname_lower %> directory already exists, just move the <%= item[:product_revision]%> directory inside the <%= productname_lower %> directory.
 
-h3. Mac or Linux using bash
+h3. Mac or Linux using bash or csh
 
-If you are using bash, you can run the install script found in:
+Run the install script found in:
 
 bc. <%= productname_lower %>/<%=item[:product_revision]%>/config/INSTALL.sh
 
-This will set up your .bashrc file to source ~/.flak - a file that manages this and related tools.
+This will set up the files flak.sh and flak.csh in the above mentioned tools directory. These files set versions for this and related tools and source the package specific environment files (env.sh and env.csh respectively), which are contained within the package.
+
+All that's left to do is source flak.sh or flak.csh from a shell resource file. This may be setup already from a previous installation, in which case you can ignore the next steps. 
+
+Add to .bashrc:
+
+bc. source /path/to/tools/flak.sh
+
+Add to .cshrc or .tcshrc:
+
+bc. source /path/to/tools/flak.csh
 
 h3. Windows
 
-Open a command prompt and run the install script, which can be found in:
-
-bc. <%= productname_lower %>/<%=item[:product_revision]%>\config\INSTALL.BAT
-
-This will create a module file: Documents\maya\modules\<%= productname_lower %>.
-
-Next time you start maya the <%= productname_lower %> module will be available.
+Windows instructions are not available at this time.
 
 h3. Activate in Maya.
 
-As <%= item[:product_name] %> contains a plug-in you should load it in the plug-in manager. You should then find a <%= item[:product_name] %> menu within the Litter menu. Within that menu you'll find access to tools in this module and a Help menu containing among other things a link to this documentation. If its not there, then something went wrong with the module path setup.
+If <%= item[:product_name] %> contains a userSetup.py it will automatically be sourced by Maya on start up. 
+If it contains a plug-in you will need to load the plug-in from the plug-in manager.
 
-h3. Notes on .flak
-
-This and other flak tools aim to keep themselves encapsulated. That is, all environment set up is contained within the package. Specifically this setup is in the file:
-
-bc. <%= productname_lower %>/<%=item[:product_revision]%>/config/env.sh
-
-However, the shell must somehow discover the module. So when you run INSTALL, a command is written in a file called ~/.flak that will source the env.sh file, and .bashrc will be made to point to .flak. If you use many modules in the collection you will see many lines in the .flak file. 
+You should then see a Litter menu in the menu bar, which will contain a sub-menu for this tool, in this case <%= item[:product_name] %>. Within that menu you'll find a Help menu containing an "About" sub-menu, and a "Documentation" sub-menu pointing to this documentation. If its not there, then something went wrong with the module path setup.
 
 h3. Done
 

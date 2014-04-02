@@ -173,22 +173,17 @@ end
 # ]
 
 def footer
-  str = 	'<div id="footer">'
-  # str += '&nbsp'
- # arr = LOGOS.collect do |logo|
-    #'<li class="footer_image"><a href="http://'+logo[0]+'"><img  src="site_images/'+ logo[1]+'" title="'+logo[2]+'" /></a></li>'
- # end
- # str += arr.join("\n")
+
+ str = 	'<div id="footer">'
  y = Time.now.strftime("%Y")
+ str += "<div>© #{y}</div>"
 
-  str += "<div>#{@item[:product_name]} © #{y} #{@item[:author]}.</div>" 
-  str += "<div>The content of the #{@item[:product_name]} documentation web site is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.</div>" 
-  str += "<div>#{@item[:product_name]} is licenced under the BSD licence.</div>"
-  # str += "<div>Theme designed by Julian Mann.</div>"
+ #  str += "<div>#{@item[:product_name]} © #{y} #{@item[:author]}.</div>" 
+ #  str += "<div>The content of the #{@item[:product_name]} documentation web site is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.</div>" 
+ #  str += "<div>#{@item[:product_name]} is licenced under the BSD licence.</div>"
+ #  str += '</div>'
 
-
-  str += '</div>'
-  str
+ str
 
 end
 
