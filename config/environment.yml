@@ -1,11 +1,11 @@
 ---
-configuration: debug
+configuration: release
 product_name: flock
 product_description: Artificial Life Toolkit
 configuration_debug:
   product_revision: ${FLAK_DEBUG_REVISION}
 configuration_release:
-  product_revision: 0.1.1
+  product_revision: 0.1.2
 author_name: Julian Mann
 author_email: julian.mann@gmail.com
 os_darwin64:
