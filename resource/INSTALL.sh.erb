@@ -29,26 +29,14 @@ echo ${product}" install directory is: ${product_install_dir}"
 
 the_product_dir=${product_install_dir}/${product_version}
 
-# add source .flak cmds to .bashrc and .
-# bashrc=${HOME}/.bashrc
-# if [ ! -f ${bashrc} ]; then
-# 	touch ${bashrc}
-# fi
-
-# flaksrc='# added by flak'
-# res=`grep "${flaksrc}" ${HOME}/.bashrc`
-# if [ -z "${res}" ]; then
-# 	echo "" >>   ${bashrc}
-# 	echo '[[ -s "$HOME/.flak" ]] && . "$HOME/.flak" # added by flak' >>  ${bashrc}
-# fi
-
 # setup for both sh and csh ...
 # remove old entries for this tool.
 # remove blank lines at top of .flak file.
-flaksh=${tools}/.flak.sh
+flaksh=${tools}/flak.sh
 if [ -f ${flaksh} ]; then
 	cp  ${flaksh}  ${flaksh}.${product}.bck
 	cat ${flaksh}.${product}.bck | grep -v "#.*added by ${product}" | sed '/./,$!d' > ${flaksh}
+	rm -rf ${flaksh}.${product}.bck
 else
 	touch ${flaksh}
 fi
@@ -70,10 +58,11 @@ echo ""
 echo "**************************************************************" 
 
 
-flaksh=${tools}/.flak.csh
+flaksh=${tools}/flak.csh
 if [ -f ${flaksh} ]; then
 	cp  ${flaksh}  ${flaksh}.${product}.bck
 	cat ${flaksh}.${product}.bck | grep -v "#.*added by ${product}" | sed '/./,$!d' > ${flaksh}
+	rm -rf ${flaksh}.${product}.bck
 else
 	touch ${flaksh}
 fi
