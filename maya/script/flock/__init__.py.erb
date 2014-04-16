@@ -1,10 +1,23 @@
 import os
-import pymel.mayautils as pyu
 import litter.mod as lm
 
-def load():
-    d=os.path.dirname(
-    	os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-    m = lm.LitterModule( module_dir=d , menu_annotation='<%= settings[:product_description]%>')
-    m.load()
+def load():
+    __load_mod__(True)
+
+def unload():
+    __load_mod__(False)
+
+def __load_mod__(load=True):
+	d=os.path.dirname(
+            os.path.dirname(
+            os.path.dirname(os.path.realpath(__file__))))
+
+    m = lm.LitterModule( 
+            module_dir=d, 
+            menu_annotation='<%= settings[:product_description]%>')
+            
+    if load:
+        m.load()
+    else:
+        m.unload()
