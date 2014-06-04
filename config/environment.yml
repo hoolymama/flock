@@ -5,7 +5,7 @@ product_description: Artificial Life Toolkit
 configuration_debug:
   product_revision: ${FLAK_DEBUG_REVISION}
 configuration_release:
-  product_revision: 0.1.2
+  product_revision: 0.1.3
 author_name: Julian Mann
 author_email: julian.mann@gmail.com
 os_darwin64:
