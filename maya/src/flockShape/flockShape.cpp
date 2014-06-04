@@ -21,6 +21,7 @@
 #include <maya/MFnUnitAttribute.h>
 #include <maya/MFnVectorArrayData.h>
 #include <maya/MFnNurbsSurfaceData.h>
+#include <maya/MArrayDataBuilder.h>
 #include <maya/MItDag.h>
 #include <maya/MColor.h>
 #include <maya/MMatrix.h>

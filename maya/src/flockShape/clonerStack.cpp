@@ -18,7 +18,7 @@
 #include <maya/MVectorArray.h>
 
 #include <maya/MArrayDataHandle.h>
-
+#include <maya/MArrayDataBuilder.h>
 
 #include "mayaMath.h"
 #include "flockShape.h"
