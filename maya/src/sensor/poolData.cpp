@@ -14,6 +14,8 @@
 //
 // Author: Julian Mann
 //
+
+#include <maya/MDataHandle.h>
 #include <maya/MFnVectorArrayData.h>
 #include <poolData.h>
 #include <errorMacros.h>

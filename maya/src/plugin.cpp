@@ -99,7 +99,7 @@ MStatus initializePlugin( MObject obj)
 
 	st = plugin.registerNode( "multPP", multPP::id, multPP::creator, multPP::initialize); er;
 	st = plugin.registerNode( "aimPP", aimPP::id, aimPP::creator, aimPP::initialize); er;
-	st = plugin.registerNode( "arrayToMulti", arrayToMulti::id, arrayToMulti::creator, arrayToMulti::initialize); er;
+	st = plugin.registerNode( "arrayMulti", arrayToMulti::id, arrayToMulti::creator, arrayToMulti::initialize); er;
 	st = plugin.registerNode( "lookupPP", lookupPP::id, lookupPP::creator, lookupPP::initialize); er;
 	st = plugin.registerNode( "rampLookupPP", rampLookupPP::id, rampLookupPP::creator, rampLookupPP::initialize); er;
 	st = plugin.registerNode( "extractElements", extractElements::id, extractElements::creator, extractElements::initialize); er;

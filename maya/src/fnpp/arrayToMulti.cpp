@@ -13,7 +13,7 @@
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnEnumAttribute.h>
-
+#include <maya/MArrayDataBuilder.h>
 #include <maya/MVectorArray.h>
 #include <maya/MDoubleArray.h>
 #include "errorMacros.h"

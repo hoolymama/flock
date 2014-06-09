@@ -12,7 +12,7 @@
 
 #include <maya/MAnimControl.h> 
 
-
+#include <maya/MArrayDataBuilder.h>
 #include "prioritize.h"
 #include "jMayaIds.h"
 

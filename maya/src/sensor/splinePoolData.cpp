@@ -20,11 +20,13 @@ splinePoolData.cpp  -  description
 //
 
 
+#include <maya/MDataHandle.h>
 #include <splineKdTree.h>
 #include <splineData.h>
 #include <splinePoolData.h>
 #include <errorMacros.h>
 #include "jMayaIds.h"
+
 #define EPSILON 0.0000001
 
 const double bigNum = 99999999999.0  ;
