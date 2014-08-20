@@ -3,22 +3,22 @@ include Nanoc::Helpers::LinkTo
 # Add more types if you need to, for example: Houdini SOP. 
 # Then set the :type field in the yaml section at the top of each help file of that type
 # Those pages will then appear in the sidebar menu
-TYPES = ["Tutorial","Maya Node","Maya Plugin Command","Maya MEL Command","Nuke Node", "Nuke Script"]
+TYPES = ["Tutorial","Maya Node","Maya Plugin Command","Maya MEL Command","Maya MEL Script","Python Script", "Nuke Node", "Nuke Script"]
 
 MODULE_TYPES = ["Index", "Release Notes", "Install Guide"]
 
 # create markup for the header
 def create_header
   body =  '<div id="header">'
-   body += "<ul>"
+  body += "<ul>"
   body += '<li class="brand">'
   body +=  @item[:product_name]
   body += '</li>'
   body += '<li class="tag">'
   body += "#{@item[:product_description]}"
   body += '</li>' 
-   body += "</ul>" 
-     body += "</div>" 
+  body += "</ul>" 
+  body += "</div>" 
 end
 
 # create markup for the metadata
@@ -54,11 +54,7 @@ def create_meta
 
   body += '</div>' 
 
-
-
 end
-
-
 
 # This helper displays a webm (HTML5) movie in a div with a title and caption. 
 # You can convert quicktime and other formats to webm with
@@ -83,6 +79,7 @@ end
 # This helper displays an image in a div with a title and caption. 
 # The image is resized by css if it is too big, however it will be a hyperlink to the full-size image.
 def figure_tag(title,caption,image,side)
+  @figure_counter ||= 0 
   figure_name = "Figure " + @figure_counter.to_s+'.'
   @figure_counter+=1
   body=""
@@ -94,16 +91,8 @@ def figure_tag(title,caption,image,side)
   body +='</div>'
 end
 
-
-
-
-
-
-
 # create one block for the table of contents with the given array of pages and the heading
 def toc_block(pages, heading)
-
-
 
   body =""
   if pages.length > 0

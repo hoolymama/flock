@@ -3,13 +3,15 @@
   box-shadow: 0px 2px  5px #606060;
 }
 
-$c1:  #6A2828;
+$c1:  #cc2579;
+$c1:  #aa2579;
+
 $c2:  #999; /* main and sidebar menu headings */
-$c3:  $c1*1.6;
-$c4:  #999; /* h3 headings */
+$c3:  $c1*0.7;
+$c4:  ($c1 *0.5) + ($c2 * 0.5); /* h3 headings */
 $c5:  #222;
-$c6:  #CCC;
-$c7:  $c5*1.6;
-$c8:  #E0E2EC;
+$c6:  #bbb;
+$c7:  #2A88ff;
+$c8:  #e0e0e0;
 $c9:  #e2e2e2;
-$c10: #c9c9c9;
+$c10: #888;
