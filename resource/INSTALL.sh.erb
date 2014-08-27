@@ -29,6 +29,22 @@ echo ${product}" install directory is: ${product_install_dir}"
 
 the_product_dir=${product_install_dir}/${product_version}
 
+#################################################################
+###### nasty hack alert! write maya module file if maya directory exists.
+# Why nasty hack? Because this file shouldn't need to know anything about maya or any app.
+# However, since maya's relative module mechanism is broken (linux 2015) and pre 2013
+# we need to ensure the module path is absolute and set at install time, not build time.
+######
+mayadir=${the_product_dir}/maya
+if [ -d ${mayadir} ]; then
++ <%= settings[:product_name]%> <%= settings[:product_revision]%> <%= settings[:revision_directory]%>/maya
+	echo "+ ${product} ${product_version} ${mayadir}" > ${mayadir}/module.mod
+fi
+#################################################################
+
+
+
+
 # setup for both sh and csh ...
 # remove old entries for this tool.
 # remove blank lines at top of .flak file.
