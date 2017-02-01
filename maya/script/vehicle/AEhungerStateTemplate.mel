@@ -1,0 +1,30 @@
+
+//
+//  Procedure Name:
+//	AEpressureValveTemplate
+//
+
+global proc AEhungerStateTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+
+	editorTemplate -beginLayout "Charge" -collapse 0;
+	editorTemplate -addControl "fullThreshold";
+	editorTemplate -addControl "defaultFeed";
+	editorTemplate -addControl "defaultSpend";
+	AEaddRampControl ($nodeName+".hungryFullRamp");	
+	
+	
+	editorTemplate -endLayout;	
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+
+	editorTemplate -suppress "feed";
+	editorTemplate -suppress "spend";
+	editorTemplate -suppress "foodLevel";
+	editorTemplate -suppress "updatedFoodLevel";
+	editorTemplate -suppress "hungry";
+	editorTemplate -suppress "updatedHungry";
+
+}

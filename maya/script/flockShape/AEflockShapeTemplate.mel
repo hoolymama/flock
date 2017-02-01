@@ -351,7 +351,7 @@ global proc AEflockShapeUserMapReplace(string $nodeAttribute){
 	}
 	
 	// now we have resolved the UI structure, fill in the labels and values
-	string $widgets[] =  `columnLayout -q -ca $controlName`;
+	$widgets =  `columnLayout -q -ca $controlName`;
 	int $mi[] = `getAttr -mi $nodeAttribute`;
 	int $siz = `size $mi`;
 	for ($i = 0;$i<$siz;$i++) {
@@ -413,7 +413,7 @@ global proc AEflockShapeUserVectorMapReplace(string $nodeAttribute){
 	}
 	
 	// now we have resolved the UI structure, fill in the labels and values
-	string $widgets[] =  `columnLayout -q -ca $controlName`;
+	$widgets =  `columnLayout -q -ca $controlName`;
 	int $mi[] = `getAttr -mi $nodeAttribute`;
 	int $siz = `size $mi`;
 	for ($i = 0;$i<$siz;$i++) {

@@ -1,0 +1,188 @@
+
+global  proc articulate.addAttrs(string $particle) {
+
+	string $atts[] = { 	"view:vectorArray",		
+		"upVector:vectorArray",
+		"deltaView:vectorArray",
+		"bend:doubleArray",
+		"deltaBend:doubleArray",
+		"flapAmplitude:doubleArray",
+		"effort:doubleArray",
+		"flapOffset:doubleArray",
+		"deltaArch:doubleArray",		
+		"arch:doubleArray"
+	};
+
+	attr.addAttrs( $particle,$atts);
+}
+
+
+proc articulate.createCreationExpression(string $particle) {
+
+	string $expr = (	"upVector = <<0,1,0>>;\n"+
+		"vector $initView = sphrand(1.0);\n"+
+		"view = unit(<< ($initView.x),0, ($initView.z)>>);\n"+
+		"deltaView = <<0,0,0>>;\n"+
+		"bend = 0;\n"+
+		"deltaBend = 0;\n"+
+		"flapAmplitude = 0;\n"+
+		"flapOffset = 0;\n"+
+		"effort = 0;\n"+
+		"deltaArch = 0;\n"+
+		"arch = 0;\n"	);
+	dynamics.appendToDynExpression( $particle, $expr, " ARTICULATE ", 0);
+
+}
+
+proc articulate.createRuntimeBeforeExpression(string $particle) {
+	string $expr = ( "vector $oldView = view;\n"+
+		"view = unit(velocity);\n"+
+		"deltaView = view - $oldView;\n"+
+		"upVector = unit(cross(cross(view , <<0,1,0>>) , view )) ;\n"
+		);
+	dynamics.appendToDynExpression( $particle, $expr, " ARTICULATE ", 1);
+
+
+}
+
+proc articulate.createRuntimeAfterExpression(string $particle,string $articulate) {
+
+	string $expr = (
+		"effort += "+$articulate+".outEffortPP;\n"+
+		"flapOffset += "+$articulate+".outFlapOffsetPP;\n"+
+		"flapAmplitude =  "+$articulate+".outFlapAmplitudePP;\n\n"+
+		"//  differentiate bend\n"+
+		"float $oldBend = bend;\n"+
+		"bend = "+$articulate+".outBendPP;\n"+
+		"deltaBend = bend - $oldBend;\n\n"+
+		"//  differentiate arch\n"+
+		"float $oldArch = arch;\n"+
+		"arch = "+$articulate+".outArchPP;\n"+
+		"deltaArch = arch - $oldArch;\n\n"
+		);
+
+	dynamics.appendToDynExpression( $particle, $expr, " ARTICULATE ", 2);
+
+}
+
+global proc articulate.dynamicConnections(string $p,string $a) {
+	string $connectionPairs[] = {
+		"inputForce[0]:thrustPP",
+		"velocity:velocityPP",
+		"upVector:upVectorPP",
+		"deltaView:deltaViewPP",
+		"view:viewPP",
+		"deltaBend:deltaBendPP",
+		"bend:bendPP",
+		"deltaArch:deltaArchPP",
+		"arch:archPP",
+		"effort:lastEffortPP"
+	};
+	
+	attr.connectPairs($p, $a, $connectionPairs);
+	
+	connectAttr -f "time1.o" ($a+".currentTime");
+
+}
+proc articulate.configDefaults(string $articulate) {
+
+	setAttr ($articulate+ ".dbn") yes;
+	setAttr -s 5 ($articulate+ ".blut[1:5]")  0.041 0.73 1 1 0.98 1 0 0 1 0.11 0.92 1 0.06 0.87 1;
+	setAttr ($articulate+ ".bmag") 2;
+	setAttr ($articulate+ ".bspr") 1;
+	setAttr ($articulate+ ".cbnd") 0.4;
+	
+	setAttr ($articulate+ ".dar") yes;
+	setAttr -s 5 ($articulate+ ".alut[0:4]")  0 0.2 1 0.5 0.5 1 1 0.8 1 0.65 0.65 1 0.35 0.35 1;
+	setAttr ($articulate+ ".armg") 10;
+	setAttr ($articulate+ ".aspr") 1;
+	setAttr ($articulate+ ".car") 0.4;
+	setAttr ($articulate+ ".effortAttak") 0.2;
+	setAttr ($articulate+ ".effortDecay") 0.1;
+	setAttr ($articulate+ ".car") 0.4;
+	
+	setAttr ($articulate+ ".thmx") 1000;
+	setAttr -s 4 ($articulate+ ".thlt[0:3]")  0 0 1 1 1 1 0.047 0.74 1 0.22 0.92 1;
+	setAttr ($articulate+ ".ddg") yes;
+	setAttr ($articulate+ ".vlmx") 500;
+	setAttr -s 4 ($articulate+ ".dglt[0:3]")  1 0.66 1 0.77 0.22 1 0.0078 0.02 1 0.37 0.06 1;
+	setAttr ($articulate+ ".efsp") 2;
+	setAttr ($articulate+ ".dfl") yes;
+	setAttr ($articulate+ ".foml") 0.8;
+	setAttr -s 4 ($articulate+ ".folt");
+	setAttr ($articulate+ ".folt[0:1]") 0.0078 0.1 1 1 0.58 1;
+	setAttr ($articulate+ ".folt[3:4]") 0.61 0.54 1 0.19 0.40 1;
+	setAttr ($articulate+ ".faml") 0.5;
+	setAttr -s 3 ($articulate+ ".falt[0:2]")  0 0.08 1 1 0.7 1 0.26 0.5 1;
+
+}
+
+
+proc articulate.attachDiagnostics(string $particle, string $articulate) {
+	string $p;
+	string $effortGraph =   `createNode graphShape`;
+	connectAttr ($articulate+".oepp")  ($effortGraph+".vals");
+	setAttr ($effortGraph+".dc" ) -type "float3" 0.73 0.23 0.26 ;
+	setAttr ($effortGraph+".gph") 0.1;
+	setAttr ($effortGraph+".gpw") 0.15;
+	setAttr ($effortGraph+".xof") 0.2;
+	setAttr ($effortGraph+".yof") 0.26;	
+	$p = firstParentOf($effortGraph);
+	rename $p "articulate_effortGraph";
+
+	string $thrustGraph =   `createNode graphShape`;
+	connectAttr ($particle+".ifc[0]") ($thrustGraph+".vals");
+	connectAttr ($articulate+".thmx") ($thrustGraph+".mxv");	
+	setAttr ($thrustGraph+".dc" ) -type "float3" 0 0.0027 0.61 ;
+	setAttr ($thrustGraph+".gph") 0.1;
+	setAttr ($thrustGraph+".gpw") 0.15;
+	setAttr ($thrustGraph+".xof") 0.2;
+	$p = firstParentOf($thrustGraph);
+	rename $p "articulate_thrustGraph";
+
+	string $velocityGraph =   `createNode graphShape`;
+	connectAttr ($particle+".vel") ($velocityGraph+".vals");
+	connectAttr ($articulate+".vlmx") ($velocityGraph+".mxv");
+	setAttr ($velocityGraph+".dc" ) -type "float3" 0.58 0.33 0.049 ;
+	setAttr ($velocityGraph+".gph") 0.08;
+	setAttr ($velocityGraph+".gpw") 0.15;
+	setAttr ($velocityGraph+".xof") 0.2;
+	setAttr ($velocityGraph+".yof") 0.15;
+	$p = firstParentOf($velocityGraph);
+	rename $p "articulate_velocityGraph";
+
+}
+
+global proc articulate.attachDiagnosticsFromSel(){
+	string $articulates[] = `ls -sl -type "articulate"`;
+	if (!`size $articulates`) error("No articulate selected");
+	string $a = $articulates[0] ;
+	string $psys[] = `listHistory $a`;
+	$psys = `ls -type "particle" $psys`;
+	if (!`size $psys`) error("Cant find particles associated with this articulate");
+	string $p = $psys[0];
+	articulate.attachDiagnostics( $p,  $a);
+}
+
+
+global proc string articulate.create() {
+
+	string $particle = selection.firstOfType("particle");
+
+	string $articulate = `createNode "articulate"`;
+	connectAttr -f "time1.o"  ($articulate+".currentTime");
+
+	articulate.addAttrs( $particle);
+	articulate.createCreationExpression( $particle);
+	articulate.createRuntimeBeforeExpression( $particle);
+	articulate.createRuntimeAfterExpression( $particle,$articulate);
+	articulate.dynamicConnections( $particle,$articulate);
+
+
+
+	articulate.configDefaults( $articulate);
+	articulate.attachDiagnostics( $particle , $articulate);
+
+	return $articulate;
+}
+

@@ -124,7 +124,7 @@ proc setEnabledArrowStates(string $parent){
 
 proc createSignalFrame(string $parent) {
 	setParent $parent;
-	frameLayout -cll 0 -lv 0  -borderStyle "etchedOut";
+	frameLayout -cll 0 -lv 0;
 	
 
 	
@@ -159,7 +159,7 @@ proc createSignalFrame(string $parent) {
 		-attachPosition	"prioritizeUpBtn" "bottom" 2 50
 		-attachControl		"prioritizeUpBtn" "left" 2 	"cSlider"
 		
-		-attachPosition	 	"prioritizeDownBtn" "top" 2 50
+		-attachControl	 	"prioritizeDownBtn" "top" 2 "prioritizeUpBtn" 
 		-attachNone			"prioritizeDownBtn" "right"   
 		-attachForm			"prioritizeDownBtn" "bottom" 2
 		-attachControl		"prioritizeDownBtn" "left" 2 	"cSlider"

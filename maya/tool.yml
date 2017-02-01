@@ -37,3 +37,5 @@ source_files:
 - src/**/*.cpp
 - ../../kettle/src/maya/lookup.cpp
 - ../../kettle/src/maya/mayaMath.cpp
+- ../../kettle/src/JFloatMatrix.cpp
+- ../../kettle/src/JFloatVector.cpp

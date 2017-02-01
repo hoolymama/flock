@@ -134,20 +134,20 @@ MStatus orthogonalPP::compute(const MPlug& plug, MDataBlock& data) {
 		for (int i = 0;i<len;i++) {
 			if (vec[i].isParallel(ref[i])) {out[i] = MVector::zero; continue;}
 			cross = vec[i]^ref[i];
-			out[i] = (ref[i]^cross).normal();
+			out[i] = (cross^ref[i]).normal();
 		}
 	} else if (outLen == OUTLEN_ORIGINAL) {
 		for (int i = 0;i<len;i++) {
 			if (vec[i].isParallel(ref[i])) {out[i] = MVector::zero; continue;}
 			cross = vec[i]^ref[i];
-			out[i] = (ref[i]^cross).normal() * vec[i].length();
+			out[i] = (cross^ref[i]).normal() * vec[i].length();
 		}
 	} else {
 		// projected
 		for (int i = 0;i<len;i++) {
 			if (vec[i].isParallel(ref[i])) {out[i] = MVector::zero; continue;}
 			cross = vec[i]^ref[i];
-			MVector tmp = (ref[i]^cross).normal();
+			MVector tmp = (cross^ref[i]).normal();
 			out[i] = tmp * double(tmp*vec[i]); // length of dot prod
 		}
 	}

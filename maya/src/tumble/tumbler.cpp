@@ -282,12 +282,12 @@ MStatus tumbler::initialize()
 	eAttr.setHidden(false);
 	st = addAttribute( aRotateOrder );er;
 
-	aOutputUnit = eAttr.create( "angularUnit", "ang", OUTPUT_DEGREES);
-	eAttr.addField("radians", OUTPUT_RADIANS);
-	eAttr.addField("degrees",OUTPUT_DEGREES);
-	uAttr.setKeyable(true);
-	uAttr.setHidden(false);
-	st = addAttribute( aOutputUnit );er;
+  aOutputUnit = eAttr.create( "angularUnit", "ang", mayaMath::kDegrees);
+  eAttr.addField("radians",  mayaMath::kRadians);
+  eAttr.addField("degrees", mayaMath::kDegrees);
+  uAttr.setKeyable(true);
+  uAttr.setHidden(false);
+  st = addAttribute( aOutputUnit );er;
 
 	aOutPhi = tAttr.create("outPhi", "oph", MFnData::kVectorArray);
 	tAttr.setStorable(false);
@@ -793,7 +793,7 @@ MStatus tumbler::simStep
 		outFront.set(oFront,i);
 		outUp.set(oUp,i);	 	
 
-		MVector vOut = calcRotation(outPhiVal,ord,outUnit);
+    MVector vOut =  mayaMath::phiToEuler(outPhiVal,ord,mayaMath::RotateUnit(outUnit));
 		outRotation.set(vOut,i);
 
 	}

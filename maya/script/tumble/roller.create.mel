@@ -46,12 +46,12 @@ global proc roller.dynamicConnections(string $p,string $roller) {
 	connectAttr -f "time1.o" ($roller+".currentTime");
 	
 	string $magNorm = connection.ensureOutputNode( ($p+".velocity"), "magNormPP" ,  "input");
-	string $orthog = connection.ensureOutputNode( ($magNorm+".outputNormal"), "orthogonalPP" ,  "front");
+	string $orthog = connection.ensureOutputNode( ($magNorm+".outputNormal"), "orthogonalPP" ,  "vec");
 
 
 	connectAttr -f ($magNorm + ".omag") ($roller+".speedPP");
 
-	connectAttr -f ($roller+".output") ($orthog+".up");
+	connectAttr -f ($roller+".output") ($orthog+".ref");
 	
 	
 	

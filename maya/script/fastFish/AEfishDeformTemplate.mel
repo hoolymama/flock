@@ -1,0 +1,54 @@
+
+global proc AEfishDeformTemplate(string $nodeName)
+{
+	
+	editorTemplate -beginScrollLayout;
+	
+	editorTemplate -cl 0 -beginLayout "Skeleton Controls";			
+	editorTemplate -addControl "numTailBones";
+	editorTemplate -addControl "headLength";
+	editorTemplate -addControl "tailLength";
+	editorTemplate  -addControl "pivotOffsetMult" ;
+
+	editorTemplate -endLayout;
+	
+
+
+		
+	editorTemplate -cl 0 -beginLayout "Flap Deform Controls";			
+	editorTemplate -addControl "wavelength";
+	editorTemplate  -label "Start Position" -addControl "start" ;
+	editorTemplate -label "Drop Off" -addControl "dropoff" ;
+	editorTemplate  -addControl "offsetMult" ;
+	editorTemplate  -addControl "amplitudeMult" ;
+	editorTemplate -endLayout;
+	
+	editorTemplate -cl 0 -beginLayout "Bend Deform Controls";			
+	editorTemplate  -addControl "bendMult" ;
+	editorTemplate -endLayout;
+	
+	editorTemplate -cl 0 -beginLayout "Fish Removal";			
+	editorTemplate  -addControl "cullList" ;
+	editorTemplate -endLayout;	
+
+	editorTemplate -cl 0 -beginLayout "Fish Scale";			
+	editorTemplate  -addControl "scaleMult" ;
+	editorTemplate -endLayout;	
+
+	
+	editorTemplate -suppress "position";
+	editorTemplate -suppress "direction";
+	editorTemplate -suppress "upVectors";
+	editorTemplate -suppress "inMesh";
+	editorTemplate -suppress "bend";
+	editorTemplate -suppress "offset";
+	editorTemplate -suppress "amplitude";
+	editorTemplate -suppress "scale";
+	editorTemplate -suppress "active";
+	editorTemplate -suppress "outPoints";
+	editorTemplate -suppress "outDirections";
+		
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}
