@@ -7,6 +7,5 @@ tmp/
 *.idb
 *.bak
 *~
-*/examples/
 *.sublime-workspace
 *.sublime-project
