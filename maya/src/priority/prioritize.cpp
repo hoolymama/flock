@@ -346,6 +346,7 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 		glMatrixMode( GL_PROJECTION );
 		glPushMatrix();
 		glLoadIdentity();
+ 
 		gluOrtho2D(
 			0.0, (GLdouble) pw,
 			0.0, (GLdouble) ph

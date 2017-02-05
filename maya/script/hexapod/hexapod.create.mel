@@ -1,0 +1,207 @@
+ 
+
+// create matrixGlyph visualizations
+proc hexapod.attachLocator(string $hexapod) {
+
+	print("attachLocator\n");
+	// string $p;
+	// string $g;
+	
+	// $g =   `createNode matrixGlyphShape`;
+	// connectAttr ($particle+".position")  ($g+".points");
+	// connectAttr ($particle+".goalView")  ($g+".frontVector");
+	// connectAttr ($particle+".goalUp")  ($g+".upVector");
+	// setAttr ($g+".colorMult" ) 0.5;
+	// setAttr ($g+".colorOffset" ) 0.0;
+	// setAttr  ($g+".rotateType" ) 0;
+	// setAttr  ($g+".frontAxis" ) 0;
+	// setAttr  ($g+".upAxis" ) 1;
+	
+	// connectAttr -f ($hexapod+".frontAxis") ($g+".frontAxis");
+	// connectAttr -f ($hexapod+".upAxis") ($g+".upAxis");	
+	
+	// $p = firstParentOf($g);
+	// rename $p "goalGlyph";
+
+
+
+
+	// $g =   `createNode matrixGlyphShape`;
+	// connectAttr ($particle+".position")  ($g+".points");
+	// connectAttr ($particle+".phi")  ($g+".axisAngle");
+	// setAttr ($g+".colorMult" ) 1.0;
+	// setAttr ($g+".colorOffset" ) 0.0;
+	// setAttr  ($g+".rotateType" ) 1;
+	// $p = firstParentOf($g);
+	// rename $p "phiGlyph";
+
+}
+
+
+proc hexapod.addAttrs(string $particle) {
+
+	string $atts[] = { 
+		"phi:vectorArray",
+		"omega:vectorArray",	
+		"leftA:vectorArray",
+		"leftB:vectorArray",
+		"leftC:vectorArray",
+		"rightA:vectorArray",
+		"rightB:vectorArray",
+		"rightC:vectorArray",
+		"lastPlantLA:vectorArray",
+		"lastPlantLB:vectorArray",
+		"lastPlantLC:vectorArray",
+		"lastPlantRA:vectorArray",
+		"lastPlantRB:vectorArray",
+		"lastPlantRC:vectorArray",
+		"nextPlantLA:vectorArray",
+		"nextPlantLB:vectorArray",
+		"nextPlantLC:vectorArray",
+		"nextPlantRA:vectorArray",
+		"nextPlantRB:vectorArray",
+		"nextPlantRC:vectorArray",
+		"stepTimeLA:doubleArray",
+		"stepTimeLB:doubleArray",
+		"stepTimeLC:doubleArray",
+		"stepTimeRA:doubleArray",
+		"stepTimeRB:doubleArray",
+		"stepTimeRC:doubleArray"
+	};
+	attr.addAttrs( $particle,$atts);
+}
+proc hexapod.createCreationExpression(string $particle) {
+	string $expr =( 
+		"leftA = position;\n" + 
+		"leftB = position;\n" + 
+		"leftC = position;\n" + 
+		"rightA = position;\n" + 
+		"rightB = position;\n" + 
+		"rightC = position;\n" + 
+		"lastPlantLA = position;\n"+
+		"lastPlantLB = position;\n"+
+		"lastPlantLC = position;\n"+
+		"lastPlantRA = position;\n"+
+		"lastPlantRB = position;\n"+
+		"lastPlantRC = position;\n"+
+		"nextPlantLA = position;\n"+
+		"nextPlantLB = position;\n"+
+		"nextPlantLC = position;\n"+
+		"nextPlantRA = position;\n"+
+		"nextPlantRB = position;\n"+
+		"nextPlantRC = position;\n"+
+		"stepTimeLA = 0;\n"+
+		"stepTimeLB = 0;\n"+
+		"stepTimeLC = 0;\n"+
+		"stepTimeRA = 0;\n"+
+		"stepTimeRB = 0;\n"+
+		"stepTimeRC = 0;\n"
+		);
+
+	dynamics.appendToDynExpression( $particle, $expr, " hexapod ", 0);
+
+}
+
+proc hexapod.createRuntimeBeforeExpression(string $particle) {
+	// string $expr = (	
+	// 	"// goalView = unit(velocity);\r"+
+	// 	"// goalUp = unit(cross(cross(goalView , <<0,1,0>>) , goalView )) ;\r"
+	// 	);
+	// dynamics.appendToDynExpression( $particle, $expr, " hexapod ", 1);
+
+}
+
+proc hexapod.createRuntimeAfterExpression(string $particle,string $hexapod) {
+	
+
+	string $expr = (
+		"leftA = "+ $hexapod+ ".outLeftA;\n"+
+		"leftB = "+ $hexapod+ ".outLeftB;\n"+
+		"leftC = "+ $hexapod+ ".outLeftC;\n"+
+		"rightA = "+ $hexapod+ ".outRightA;\n"+
+		"rightB = "+ $hexapod+ ".outRightB;\n"+
+		"rightC = "+ $hexapod+ ".outRightC;\n"+
+		"lastPlantLA = "+ $hexapod+ ".outLastPlantLA;\n"+
+		"lastPlantLB = "+ $hexapod+ ".outLastPlantLB;\n"+
+		"lastPlantLC = "+ $hexapod+ ".outLastPlantLC;\n"+
+		"lastPlantRA = "+ $hexapod+ ".outLastPlantRA;\n"+
+		"lastPlantRB = "+ $hexapod+ ".outLastPlantRB;\n"+
+		"lastPlantRC = "+ $hexapod+ ".outLastPlantRC;\n"+
+		"nextPlantLA = "+ $hexapod+ ".outNextPlantLA;\n"+
+		"nextPlantLB = "+ $hexapod+ ".outNextPlantLB;\n"+
+		"nextPlantLC = "+ $hexapod+ ".outNextPlantLC;\n"+
+		"nextPlantRA = "+ $hexapod+ ".outNextPlantRA;\n"+
+		"nextPlantRB = "+ $hexapod+ ".outNextPlantRB;\n"+
+		"nextPlantRC = "+ $hexapod+ ".outNextPlantRC;\n"+
+		"stepTimeLA = "+ $hexapod+ ".outStepTimeLA;\n"+
+		"stepTimeLB = "+ $hexapod+ ".outStepTimeLB;\n"+
+		"stepTimeLC = "+ $hexapod+ ".outStepTimeLC;\n"+
+		"stepTimeRA = "+ $hexapod+ ".outStepTimeRA;\n"+
+		"stepTimeRB = "+ $hexapod+ ".outStepTimeRB;\n"+
+		"stepTimeRC = "+ $hexapod+ ".outStepTimeRC;\n"
+		);
+	
+	dynamics.appendToDynExpression( $particle, $expr, " hexapod ", 2);
+}
+
+global proc hexapod.dynamicConnections(string $p,string $t) {
+	string $connectionPairs[] = {
+		"position:position",
+		"velocity:velocity",
+		"velocity:velocity",
+		"phi:phi",
+		"omega:omega",
+		"leftA:leftA",
+		"leftB:leftB",
+		"leftC:leftC",
+		"rightA:rightA",
+		"rightB:rightB",
+		"rightC:rightC",
+		"lastPlantLA:lastPlantLA",
+		"lastPlantLB:lastPlantLB",
+		"lastPlantLC:lastPlantLC",
+		"lastPlantRA:lastPlantRA",
+		"lastPlantRB:lastPlantRB",
+		"lastPlantRC:lastPlantRC",
+		"nextPlantLA:nextPlantLA",
+		"nextPlantLB:nextPlantLB",
+		"nextPlantLC:nextPlantLC",
+		"nextPlantRA:nextPlantRA",
+		"nextPlantRB:nextPlantRB",
+		"nextPlantRC:nextPlantRC",
+		"stepTimeLA:stepTimeLA",
+		"stepTimeLB:stepTimeLB",
+		"stepTimeLC:stepTimeLC",
+		"stepTimeRA:stepTimeRA",
+		"stepTimeRB:stepTimeRB",
+		"stepTimeRC:stepTimeRC",
+		"radiusPP:scale",
+		
+	};
+	attr.connectPairs($p, $t, $connectionPairs);
+	
+	connectAttr -f "time1.o" ($t+".currentTime");
+}
+
+ 
+
+global proc hexapod.create() {
+	
+	string $particle = selection.firstOfType("nParticle");
+	
+	string $hexapod = `createNode "hexapod" -n "hexapod"`;
+
+	hexapod.addAttrs( $particle);
+	
+	hexapod.createCreationExpression($particle);
+
+	hexapod.createRuntimeBeforeExpression( $particle);
+
+	hexapod.createRuntimeAfterExpression( $particle,$hexapod);
+
+	hexapod.dynamicConnections( $particle,$hexapod);
+
+	hexapod.attachLocator($hexapod);
+ 
+
+}

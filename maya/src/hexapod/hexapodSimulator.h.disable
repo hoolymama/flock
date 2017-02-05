@@ -1,0 +1,29 @@
+#ifndef hexapodSimulator_H
+#define hexapodSimulator_H
+
+#include <maya/MObject.h>
+ 
+// typedef std::map< int, meshCloner * > meshClonerMap ;
+
+
+class hexapodSimulator{
+	public:
+		
+		hexapodSimulator();
+		
+		~hexapodSimulator();
+		
+		MStatus simulate(const MObject &node, MArrayDataHandle & ah, unsigned schoolSize);
+		
+ 
+	private:
+
+		// meshClonerMap m_clonerMap;	
+		
+		// unsigned m_schoolSize;
+		// bool m_schoolSizeChanged;
+};
+
+
+#endif
+

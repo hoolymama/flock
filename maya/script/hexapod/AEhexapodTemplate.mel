@@ -1,0 +1,124 @@
+
+global proc AEhexapodTemplate(string $nodeName)
+{
+	
+	
+
+	editorTemplate -beginScrollLayout;
+	
+	
+	editorTemplate -cl 0 -beginLayout "Foot Home Position";	
+	editorTemplate -addControl "homeLA";
+	editorTemplate -addControl "homeLB";
+	editorTemplate -addControl "homeLC";
+	editorTemplate -addControl "homeRA";
+	editorTemplate -addControl "homeRB";
+	editorTemplate -addControl "homeRC";
+	editorTemplate -endLayout;
+	
+	
+
+	editorTemplate -cl 0 -beginLayout "Home Radius Range";	
+	editorTemplate -addControl "radiusA";
+	editorTemplate -addControl "radiusB";
+	editorTemplate -addControl "radiusC";
+	editorTemplate -endLayout;
+	
+	
+	editorTemplate -cl 0 -beginLayout "Step Increment";	
+	AEaddRampControl ($nodeName+".stepIncrementRampA");	
+	AEaddRampControl ($nodeName+".stepIncrementRampB");	
+	AEaddRampControl ($nodeName+".stepIncrementRampC");	
+	editorTemplate -endLayout;
+	
+	editorTemplate -cl 0 -beginLayout "Slide Profile";	
+	AEaddRampControl ($nodeName+".slideProfileA");	
+	AEaddRampControl ($nodeName+".slideProfileB");	
+	AEaddRampControl ($nodeName+".slideProfileC");	
+	editorTemplate -endLayout;
+	
+	editorTemplate -cl 0 -beginLayout "Time";		
+	editorTemplate -addControl "currentTime";	
+	editorTemplate -endLayout;
+	
+	editorTemplate -suppress "aPosition";
+	editorTemplate -suppress "aPhi";
+	editorTemplate -suppress "aVelocity";
+	editorTemplate -suppress "aOmega";
+
+	editorTemplate -suppress "leftA";
+	editorTemplate -suppress "leftB";
+	editorTemplate -suppress "leftC";
+	editorTemplate -suppress "rightA";
+	editorTemplate -suppress "rightB";
+	editorTemplate -suppress "rightC";
+
+
+	editorTemplate -suppress "lastPlantLA";
+	editorTemplate -suppress "lastPlantLB";
+	editorTemplate -suppress "lastPlantLC";
+	editorTemplate -suppress "lastPlantRA";
+	editorTemplate -suppress "lastPlantRB";
+	editorTemplate -suppress "lastPlantRC";
+	editorTemplate -suppress "nextPlantLA";
+	editorTemplate -suppress "nextPlantLB";
+	editorTemplate -suppress "nextPlantLC";
+	editorTemplate -suppress "nextPlantRA";
+	editorTemplate -suppress "nextPlantRB";
+	editorTemplate -suppress "nextPlantRC";
+	editorTemplate -suppress "scale";
+	editorTemplate -suppress "mesh";
+	editorTemplate -suppress "stepTimeLA";
+	editorTemplate -suppress "stepTimeLB";
+	editorTemplate -suppress "stepTimeLC";
+	editorTemplate -suppress "stepTimeRA";
+	editorTemplate -suppress "stepTimeRB";
+	editorTemplate -suppress "stepTimeRC";
+
+
+	editorTemplate -suppress "outLeftA";
+	editorTemplate -suppress "outLeftB";
+	editorTemplate -suppress "outLeftC";
+	editorTemplate -suppress "outRightA";
+	editorTemplate -suppress "outRightB";
+	editorTemplate -suppress "outRightC";
+	editorTemplate -suppress "outLastPlantLA";
+	editorTemplate -suppress "outLastPlantLB";
+	editorTemplate -suppress "outLastPlantLC";
+	editorTemplate -suppress "outLastPlantRA";
+	editorTemplate -suppress "outLastPlantRB";
+	editorTemplate -suppress "outLastPlantRC";
+	editorTemplate -suppress "outNextPlantLA";
+	editorTemplate -suppress "outNextPlantLB";
+	editorTemplate -suppress "outNextPlantLC";
+	editorTemplate -suppress "outNextPlantRA";
+	editorTemplate -suppress "outNextPlantRB";
+	editorTemplate -suppress "outNextPlantRC";
+	editorTemplate -suppress "outStepTimeLA";
+	editorTemplate -suppress "outStepTimeLB";
+	editorTemplate -suppress "outStepTimeLC";
+	editorTemplate -suppress "outStepTimeRA";
+	editorTemplate -suppress "outStepTimeRB";
+	editorTemplate -suppress "outStepTimeRC";
+	editorTemplate -suppress "outHomeLA";
+	editorTemplate -suppress "outHomeLB";
+	editorTemplate -suppress "outHomeLC";
+	editorTemplate -suppress "outHomeRA";
+	editorTemplate -suppress "outHomeRB";
+	editorTemplate -suppress "outHomeRC";
+	editorTemplate -suppress "outRadiusLA";
+	editorTemplate -suppress "outRadiusLB";
+	editorTemplate -suppress "outRadiusLC";
+	editorTemplate -suppress "outRadiusRA";
+	editorTemplate -suppress "outRadiusRB";
+	editorTemplate -suppress "outRadiusRC";
+	editorTemplate -suppress "outPosition";
+	editorTemplate -suppress "outPhi";
+	editorTemplate -suppress "outScale";
+
+
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}
+

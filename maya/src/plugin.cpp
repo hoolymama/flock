@@ -60,6 +60,8 @@
 #include "meshProximityPP.h" 
 #include "subVectorVectorPP.h" 
 #include "speedRampLookup.h"
+#include "hexapod.h"
+#include "hexapodLocator.h"
 
 
 MStatus initializePlugin( MObject obj)
@@ -71,15 +73,10 @@ MStatus initializePlugin( MObject obj)
 
 	MFnPlugin plugin( obj, PLUGIN_VENDOR, PLUGIN_VERSION , MAYA_VERSION);
 	st = plugin.registerNode( "flockShape", flockShape::id, flockShape::creator, flockShape::initialize, MPxNode::kLocatorNode);er;
-	
-	st = plugin.registerNode( "prioritize", prioritize::id, prioritize::creator, prioritize::initialize, MPxNode::kLocatorNode  );er;
-
+	st = plugin.registerNode( "prioritize", prioritize::id, prioritize::creator, prioritize::initialize, MPxNode::kLocatorNode);er;
 	st = plugin.registerNode( "steerRemap", steerRemap::id, steerRemap::creator, steerRemap::initialize );er;
-	
 	st = plugin.registerNode( "roller", rollerPP::id, rollerPP::creator, rollerPP::initialize); ert;
 	st = plugin.registerNode( "tumbler", tumbler::id, tumbler::creator, tumbler::initialize );er;
-
-
 	st = plugin.registerData( "poolData", poolData::id, poolData::creator );er;
 	st = plugin.registerNode( "pool", pool::id, pool::creator, pool::initialize );er;
 	st = plugin.registerNode( "sensor", sensor::id, sensor::creator, sensor::initialize );er;
@@ -95,8 +92,6 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "geometrySensor", geometrySensor::id, geometrySensor::creator, geometrySensor::initialize );er;
 	st = plugin.registerNode( "axisSensor", axisSensor::id, axisSensor::creator, axisSensor::initialize );er;
 	st = plugin.registerNode( "jerkSensor", jerkSensor::id, jerkSensor::creator, jerkSensor::initialize );er;
-
-
 	st = plugin.registerNode( "multPP", multPP::id, multPP::creator, multPP::initialize); er;
 	st = plugin.registerNode( "aimPP", aimPP::id, aimPP::creator, aimPP::initialize); er;
 	st = plugin.registerNode( "arrayMulti", arrayToMulti::id, arrayToMulti::creator, arrayToMulti::initialize); er;
@@ -128,6 +123,8 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "meshProximityPP", meshProximityPP::id, meshProximityPP::creator, meshProximityPP::initialize); er;
 	st = plugin.registerNode( "subVectorVectorPP", subVectorVectorPP::id, subVectorVectorPP::creator, subVectorVectorPP::initialize); er;
 	st = plugin.registerNode( "speedRampLookupPP", speedRampLookupPP::id, speedRampLookupPP::creator, speedRampLookupPP::initialize); er;
+	st = plugin.registerNode( "hexapod", hexapod::id, hexapod::creator, hexapod::initialize); er;
+ 	st = plugin.registerNode( "hexapodLocatorShape", hexapodLocator::id, hexapodLocator::creator,hexapodLocator::initialize, MPxNode::kLocatorNode  );er;
 
 	MGlobal::executePythonCommand("import flock;flock.load()");
 
@@ -143,6 +140,9 @@ MStatus uninitializePlugin( MObject obj)
 	MString method("uninitializePlugin");
 
 	MFnPlugin plugin( obj );
+
+	st = plugin.deregisterNode( hexapodLocator::id );er;	
+	st = plugin.deregisterNode( hexapod::id );er;
 	st = plugin.deregisterNode( speedRampLookupPP::id );er;
 	st = plugin.deregisterNode( subVectorVectorPP::id );er;
 	st = plugin.deregisterNode( meshProximityPP::id );er;

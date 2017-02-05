@@ -1,0 +1,45 @@
+global proc hexapod.init(string $moduleName) {
+	
+	string $moduleMenu = module.menuName( $moduleName );
+
+	setParent -m $moduleMenu;
+
+
+	module.subMenu($moduleMenu, "Hexapod");
+	
+		menuItem -l "Create" 
+	-annotation "Select particles"
+	-c "hexapod.create" ;
+
+		menuItem -l "Connect Rig" 
+	-annotation "Select rig"
+	-c "hexapod.connectRig" ;
+
+
+	// menuItem -l "Add Field as Torque" 
+	// -annotation "Select a hexapod and one or more fields"
+	// -c "hexapod.addField(0)" ;
+	
+	// menuItem -l "Add Field as Impulse" 
+	// -annotation "Select a hexapod and one or more fields"
+	// -c "hexapod.addField(1)"  ;
+	
+	// menuItem -l "Add GoalWeightPP" 
+	// -annotation "Select a hexapod"
+	// -c "hexapod.addGoalWeightPP" ;
+
+	// menuItem -l "Create Diagnostics" 
+	// -annotation "Select hexapod"
+	// -c "hexapod.attachDiagnosticsFromSel()" ;
+
+	// setParent -m $moduleMenu;
+
+	// module.subMenu($moduleMenu, "Roller");
+	
+	// menuItem -l "Create" 
+	// -annotation ("Pick Some Particles") 
+	// -c "roller.create();";
+	
+
+}
+

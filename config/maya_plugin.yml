@@ -41,8 +41,7 @@ os_darwin64:
     - '-O0'  
     - '-D_LANGUAGE_C_PLUS_PLUS'
     target_extension: 'bundle'
-    includes:
-    - 'maya/OpenMayaMac.h'
+    includes: []
 
 os_win64:
     libs:
