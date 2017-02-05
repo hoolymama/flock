@@ -40,9 +40,19 @@ global proc string flock.create(){
 
 	if (`attributeQuery -exists -n $p "scalePP"`){
 		connectAttr ($p+".scalePP") ($flock+".scalePP") ;
-	} else if (`attributeQuery -exists -n $p "radiusPP"`) {
-		connectAttr ($p+".radiusPP") ($flock+".scalePP") ;
+	} else {
+		addAttr -ln "scalePP"  -dt vectorArray   $p;
+		setAttr -e-keyable true ( $p+".scalePP");
+		connectAttr ($p+".scalePP") ($flock+".scalePP") ;
+		string $expr;
+		if (`attributeQuery -exists -n $p "radiusPP"`) {
+			$expr = "scalePP = <<radiusPP, radiusPP, radiusPP>>;";
+		} else {
+				$expr = "scalePP = <<1,1,1>>;";
+		}
+		dynamics.appendToDynExpression( $p, $expr, "FLOCK SCALEPP", 1);
 	}
+
 	string $particleParent = firstParentOf($p);
 	connectAttr ($particleParent+".boundingBox") ($flock+".pointsBB") ;
 	return $flock;

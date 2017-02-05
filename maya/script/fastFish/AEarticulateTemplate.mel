@@ -1,0 +1,80 @@
+
+global proc AEarticulateTemplate(string $nodeName)
+{
+	
+	
+
+	editorTemplate -beginScrollLayout;
+	
+	editorTemplate -cl 0 -beginLayout "Bend Controls";	
+	editorTemplate -addControl "doBend";			
+	editorTemplate -addControl "bendMagnitude";	
+	AEaddRampControl ($nodeName+".bendLookup");	
+	editorTemplate -addControl "conserveBend";
+	editorTemplate -addControl "bendSpring";
+	editorTemplate -endLayout;
+	
+	editorTemplate -cl 0 -beginLayout "Arch Controls";		
+	editorTemplate -addControl "doArch";
+	editorTemplate -addControl "archMagnitude";	
+	AEaddRampControl ($nodeName+".archLookup");	
+	editorTemplate -addControl "conserveArch";
+	editorTemplate -addControl "archSpring";
+	editorTemplate -endLayout;
+	
+	
+	editorTemplate -cl 0 -beginLayout "Effort Controls";	
+	editorTemplate -addControl "doThrust";
+	editorTemplate -addControl "thrustMax";
+	editorTemplate -addControl "thrustFacingStrategy";
+	AEaddRampControl ($nodeName+".thrustFacingLookup");	
+	editorTemplate -addControl "doDrag";
+	editorTemplate -addControl "velocityMax";
+	AEaddRampControl ($nodeName+".dragLookup");	
+	
+	editorTemplate -addControl "effortAttack";	
+	editorTemplate -addControl "effortDecay";
+	editorTemplate -addControl "effortSpan";
+	
+	editorTemplate -endLayout;
+	
+	
+	editorTemplate -cl 0 -beginLayout "Flap Controls";
+	editorTemplate -addControl "doFlap";
+	editorTemplate -addControl "flapOffsetMult";	
+	AEaddRampControl ($nodeName+".flapOffsetLookup");	
+
+	editorTemplate -addControl "flapAmplitudeMult";	
+	AEaddRampControl ($nodeName+".flapAmplitudeLookup");	
+	editorTemplate -endLayout;
+	
+	editorTemplate -cl 0 -beginLayout "Time";		
+	editorTemplate -addControl "currentTime";	
+	editorTemplate -endLayout;
+	
+	editorTemplate -suppress "viewPP";
+	editorTemplate -suppress "oldViewPP";
+	editorTemplate -suppress "upVectorPP";
+	editorTemplate -suppress "bendPP";
+	editorTemplate -suppress "bendImpulsePP";
+	editorTemplate -suppress "bendLookup";
+	editorTemplate -suppress "outBendPP";
+	editorTemplate -suppress "archPP";
+	editorTemplate -suppress "archImpulsePP";
+	editorTemplate -suppress "archLookup";
+	editorTemplate -suppress "outArchPP";
+	
+	
+	editorTemplate -suppress "thrustPP";
+	editorTemplate -suppress "effortPP";
+	editorTemplate -suppress "outEffortPP";
+	editorTemplate -suppress "flapOffsetPP";
+	editorTemplate -suppress "flapOffsetLookup";
+	editorTemplate -suppress "outFlapOffsetPP";
+	editorTemplate -suppress "flapAmplitudeLookup";
+	editorTemplate -suppress "outFlapAmplitudePP";
+
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}

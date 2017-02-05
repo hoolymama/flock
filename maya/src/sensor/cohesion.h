@@ -35,8 +35,8 @@ public:
 	
 	
 	
-	static	MObject		aSwirlMag;	
-	static	MObject		aGoalMag;	
+	// static	MObject		aSwirlMag;	
+	// static	MObject		aGoalMag;	
 
 	static	MObject		aGoalDecay;
 	

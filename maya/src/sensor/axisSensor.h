@@ -25,7 +25,9 @@ public:
 	static MObject aAxisPP ;
 	static MObject aPointNormal;
 	static MObject aAxisNormal ;	
+
 	static MObject aAxisDirection ;	
+
 	static MObject aAxisOrbit ;
 	static MObject aEasyOrbit ;
 

@@ -1,4 +1,5 @@
-global proc int sensor.connectCurveToSplineReceiver(string $srcNode, string $dstNodeAttr) {
+global proc int sensor.connectCurveToSplineReceiver(
+	string $srcNode, string $dstNodeAttr) {
 
 	// dont trust the $dstNodeAttr to have an attr 
 	string $attr = attr.attrFromNodeAttr($dstNodeAttr);
@@ -132,12 +133,13 @@ global proc string sensor.doAdd(string $ps, string $type, string $pr){
 	if (! sensor.typeIsSensor($type)) return "";
 
 	string $sn = "";
-	if (`nodeType $ps` == "particle") {
+	string $nt = `nodeType $ps`;
+
+	if ( ($nt == "particle" )|| ($nt == "nParticle")) {
 		$sn= `createNode $type`;
 		sensor.connectParticle($ps,$sn,$pr);
 	}
 	return $sn;
-
 }
 
 global proc string[]  sensor.add(string $type){
@@ -148,7 +150,7 @@ global proc string[]  sensor.add(string $type){
 	string $pr;
 	if (! size($prs)) {$pr = "";} else {$pr = $prs[0];}
 
-	string $pss[] = `ls -sl -dag -leaf -type "particle"`;	
+	string $pss[] = `ls -sl -dag -leaf -type "particle"  -type "nParticle"`;	
 
 	for ($ps in $pss) {
 		$result[size($result)] = sensor.doAdd($ps,$type,$pr);

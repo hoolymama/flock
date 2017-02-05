@@ -40,7 +40,7 @@ os_linux64:
     - 'm'
 os_darwin64:
     maya_relative_lib_path: 'Maya.app/Contents/MacOS'
-    maya_relative_inc_path: 'devkit/include'
+    maya_relative_inc_path: 'include'
     compiler_options:
     - '-fno-gnu-keywords' 
     - '-fpascal-strings'

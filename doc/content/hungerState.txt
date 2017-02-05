@@ -1,0 +1,76 @@
+---
+title: hungerState
+author: Julian Mann
+email: julian.mann@gmail.com
+keywords: 
+created_at: 02 August 2016
+test_scene: 
+description: A simple state machine to represent hunger for artificial life agents
+plugin: Flock
+type: Maya Node
+---
+h3. Synopsis
+
+Manage the state of being hungry or not hungry, based on the accumulation and depletion of food.
+the attributes hungry and updatedHungry represent the hunger state. They are either 0 or 1. (satisfied or hungry)
+
+<%= movie_tag('An Alife rat colony', 'Notice how they stop and wait for a few frames. Their motion is controlled by a state machine','movies/ratSchool.mov','right') %>
+
+<hr>
+
+The algorithm behaves differently depending on its state.
+When in the *hungry* state, the value of the feed attribute is added to the value at foodLevel, which is sent to the output as updatedFoodLevel. If that value exceeds the value of fullThreshold, then the state is flipped to 0 (satisfied). If it doesn't reach fullThreshold, it stays hungry and continues to eat food.
+
+When in the *satisfied* state, feed is ignored, and the value of the spend attribute is subtracted from the value at foodLevel, which again is sent to the output as updatedFoodLevel. If that value drops below zero, then the state is flipped to 1 (hungry). If it doesn't reach zero, it stays satisfied and continues to spend food.
+
+By setting the the spend and feed proportions well, you can achieve seemingly very complex behaviours, such as rats that stop to sniff and scratch their noses, or flies that hammer away sporadically at a window. The perception is often that the creatures are stopping to think before launching into some other behaviour. 
+
+
+The reason for an "updated" version of two of the attibutes is that those signals need to be maintained by the particle system that represents the agents. The hungerState node can't maintain the state internally because the number of particles may change and it would have no way of tracking those changes. So the particle system itself maintains the state, the hungerState node simply does the calculations. Therfore it is neccessary to get information from the particle system, and then send back updated information.
+
+It can be helpful to connect the updatedFoodLevel to a "graph node":../gl_graph/graphShape.html to see the rate that agents are filling up and emptying.
+
+h3. Detailed Attribute Description
+
+table(d1).
+|_(atname). Name (short name) |_(attype). Type|_(atdefault). Default|_(atflags). Flags|
+
+table(d1).
+|(atname). feed (fed) |(attype). doubleArray|(atdefault). n/a|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/connectable.gif(connectable)!|
+|\4(atdesc). The amount of food to be added to the food level when hungry|
+
+table(d1).
+|(atname). spend (spd) |(attype). doubleArray|(atdefault). n/a|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/connectable.gif(connectable)!|
+|\4(atdesc). The amount of food to be subtracted from the food level when satisfied|
+
+table(d1).
+|(atname). foodLevel (fl) |(attype). doubleArray|(atdefault). n/a|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/connectable.gif(connectable)!|
+|\4(atdesc). The amount of food held by the agent|
+
+table(d1).
+|(atname). updatedFoodLevel (ufl) |(attype). doubleArray|(atdefault). n/a|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/connectable.gif(connectable)!|
+|\4(atdesc). The updated food level sent back to the agent at the end of calculations.|
+
+table(d1).
+|(atname). hungry (hg) |(attype). doubleArray|(atdefault). n/a|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/connectable.gif(connectable)!|
+|\4(atdesc). The hungry state of the agent|
+
+table(d1).
+|(atname). updatedHungry (uhg) |(attype). doubleArray|(atdefault). n/a|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/connectable.gif(connectable)!|
+|\4(atdesc). The updated hungry state sent back to the agent at the end of calculations.|
+
+table(d1).
+|(atname). hungryFullCycle (hfc) |(attype). doubleArray|(atdefault). n/a|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/connectable.gif(connectable)!|
+|\4(atdesc). hungryFullCycle is a value representing the stage from hungry to full. The hungryFullRamp can be used to remap it. 
+If the hungryFullRamp is not used, then the value is a linear 0 - 1.0. Within that range, 0 to 0.5 is when the state is hungry and feeding. 0.5 to 1 is where the state is satisfied and resting. 
+If the ramp is used, then the above value will be considered the input to the ramp.|
+
+table(d1).
+|(atname). fullThreshold (fth) |(attype). double|(atdefault). 10|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/keyable.gif(keyable)!!site_images/connectable.gif(connectable)!!site_images/storable.gif(storable)!|
+|\4(atdesc). The amount of food held by the agent that signifies enough to be satisfied with. When this value is reached, the agent switches state.|
+
+table(d1).
+|(atname). hungryFullRamp (hfr) |(attype). compound|(atdefault). n/a|(atflags). !site_images/input.gif(input)!!site_images/output.gif(output)!!site_images/connectable.gif(connectable)!!site_images/storable.gif(storable)!!site_images/array.gif(array)!|
+|\4(atdesc). hungryFullRamp allows control of the output of hungryFullCycle. The input is a linear 0 - 1.0. Within that range, 0 to 0.5 is when the state is hungry and feeding. 0.5 to 1 is where the state is satisfied and resting.
+The ramp only takes effect when it has some stops that are not all 1.0|
+

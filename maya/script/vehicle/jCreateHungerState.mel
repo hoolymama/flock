@@ -1,0 +1,42 @@
+
+global proc jCreateHungerState() {
+
+	string $prefix = string.getFromPrompt("Hunger State Attribute Prefix", "Enter a prefix");
+
+	string $p[] = `ls -sl -dag -leaf -type "particle" -type "nParticle"`;
+	string $n = `createNode "hungerState" -n ($prefix+"_hungerState")`;
+	
+	// make atts
+
+	string $suffixes[] = {"hungry","foodLevel"};
+	string $atts[] = {($prefix+"_"+$suffixes[0]),($prefix+"_"+$suffixes[1])};
+
+	for ($i=0;$i<2;$i++) {
+		addAttr -ln $atts[$i] -dt doubleArray  $p[0];
+		setAttr -e -keyable true ($p[0]+"."+$atts[$i]);
+		connectAttr -f ($p[0] +"."+$atts[$i]) ($n+"."+$suffixes[$i]);
+	}
+
+	string $attrChildren[] = {"FloatValue","Position","Interp"};
+	for ($ac in $attrChildren) {
+		setAttr ( $n+".hungryFullRamp[0].hungryFullRamp_"+ $ac) 1;
+	}
+
+
+	string $expr ;
+	// creation
+	$expr = `dynExpression -c -q -s $p[0]`;
+	$expr += ( "\n"+$atts[0]+" = 0;\r"+$atts[1]+"=1;\r" );
+	dynExpression -c -s $expr $p[0];
+
+	// runtime after dynamics
+	$expr = `dynExpression -rad -q -s $p[0]`;
+
+	$expr += ( "\r"+$atts[0]+" = "+ $n+".updatedHungry;\r"+$atts[1]+" = "+$n+".updatedFoodLevel ;\r");
+
+	dynExpression -rad -s $expr $p[0];
+	
+	connectAttr -f "time1.outTime" ( $n+".currentTime");
+	
+	
+}

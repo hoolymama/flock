@@ -30,8 +30,8 @@
 #define ROTATE_ORDER_XZY	3
 #define ROTATE_ORDER_YXZ	4
 #define ROTATE_ORDER_ZYX	5
-#define OUTPUT_RADIANS	0
-#define OUTPUT_DEGREES	1
+// #define OUTPUT_RADIANS	0
+// #define OUTPUT_DEGREES	1
 
 #define ROT_TO_DEG  57.295779524
 
@@ -136,16 +136,16 @@ private:
 };
 
 
-inline MVector calcRotation(const MVector &phi,MEulerRotation::RotationOrder ord, short outUnit){
-	double len = phi.length();
-	MQuaternion q;
-	q.setAxisAngle(phi, len);
-	MEulerRotation euler(MVector::zero, ord);
-	euler = q;
-	if (outUnit == OUTPUT_DEGREES){
-		return (euler.asVector() * ROT_TO_DEG);
-	}
-	return euler.asVector() ;
-}
+// inline MVector calcRotation(const MVector &phi,MEulerRotation::RotationOrder ord, short outUnit){
+// 	double len = phi.length();
+// 	MQuaternion q;
+// 	q.setAxisAngle(phi, len);
+// 	MEulerRotation euler(MVector::zero, ord);
+// 	euler = q;
+// 	if (outUnit == OUTPUT_DEGREES){
+// 		return (euler.asVector() * ROT_TO_DEG);
+// 	}
+// 	return euler.asVector() ;
+// }
 
 #endif

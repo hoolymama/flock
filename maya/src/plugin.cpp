@@ -5,13 +5,18 @@
 #include "errorMacros.h"
 
 #include "flockShape.h"
+#include "fishDeform.h"
 
 #include "prioritize.h"
 
 #include "steer_remap.h"
 
+
+// #include "legacySteerRemap.h"
 #include "rollerPP.h"
 #include "tumbler.h"
+// #include "legacyTumbler.h"
+#include "articulate.h"
 
 #include <poolData.h>
 #include <pool.h>
@@ -60,8 +65,11 @@
 #include "meshProximityPP.h" 
 #include "subVectorVectorPP.h" 
 #include "speedRampLookup.h"
+
 #include "hexapod.h"
 #include "hexapodLocator.h"
+
+#include "hungerState.h"
 
 
 MStatus initializePlugin( MObject obj)
@@ -73,10 +81,19 @@ MStatus initializePlugin( MObject obj)
 
 	MFnPlugin plugin( obj, PLUGIN_VENDOR, PLUGIN_VERSION , MAYA_VERSION);
 	st = plugin.registerNode( "flockShape", flockShape::id, flockShape::creator, flockShape::initialize, MPxNode::kLocatorNode);er;
+
 	st = plugin.registerNode( "prioritize", prioritize::id, prioritize::creator, prioritize::initialize, MPxNode::kLocatorNode);er;
 	st = plugin.registerNode( "steerRemap", steerRemap::id, steerRemap::creator, steerRemap::initialize );er;
 	st = plugin.registerNode( "roller", rollerPP::id, rollerPP::creator, rollerPP::initialize); ert;
 	st = plugin.registerNode( "tumbler", tumbler::id, tumbler::creator, tumbler::initialize );er;
+
+  st = plugin.registerNode( "fishDeform", fishDeform::id, fishDeform::creator, fishDeform::initialize); er;
+ 
+	// st = plugin.registerNode( "legacySteerRemap", legacySteerRemap::id, legacySteerRemap::creator, legacySteerRemap::initialize );er;
+
+	// st = plugin.registerNode( "legacyTumbler", legacyTumbler::id, legacyTumbler::creator, legacyTumbler::initialize );er;
+	st = plugin.registerNode( "articulate", articulate::id, articulate::creator, articulate::initialize);er;
+
 	st = plugin.registerData( "poolData", poolData::id, poolData::creator );er;
 	st = plugin.registerNode( "pool", pool::id, pool::creator, pool::initialize );er;
 	st = plugin.registerNode( "sensor", sensor::id, sensor::creator, sensor::initialize );er;
@@ -123,9 +140,12 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "meshProximityPP", meshProximityPP::id, meshProximityPP::creator, meshProximityPP::initialize); er;
 	st = plugin.registerNode( "subVectorVectorPP", subVectorVectorPP::id, subVectorVectorPP::creator, subVectorVectorPP::initialize); er;
 	st = plugin.registerNode( "speedRampLookupPP", speedRampLookupPP::id, speedRampLookupPP::creator, speedRampLookupPP::initialize); er;
+ 
 	st = plugin.registerNode( "hexapod", hexapod::id, hexapod::creator, hexapod::initialize); er;
  	st = plugin.registerNode( "hexapodLocatorShape", hexapodLocator::id, hexapodLocator::creator,hexapodLocator::initialize, MPxNode::kLocatorNode  );er;
-
+ 
+	st = plugin.registerNode( "hungerState", hungerState::id, hungerState::creator, hungerState::initialize); er;
+ 
 	MGlobal::executePythonCommand("import flock;flock.load()");
 
 
@@ -140,10 +160,14 @@ MStatus uninitializePlugin( MObject obj)
 	MString method("uninitializePlugin");
 
 	MFnPlugin plugin( obj );
+ 
 
 	st = plugin.deregisterNode( hexapodLocator::id );er;	
 	st = plugin.deregisterNode( hexapod::id );er;
 	st = plugin.deregisterNode( speedRampLookupPP::id );er;
+ 
+	st = plugin.deregisterNode( hungerState::id );er;
+ 
 	st = plugin.deregisterNode( subVectorVectorPP::id );er;
 	st = plugin.deregisterNode( meshProximityPP::id );er;
 	st = plugin.deregisterNode( sinePP::id );er;
@@ -191,14 +215,17 @@ MStatus uninitializePlugin( MObject obj)
 	st = plugin.deregisterNode( pool::id );er;
 	st = plugin.deregisterData( poolData::id );er;
 
-	st = plugin.deregisterNode( tumbler::id );ert;
-	st = plugin.deregisterNode( rollerPP::id );ert;
+	st = plugin.deregisterNode( articulate::id );er;
+	// st = plugin.deregisterNode( legacyTumbler::id );er;
+	st = plugin.deregisterNode( tumbler::id );er;
+	st = plugin.deregisterNode( rollerPP::id );er;
 
-
+	// st = plugin.deregisterNode( legacySteerRemap::id );er;
+	
 	st = plugin.deregisterNode( steerRemap::id );er;
 	
 	st = plugin.deregisterNode( prioritize::id );er;
-
+	st = plugin.deregisterNode( fishDeform::id );er;
 	st = plugin.deregisterNode( flockShape::id );er;
 
 	// deregister your plugin's nodes, commands, or whetever here.

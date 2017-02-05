@@ -24,7 +24,7 @@ os_darwin64:
     - 'Foundation'
     - 'OpenMaya'
     maya_relative_lib_path: 'Maya.app/Contents/MacOS'
-    maya_relative_inc_path: 'devkit/include'
+    maya_relative_inc_path: 'include'
     compiler_options:
     - '-gdwarf-2' 
     - '-mfix-and-continue'
@@ -41,8 +41,8 @@ os_darwin64:
     - '-O0'  
     - '-D_LANGUAGE_C_PLUS_PLUS'
     target_extension: 'bundle'
-    includes: []
-
+ 
+ 
 os_win64:
     libs:
     - 'Foundation'
