@@ -178,4 +178,35 @@ private:
 };
 
 
+inline MStatus checkArrayLength(unsigned alen, unsigned len, const MString &name) {
+
+	if (alen != len) {
+
+		MString msg("Array length doesn't match: ");
+		msg +=name;
+		msg +=" length: ";
+		msg += alen;
+		msg +=" should be: " ;
+		msg += len;
+
+		MGlobal::displayError(msg);
+			return MS::kFailure;
+	}
+	return MS::kSuccess;
+
+}
+
+inline  MStatus checkArrayLength(const MDoubleArray &arr, unsigned len, const MString &name) {
+	unsigned alen = arr.length();
+	return checkArrayLength(alen, len, name);
+}
+
+
+
+inline  MStatus checkArrayLength(const MVectorArray &arr, unsigned len, const MString &name) {
+	unsigned alen = arr.length();
+		return checkArrayLength(alen, len, name);
+}
+
+
 #endif
