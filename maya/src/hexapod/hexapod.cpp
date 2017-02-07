@@ -25,7 +25,7 @@
 
 
 #include "hexapod.h"
-// #include "hexapodSimulator.h"
+#include "HexapodAgent.h"
 
 #include "errorMacros.h"
 
@@ -111,9 +111,9 @@ MObject hexapod::aRadiusMinC;
 MObject hexapod::aRadiusMaxC;  
 MObject hexapod::aRadiusC; 
 
-MObject hexapod::aSlideProfileA;
-MObject hexapod::aSlideProfileB;
-MObject hexapod::aSlideProfileC;
+MObject hexapod::aSlideProfileRampA;
+MObject hexapod::aSlideProfileRampB;
+MObject hexapod::aSlideProfileRampC;
 
 MObject hexapod::aCurrentTime; 
 
@@ -396,14 +396,14 @@ MStatus hexapod::initialize()
 	nAttr.setKeyable(true);
 	st = addAttribute(aRadiusC);
 
-	aSlideProfileA = rAttr.createCurveRamp("slideProfileA","slpa",&st);er;
-	st = addAttribute(aSlideProfileA );er;
+	aSlideProfileRampA = rAttr.createCurveRamp("slideProfileRampA","slpa",&st);er;
+	st = addAttribute(aSlideProfileRampA );er;
 
-	aSlideProfileB = rAttr.createCurveRamp("slideProfileB","slpb",&st);er;
-	st = addAttribute(aSlideProfileB );er;
+	aSlideProfileRampB = rAttr.createCurveRamp("slideProfileRampB","slpb",&st);er;
+	st = addAttribute(aSlideProfileRampB );er;
 
-	aSlideProfileC = rAttr.createCurveRamp("slideProfileC","slpc",&st);er;
-	st = addAttribute(aSlideProfileC );er;
+	aSlideProfileRampC = rAttr.createCurveRamp("slideProfileRampC","slpc",&st);er;
+	st = addAttribute(aSlideProfileRampC );er;
 
 	aCurrentTime = uAttr.create( "currentTime", "ct", MFnUnitAttribute::kTime );
 	uAttr.setStorable(true);
@@ -705,8 +705,7 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 	MStatus st;
 	MString method("hexapod::compute");
 
-	cerr << "HERE !!!!!!!" << endl;
-
+ 
 	if(!(
 		(plug == aOutLeftA) ||
 		(plug == aOutLeftB) ||
@@ -747,9 +746,11 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 		(plug == aOutPosition) ||
 		(plug == aOutPhi) ||
 		(plug == aOutScale)
-		)) return( MS::kUnknownParameter);
+		)) {
+			return( MS::kUnknownParameter);
+		}
 
-	cerr << "HERE 22222" << endl;
+ 
 		MObject thisNode = thisMObject();
 
 		MTime cT =  data.inputValue( aCurrentTime).asTime();
@@ -763,17 +764,11 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 		MVectorArray vel = MFnVectorArrayData(data.inputValue(aVelocity).data()).array();
 		MVectorArray omega = MFnVectorArrayData(data.inputValue(aOmega).data()).array();
 
-
 		MVectorArray	leftA= MFnVectorArrayData(data.inputValue(aLeftA).data()).array();
-
 		MVectorArray	leftB= MFnVectorArrayData(data.inputValue(aLeftB).data()).array();
-
 		MVectorArray	leftC= MFnVectorArrayData(data.inputValue(aLeftC).data()).array();
-
 		MVectorArray	rightA= MFnVectorArrayData(data.inputValue(aRightA).data()).array();
-
 		MVectorArray	rightB= MFnVectorArrayData(data.inputValue(aRightB).data()).array();
-
 		MVectorArray	rightC= MFnVectorArrayData(data.inputValue(aRightC).data()).array();
 
 		MVectorArray	lastPlantLA= MFnVectorArrayData(data.inputValue(aLastPlantLA).data()).array();
@@ -806,9 +801,9 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 		MRampAttribute stepIncrementRampB( thisMObject() , aStepIncrementRampB, &st ); er; 
 		MRampAttribute stepIncrementRampC( thisMObject() , aStepIncrementRampC, &st ); er;
 
-		MRampAttribute slideProfileA( thisMObject() , aSlideProfileA, &st ); er; 
-		MRampAttribute slideProfileB( thisMObject() , aSlideProfileB, &st ); er; 
-		MRampAttribute slideProfileC( thisMObject() , aSlideProfileC, &st ); er;
+		MRampAttribute slideProfileRampA( thisMObject() , aSlideProfileRampA, &st ); er; 
+		MRampAttribute slideProfileRampB( thisMObject() , aSlideProfileRampB, &st ); er; 
+		MRampAttribute slideProfileRampC( thisMObject() , aSlideProfileRampC, &st ); er;
 		///////////////////////////////////////////////////////////////////////////
 
  		/////////////////////// VECTOR ATTRIBUTES //////////////////////////
@@ -828,6 +823,9 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 		double	radiusMaxB	= data.inputValue(aRadiusMaxB).asDouble();
 		double	radiusMinC	= data.inputValue(aRadiusMinC).asDouble();
 		double	radiusMaxC	= data.inputValue(aRadiusMaxC).asDouble();
+
+
+
 
 		// double  velocityRangeLow 		= data.inputValue(aVelocityRangeLow).asDouble();
 		// double  velocityRangeHigh 		= data.inputValue(aVelocityRangeHigh).asDouble();
@@ -934,6 +932,17 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 			for (int i = 0; i < pl; ++i)
 			{
 
+				HexapodAgent agent(pos[i], phi[i], scale[i]);
+  			// agent->set()
+				 agent.createFootLA(
+				 	leftA[i], homeLA, lastPlantLA[i], nextPlantLA[i],
+				  stepTimeLA[i], radiusMinA, radiusMaxA, 
+				  slideProfileRampA, stepIncrementRampA
+				  );
+		 
+
+			}
+		}
 
 
 				// st = stepForAgent(
@@ -1000,10 +1009,6 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 				// 	outRadius1[i],
 				// 	outRadius2[i]
 				// 	);
-
-			}
-		}
-
 		///// OUTPUTS
 		st = outputData(hexapod::aOutLeftA, data, outLeftA);
 		st = outputData(hexapod::aOutLeftB, data, outLeftB);

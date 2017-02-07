@@ -161,12 +161,12 @@ MStatus uninitializePlugin( MObject obj)
 
 	MFnPlugin plugin( obj );
  
+	st = plugin.deregisterNode( hungerState::id );er;
 
 	st = plugin.deregisterNode( hexapodLocator::id );er;	
 	st = plugin.deregisterNode( hexapod::id );er;
 	st = plugin.deregisterNode( speedRampLookupPP::id );er;
  
-	st = plugin.deregisterNode( hungerState::id );er;
  
 	st = plugin.deregisterNode( subVectorVectorPP::id );er;
 	st = plugin.deregisterNode( meshProximityPP::id );er;

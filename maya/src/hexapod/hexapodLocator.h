@@ -48,25 +48,23 @@ public:
 	void drawFoot( 
 	M3dView & view,
 	const MFloatMatrix & fmat,
-	const MFloatVector & color,
-	const MFloatVector & lastPlant,
-	const MFloatVector & nextPlant,
-	const MFloatVector & footPos,
-	const MFloatVector & homeOffset,
-	const MVector & rotation,
-	float innerRadius,
-	float outerRadius,
-	float actualRadius,
+	const MColor & color,
+	const MVector & footPos,
+	const MVector & home,
+	const MVector & lastPlant,
+	const MVector & nextPlant,
+	const float2 & radiusMinMax,
+	float radius,
 	const MFloatVectorArray & circle,
-	bool drawRotationAxes,
-	float axesScale,
 	bool drawMinMaxRadius,
-	bool drawActualRadius,
+	bool drawRadius,
 	bool drawHomeDots,
-	bool drawhexapod,
+	bool drawStride,
 	bool drawFootDots,
 	float footDotSize
 );
+	
+
 	void drawCordSys(M3dView & view, const MFloatMatrix & fmat, float scale);
 
 	// void drawMatrices( 
@@ -100,76 +98,90 @@ public:
 private:
 	
  	static MObject	aPosition;	
-  	static MObject	aPhi;
+  static MObject	aPhi;
 
-  	static MObject	aNextPlant1; 
- 	static MObject	aNextPlant2; 
- 	static MObject	aLastPlant1; 
- 	static MObject	aLastPlant2; 
- 	static MObject	aFootPos1;
- 	static MObject	aFootPos2;
- 	static MObject	aScale; // home and radius values are scaled
+	// Moving feet positions
+	static MObject	aLeftA;
+	static MObject	aLeftB;
+	static MObject	aLeftC;
+	static MObject	aRightA;
+	static MObject	aRightB;
+	static MObject	aRightC;
 
- 	static MObject	aHomePos1;
- 	static MObject	aHomePos2;
+ 	static MObject  aHomeLA;
+ 	static MObject  aHomeLB;
+ 	static MObject  aHomeLC;
+ 	static MObject  aHomeRA;
+ 	static MObject  aHomeRB;
+ 	static MObject  aHomeRC;
 
+	static MObject	aLastPlantLA;
+	static MObject	aLastPlantLB;
+	static MObject	aLastPlantLC;
+	static MObject	aLastPlantRA;
+	static MObject	aLastPlantRB;
+	static MObject	aLastPlantRC;
 
- 	// static MObject	aHomeOffset1X;
- 	// static MObject	aHomeOffset1Y;
- 	// static MObject	aHomeOffset1Z;
- 	// static MObject	aHomeOffset1;
+	static MObject	aNextPlantLA; 
+	static MObject	aNextPlantLB; 
+	static MObject	aNextPlantLC; 
+	static MObject	aNextPlantRA; 
+	static MObject	aNextPlantRB; 
+	static MObject	aNextPlantRC; 
 
- 	// static MObject	aHomeOffset2X;
- 	// static MObject	aHomeOffset2Y;
- 	// static MObject	aHomeOffset2Z;
- 	// static MObject	aHomeOffset2;
+	static MObject	aScale;
 
+	static MObject	aRadiusMinA; 
+	static MObject	aRadiusMaxA;  
+	static MObject	aRadiusA; 
 
- 	static MObject	aRadius1Min; 
- 	static MObject	aRadius1Max;  
- 	static MObject	aRadius1;  
+	static MObject	aRadiusMinB; 
+	static MObject	aRadiusMaxB;  
+	static MObject	aRadiusB; 
 
- 	static MObject	aRadius2Min; 
- 	static MObject	aRadius2Max; 
- 	static MObject	aRadius2; 
+	static MObject	aRadiusMinC; 
+	static MObject	aRadiusMaxC;  
+	static MObject	aRadiusC; 
 
+  static MObject  aRadiusLA; 
+ 	static MObject  aRadiusLB;
+ 	static MObject  aRadiusLC;
+ 	static MObject  aRadiusRA;
+ 	static MObject  aRadiusRB;
+ 	static MObject  aRadiusRC;
+ 
+ 	static MObject	aColorAR;
+ 	static MObject	aColorAG;
+ 	static MObject	aColorAB;
+ 	static MObject	aColorA;
 
-	static MObject	aActualRadius1;  
-	static MObject	aActualRadius2;  
+ 	static MObject	aColorBR;
+ 	static MObject	aColorBG;
+ 	static MObject	aColorBB;
+ 	static MObject	aColorB;
 
-	static MObject	aRotation1;  
-	static MObject	aRotation2; 
-
- 	static MObject	aColor1R;
- 	static MObject	aColor1G;
- 	static MObject	aColor1B;
- 	static MObject	aColor1;
-
- 	static MObject	aColor2R;
- 	static MObject	aColor2G;
- 	static MObject	aColor2B;
- 	static MObject	aColor2;
+ 	static MObject	aColorCR;
+ 	static MObject	aColorCG;
+ 	static MObject	aColorCB;
+ 	static MObject	aColorC;
 
  	static MObject	aDrawAxes;
 	static MObject	aAxesScale;
 
 	static MObject	aDrawMinMaxRadius;
-	static MObject	aDrawActualRadius;
+	static MObject	aDrawRadius;
 
 	static MObject	aDrawHomeDots;
-	static MObject	aDrawhexapod;
+	static MObject	aDrawStride;
 	static MObject	aDrawFootDots;
 	static MObject	aFootDotSize;
 
- 	static MObject	aDrawRotationAxes;
-
-
-
-
-
-
+ 	// static MObject	aDrawRotationAxes;
 
 
 };
+
+ 
+
 #endif
 

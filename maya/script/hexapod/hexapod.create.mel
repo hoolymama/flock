@@ -1,41 +1,57 @@
  
-
 // create matrixGlyph visualizations
 proc hexapod.attachLocator(string $hexapod) {
 
 	print("attachLocator\n");
-	// string $p;
-	// string $g;
 	
-	// $g =   `createNode matrixGlyphShape`;
-	// connectAttr ($particle+".position")  ($g+".points");
-	// connectAttr ($particle+".goalView")  ($g+".frontVector");
-	// connectAttr ($particle+".goalUp")  ($g+".upVector");
-	// setAttr ($g+".colorMult" ) 0.5;
-	// setAttr ($g+".colorOffset" ) 0.0;
-	// setAttr  ($g+".rotateType" ) 0;
-	// setAttr  ($g+".frontAxis" ) 0;
-	// setAttr  ($g+".upAxis" ) 1;
+ 	string $loc =   `createNode hexapodLocatorShape`;
+
+
+	string $connectionPairs[] = {
+		"outPosition:position",
+		"outPhi:phi",
+		"outLeftA:leftA",
+		"outLeftB:leftB",
+		"outLeftC:leftC",
+		"outRightA:rightA",
+		"outRightB:rightB",
+		"outRightC:rightC",
+		"outHomeLA:homeLA",
+		"outHomeLB:homeLB",
+		"outHomeLC:homeLC",
+		"outHomeRA:homeRA",
+		"outHomeRB:homeRB",
+		"outHomeRC:homeRC",
+		"outLastPlantLA:lastPlantLA",
+		"outLastPlantLB:lastPlantLB",
+		"outLastPlantLC:lastPlantLC",
+		"outLastPlantRA:lastPlantRA",
+		"outLastPlantRB:lastPlantRB",
+		"outLastPlantRC:lastPlantRC",
+		"outNextPlantLA:nextPlantLA",
+		"outNextPlantLB:nextPlantLB",
+		"outNextPlantLC:nextPlantLC",
+		"outNextPlantRA:nextPlantRA",
+		"outNextPlantRB:nextPlantRB",
+		"outNextPlantRC:nextPlantRC",
+    "outScale:scale",
+		"outRadiusLA:radiusLA",
+		"outRadiusLB:radiusLB",
+		"outRadiusLC:radiusLC",
+		"outRadiusRA:radiusRA",
+		"outRadiusRB:radiusRB",
+		"outRadiusRC:radiusRC",
+		"radiusA:radiusA",
+		"radiusB:radiusB",
+		"radiusC:radiusC"
+	};
+	attr.connectPairs($hexapod, $loc, $connectionPairs);
 	
-	// connectAttr -f ($hexapod+".frontAxis") ($g+".frontAxis");
-	// connectAttr -f ($hexapod+".upAxis") ($g+".upAxis");	
-	
-	// $p = firstParentOf($g);
-	// rename $p "goalGlyph";
-
-
-
-
-	// $g =   `createNode matrixGlyphShape`;
-	// connectAttr ($particle+".position")  ($g+".points");
-	// connectAttr ($particle+".phi")  ($g+".axisAngle");
-	// setAttr ($g+".colorMult" ) 1.0;
-	// setAttr ($g+".colorOffset" ) 0.0;
-	// setAttr  ($g+".rotateType" ) 1;
-	// $p = firstParentOf($g);
-	// rename $p "phiGlyph";
-
 }
+
+
+
+
 
 
 proc hexapod.addAttrs(string $particle) {
@@ -148,7 +164,6 @@ global proc hexapod.dynamicConnections(string $p,string $t) {
 	string $connectionPairs[] = {
 		"position:position",
 		"velocity:velocity",
-		"velocity:velocity",
 		"phi:phi",
 		"omega:omega",
 		"leftA:leftA",
@@ -175,15 +190,13 @@ global proc hexapod.dynamicConnections(string $p,string $t) {
 		"stepTimeRA:stepTimeRA",
 		"stepTimeRB:stepTimeRB",
 		"stepTimeRC:stepTimeRC",
-		"radiusPP:scale",
+		"radiusPP:scale"
 		
 	};
 	attr.connectPairs($p, $t, $connectionPairs);
 	
 	connectAttr -f "time1.o" ($t+".currentTime");
 }
-
- 
 
 global proc hexapod.create() {
 	
@@ -202,6 +215,14 @@ global proc hexapod.create() {
 	hexapod.dynamicConnections( $particle,$hexapod);
 
 	hexapod.attachLocator($hexapod);
- 
 
 }
+
+
+global proc hexapod.createLocator() {
+ 	string $hexes[] = `ls -sl -type "hexapod"`;
+ 
+	hexapod.attachLocator($hexes[0]);
+
+}
+

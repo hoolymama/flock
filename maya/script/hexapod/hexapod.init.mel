@@ -15,6 +15,9 @@ global proc hexapod.init(string $moduleName) {
 	-annotation "Select rig"
 	-c "hexapod.connectRig" ;
 
+		menuItem -l "Create Locator" 
+	-annotation "Select rig"
+	-c "hexapod.createLocator" ;
 
 	// menuItem -l "Add Field as Torque" 
 	// -annotation "Select a hexapod and one or more fields"
@@ -39,7 +42,6 @@ global proc hexapod.init(string $moduleName) {
 	// menuItem -l "Create" 
 	// -annotation ("Pick Some Particles") 
 	// -c "roller.create();";
-	
 
 }
 

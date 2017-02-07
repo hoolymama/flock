@@ -1,14 +1,4 @@
-/***************************************************************************
-hexapodLocator.cpp  -  description
--------------------
-    begin                : Dec 2009
-    copyright            : (C) 2009 by Julian Mann
-    email                : julian.mann@gmail.com
-
-    Draw openGL lines showing coord sys
-	***************************************************************************/
-
-
+ 
 #include <maya/MVectorArray.h>
 #include <maya/MString.h> 
 #include <maya/MTypeId.h> 
@@ -37,75 +27,91 @@ hexapodLocator.cpp  -  description
 #include "hexapodLocator.h"
 
 #include "mayaMath.h"
+#include "attrUtils.h"
+
 #include "jMayaIds.h"
 
 const double deg_to_rad = 0.01745329238;
+
+
+
 MObject hexapodLocator::aPosition;	
 MObject hexapodLocator::aPhi;
-MObject hexapodLocator::aScale; // home and radius values are scaled
 
-MObject hexapodLocator::aNextPlant1; 
-MObject hexapodLocator::aNextPlant2; 
+MObject hexapodLocator::aLeftA;
+MObject hexapodLocator::aLeftB;
+MObject hexapodLocator::aLeftC;
+MObject hexapodLocator::aRightA;
+MObject hexapodLocator::aRightB;
+MObject hexapodLocator::aRightC;
 
-MObject hexapodLocator::aLastPlant1; 
-MObject hexapodLocator::aLastPlant2; 
+MObject hexapodLocator::aHomeLA;
+MObject hexapodLocator::aHomeLB;
+MObject hexapodLocator::aHomeLC;
+MObject hexapodLocator::aHomeRA;
+MObject hexapodLocator::aHomeRB;
+MObject hexapodLocator::aHomeRC;
 
-MObject hexapodLocator::aFootPos1;
-MObject hexapodLocator::aFootPos2;
+MObject hexapodLocator::aLastPlantLA;
+MObject hexapodLocator::aLastPlantLB;
+MObject hexapodLocator::aLastPlantLC;
+MObject hexapodLocator::aLastPlantRA;
+MObject hexapodLocator::aLastPlantRB;
+MObject hexapodLocator::aLastPlantRC;
 
-MObject hexapodLocator::aHomePos1;
-MObject hexapodLocator::aHomePos2;
+MObject hexapodLocator::aNextPlantLA; 
+MObject hexapodLocator::aNextPlantLB; 
+MObject hexapodLocator::aNextPlantLC; 
+MObject hexapodLocator::aNextPlantRA; 
+MObject hexapodLocator::aNextPlantRB; 
+MObject hexapodLocator::aNextPlantRC; 
 
-// MObject hexapodLocator::aHomeOffset1X;
-// MObject hexapodLocator::aHomeOffset1Y;
-// MObject hexapodLocator::aHomeOffset1Z;
-// MObject hexapodLocator::aHomeOffset1;
+MObject hexapodLocator::aScale;
 
-// MObject hexapodLocator::aHomeOffset2X;
-// MObject hexapodLocator::aHomeOffset2Y;
-// MObject hexapodLocator::aHomeOffset2Z;
-// MObject hexapodLocator::aHomeOffset2;
+MObject hexapodLocator::aRadiusMinA; 
+MObject hexapodLocator::aRadiusMaxA;  
+MObject hexapodLocator::aRadiusA; 
 
+MObject hexapodLocator::aRadiusMinB; 
+MObject hexapodLocator::aRadiusMaxB;  
+MObject hexapodLocator::aRadiusB; 
 
-MObject hexapodLocator::aRadius1Min; 
-MObject hexapodLocator::aRadius1Max;  
-MObject hexapodLocator::aRadius1;  
+MObject hexapodLocator::aRadiusMinC; 
+MObject hexapodLocator::aRadiusMaxC;  
+MObject hexapodLocator::aRadiusC; 
 
-MObject hexapodLocator::aRadius2Min; 
-MObject hexapodLocator::aRadius2Max; 
-MObject hexapodLocator::aRadius2; 
+MObject hexapodLocator::aRadiusLA; 
+MObject hexapodLocator::aRadiusLB;
+MObject hexapodLocator::aRadiusLC;
+MObject hexapodLocator::aRadiusRA;
+MObject hexapodLocator::aRadiusRB;
+MObject hexapodLocator::aRadiusRC;
 
+MObject hexapodLocator::aColorAR;
+MObject hexapodLocator::aColorAG;
+MObject hexapodLocator::aColorAB;
+MObject hexapodLocator::aColorA;
 
-MObject hexapodLocator::aActualRadius1;  
-MObject hexapodLocator::aActualRadius2;  
+MObject hexapodLocator::aColorBR;
+MObject hexapodLocator::aColorBG;
+MObject hexapodLocator::aColorBB;
+MObject hexapodLocator::aColorB;
 
-MObject hexapodLocator::aRotation1;  
-MObject hexapodLocator::aRotation2;  
-
-
-MObject hexapodLocator::aColor1R;
-MObject hexapodLocator::aColor1G;
-MObject hexapodLocator::aColor1B;
-MObject hexapodLocator::aColor1;
-
-MObject hexapodLocator::aColor2R;
-MObject hexapodLocator::aColor2G;
-MObject hexapodLocator::aColor2B;
-MObject hexapodLocator::aColor2;
+MObject hexapodLocator::aColorCR;
+MObject hexapodLocator::aColorCG;
+MObject hexapodLocator::aColorCB;
+MObject hexapodLocator::aColorC;
 
 MObject hexapodLocator::aDrawAxes;
-MObject hexapodLocator::aDrawRotationAxes;
-
 MObject hexapodLocator::aAxesScale;
+
 MObject hexapodLocator::aDrawMinMaxRadius;
-MObject hexapodLocator::aDrawActualRadius;
+MObject hexapodLocator::aDrawRadius;
+
 MObject hexapodLocator::aDrawHomeDots;
-MObject hexapodLocator::aDrawhexapod;
+MObject hexapodLocator::aDrawStride;
 MObject hexapodLocator::aDrawFootDots;
 MObject hexapodLocator::aFootDotSize;
-
-
-
 
 
 MTypeId hexapodLocator::id( k_hexapodLocator );
@@ -136,107 +142,105 @@ void hexapodLocator::drawCordSys(M3dView & view, const MFloatMatrix & fmat, floa
 // cerr << "z: " << p << endl; 
 // cerr << "--------------------------" << endl;
 	view.setDrawColor(MColor(MColor::kRGB,1.0f, 0.0f, 0.0f));	
- 	glBegin( GL_LINES );
+	glBegin( GL_LINES );
 
 	glVertex3f( p.x , p.y , p.z );
 
 	glVertex3f(	x.x , x.y, x.z);
 
- 	glEnd();
+	glEnd();
 
- 	view.setDrawColor(MColor(MColor::kRGB,0.0f, 1.0f, 0.0f));	
- 	glBegin( GL_LINES );
+	view.setDrawColor(MColor(MColor::kRGB,0.0f, 1.0f, 0.0f));	
+	glBegin( GL_LINES );
 
 	glVertex3f( p.x , p.y , p.z );
 
 	glVertex3f(	y.x , y.y, y.z);
 
- 	glEnd();	
+	glEnd();	
 
- 	view.setDrawColor(MColor(MColor::kRGB,0.0f, 0.0f, 1.0f));
- 	glBegin( GL_LINES );
+	view.setDrawColor(MColor(MColor::kRGB,0.0f, 0.0f, 1.0f));
+	glBegin( GL_LINES );
 
 	glVertex3f( p.x , p.y , p.z );
 
 	glVertex3f(	z.x , z.y, z.z);
 
- 	glEnd();
+	glEnd();
 
 }
 void hexapodLocator::drawFoot( 
 	M3dView & view,
 	const MFloatMatrix & fmat,
-	const MFloatVector & color,
-	const MFloatVector & lastPlant,
-	const MFloatVector & nextPlant,
-	const MFloatVector & footPos,
-	const MFloatVector & homeOffset,
-	const MVector & rotation,
-	float innerRadius,
-	float outerRadius,
-	float actualRadius,
+	const MColor & color,
+	const MVector & footPos,
+	const MVector & home,
+	const MVector & lastPlant,
+	const MVector & nextPlant,
+	const float2 & radiusMinMax,
+	float radius,
 	const MFloatVectorArray & circle,
-	bool drawRotationAxes,
-	float axesScale,
 	bool drawMinMaxRadius,
-	bool drawActualRadius,
+	bool drawRadius,
 	bool drawHomeDots,
-	bool drawhexapod,
+	bool drawStride,
 	bool drawFootDots,
 	float footDotSize
-)
+	)
 {
 	// draw the ws stuff
 
-	MFloatPoint home_ws = MFloatPoint(homeOffset) * fmat;
-
+	 MFloatPoint home_ws(home);
+	 MFloatPoint home_local = home_ws * fmat.inverse();
+ 
 	glPushAttrib(GL_CURRENT_BIT);
-		
-	glPointSize(3);
-		
-	glBegin( GL_POINTS );
 
-	if (drawhexapod) {
-		// lastPlant blackish
+	glPointSize(3);
+
+
+	glBegin( GL_POINTS );
+	if (drawStride) {
+		//  blackish
 		view.setDrawColor(MColor(MColor::kRGB,0.1f,0.1f,0.1f));
-		glVertex3f( lastPlant.x , lastPlant.y , lastPlant.z );
-	
-		// nextPlant whitish
+		glVertex3f( float(lastPlant.x) , float(lastPlant.y) , float(lastPlant.z) );
+
+		//  whitish
 		view.setDrawColor(MColor(MColor::kRGB,0.9f,0.9f,0.9f));
-		glVertex3f( nextPlant.x , nextPlant.y , nextPlant.z );
+		glVertex3f( float(nextPlant.x) , float(nextPlant.y) , float(nextPlant.z) );
 	}
+
 	if (drawHomeDots) {
 		// home_ws grey
 		view.setDrawColor(MColor(MColor::kRGB,0.5f,0.5f,0.5f));
 		glVertex3f( home_ws.x , home_ws.y , home_ws.z );
 	}
-
 	glEnd();
+
 	if (drawFootDots) {
 		glPointSize(footDotSize);
 		glBegin( GL_POINTS );
 		// footPos color
-		view.setDrawColor(MColor(MColor::kRGB,color.x,color.y,color.z));
-		glVertex3f( footPos.x , footPos.y , footPos.z );
-			
+		view.setDrawColor(color);
+		glVertex3f( float(footPos.x) , float(footPos.y) , float(footPos.z) );
+
 		glEnd();
 	}
 
 	// draw circles and line from last to next
-	view.setDrawColor(MColor(MColor::kRGB,color.x,color.y,color.z));
+	view.setDrawColor(color);
 	glBegin( GL_LINES );
-	if (drawhexapod) {
-		glVertex3f( lastPlant.x , lastPlant.y , lastPlant.z );
-		glVertex3f( nextPlant.x , nextPlant.y , nextPlant.z );
+	if (drawStride) {
+		glVertex3f( float(lastPlant.x) , float(lastPlant.y) , float(lastPlant.z) );
+		glVertex3f( float(nextPlant.x) , float(nextPlant.y) , float(nextPlant.z) );
 	}
-	if (drawMinMaxRadius || drawActualRadius){
+	if (drawMinMaxRadius || drawRadius){
 		unsigned divs = circle.length();
-		MFloatVectorArray c(divs);
+		MFloatPointArray c(divs);
 		if (drawMinMaxRadius ){
 			// inner circle
 			for (int i = 0; i < divs; ++i)
 			{
-				c[i] = MFloatVector(MFloatPoint((circle[i] * innerRadius) + homeOffset) * fmat);
+				c[i] = (home_local + (circle[i] * radiusMinMax[0]))  * fmat;
 			}
 			for (int i = 0; i < divs; ++i)
 			{
@@ -247,7 +251,7 @@ void hexapodLocator::drawFoot(
 			// outer circle
 			for (int i = 0; i < divs; ++i)
 			{
-				c[i] = MFloatVector(MFloatPoint((circle[i] * outerRadius) + homeOffset) * fmat);
+				c[i] = (home_local+(circle[i] * radiusMinMax[1])) * fmat;
 			}
 			for (int i = 0; i < divs; ++i)
 			{
@@ -256,12 +260,12 @@ void hexapodLocator::drawFoot(
 				glVertex3f( c[next].x , c[next].y , c[next].z );
 			}
 		}
-		if (drawActualRadius){
+		if (drawRadius){
 			// actual circle // bluish	
 			view.setDrawColor(MColor(MColor::kRGB,0.4f,0.6f,0.8f) ); 
 			for (int i = 0; i < divs; ++i)
 			{
-				c[i] = MFloatVector(MFloatPoint((circle[i] * actualRadius) + homeOffset) * fmat);
+				c[i] = (home_local + (circle[i] * radius)) * fmat;
 			}
 			for (int i = 0; i < divs; ++i)
 			{
@@ -270,46 +274,25 @@ void hexapodLocator::drawFoot(
 				glVertex3f( c[next].x , c[next].y , c[next].z );
 			}
 		}
-		if (drawRotationAxes) {
-			MTransformationMatrix mtmat;
-
-			MTransformationMatrix::RotationOrder ord = MTransformationMatrix::kXYZ ;
-	
-			double3 rotValue;
-			rotValue[0] = rotation.x * deg_to_rad;
-			rotValue[1] = rotation.y * deg_to_rad;
-			rotValue[2] = rotation.z * deg_to_rad;
-			//cerr << "rotValue: " << MVector(rotValue[0],rotValue[1],rotValue[2]) << endl;
-			mtmat.setRotation( rotValue, ord );
-			mtmat.setTranslation( MVector(footPos), MSpace::kWorld);
-
-			MMatrix footMat = mtmat.asMatrix();
-			MFloatMatrix fmat(footMat.matrix);
-
-			drawCordSys(view, fmat,  axesScale);
-		}
 	}
 
 	glEnd();
-
-
 	glPopAttrib();
 
 }
 
 void hexapodLocator::draw( M3dView & view, const MDagPath & path, 
-				  M3dView::DisplayStyle style,
-				  M3dView::DisplayStatus status )
+	M3dView::DisplayStyle style,
+	M3dView::DisplayStatus status )
 { 
 
 	MStatus st;
 	MObject thisNode = thisMObject();
-	// DBG;
+ 
 	MObject d;
 	MFnVectorArrayData fnV;
 	MFnDoubleArrayData fnD;
-	// DBG;
-
+ 
 	MPlug plug( thisNode, aPosition);
 	st = plug.getValue(d);
 	fnV.setObject(d);
@@ -317,175 +300,113 @@ void hexapodLocator::draw( M3dView & view, const MDagPath & path,
 	unsigned pl = pos.length();
 	// DBG;
 
-	plug.setAttribute(aPhi);
-	st = plug.getValue(d);
-	fnV.setObject(d);
-	if (fnV.length() != pl) return;
-	MVectorArray phi = fnV.array();
+	MVectorArray phi = getVectorArray(thisNode, aPhi, pl, &st);erv;
+	MVectorArray leftA = getVectorArray(thisNode, aLeftA, pl, &st);erv;
+	MVectorArray leftB = getVectorArray(thisNode, aLeftB, pl, &st);erv;
+	MVectorArray leftC = getVectorArray(thisNode, aLeftC, pl, &st);erv;
+	MVectorArray rightA = getVectorArray(thisNode, aRightA, pl, &st);erv;
+	MVectorArray rightB = getVectorArray(thisNode, aRightB, pl, &st);erv;
+	MVectorArray rightC = getVectorArray(thisNode, aRightC, pl, &st);erv;
+	MVectorArray homeLA = getVectorArray(thisNode, aHomeLA, pl, &st);erv;
+	MVectorArray homeLB = getVectorArray(thisNode, aHomeLB, pl, &st);erv;
+	MVectorArray homeLC = getVectorArray(thisNode, aHomeLC, pl, &st);erv;
+	MVectorArray homeRA = getVectorArray(thisNode, aHomeRA, pl, &st);erv;
+	MVectorArray homeRB = getVectorArray(thisNode, aHomeRB, pl, &st);erv;
+	MVectorArray homeRC = getVectorArray(thisNode, aHomeRC, pl, &st);erv;
+	MVectorArray lastPlantLA = getVectorArray(thisNode, aLastPlantLA, pl, &st);erv;
+	MVectorArray lastPlantLB = getVectorArray(thisNode, aLastPlantLB, pl, &st);erv;
+	MVectorArray lastPlantLC = getVectorArray(thisNode, aLastPlantLC, pl, &st);erv;
+	MVectorArray lastPlantRA = getVectorArray(thisNode, aLastPlantRA, pl, &st);erv;
+	MVectorArray lastPlantRB = getVectorArray(thisNode, aLastPlantRB, pl, &st);erv;
+	MVectorArray lastPlantRC = getVectorArray(thisNode, aLastPlantRC, pl, &st);erv;
+	MVectorArray nextPlantLA = getVectorArray(thisNode, aNextPlantLA, pl, &st);erv; 
+	MVectorArray nextPlantLB = getVectorArray(thisNode, aNextPlantLB, pl, &st);erv; 
+	MVectorArray nextPlantLC = getVectorArray(thisNode, aNextPlantLC, pl, &st);erv; 
+	MVectorArray nextPlantRA = getVectorArray(thisNode, aNextPlantRA, pl, &st);erv; 
+	MVectorArray nextPlantRB = getVectorArray(thisNode, aNextPlantRB, pl, &st);erv; 
+	MVectorArray nextPlantRC = getVectorArray(thisNode, aNextPlantRC, pl, &st);erv; 
+ 
+
+	MDoubleArray radiusLA = getDoubleArray(thisNode, aRadiusLA, pl, &st);erv; 
+	MDoubleArray radiusLB = getDoubleArray(thisNode, aRadiusLB, pl, &st);erv; 
+  MDoubleArray radiusLC = getDoubleArray(thisNode, aRadiusLC, pl, &st);erv; 
+  MDoubleArray radiusRA = getDoubleArray(thisNode, aRadiusRA, pl, &st);erv; 
+	MDoubleArray radiusRB = getDoubleArray(thisNode, aRadiusRB, pl, &st);erv; 
+  MDoubleArray radiusRC = getDoubleArray(thisNode, aRadiusRC, pl, &st);erv; 
+ 
+ 	MDoubleArray scale = getDoubleArray(thisNode, aScale, pl, &st);erv; 
+ 
+
+	float2 radiusMinMaxA;
+	plug.setAttribute( aRadiusMinA );			
+	plug.getValue( radiusMinMaxA[0]);
+	plug.setAttribute( aRadiusMaxA );			
+	plug.getValue( radiusMinMaxA[1]);
 	// DBG;
 
-	st = plug.setAttribute(aLastPlant1);er;
-	st = plug.getValue(d);
-	st = fnV.setObject(d); 
-	if (fnV.length() != pl) return;
-	MVectorArray lastPlant1 = fnV.array();
+	float2 radiusMinMaxB;
+	plug.setAttribute( aRadiusMinB );			
+	plug.getValue( radiusMinMaxB[0]);
+	plug.setAttribute( aRadiusMaxB );			
+	plug.getValue( radiusMinMaxB[1]);
 	// DBG;
 
-	plug.setAttribute(aLastPlant2);
-	st = plug.getValue(d);
-	fnV.setObject(d);
-	if (fnV.length() != pl) return;
-	MVectorArray lastPlant2 = fnV.array();
+	float2 radiusMinMaxC;
+	plug.setAttribute( aRadiusMinC );			
+	plug.getValue( radiusMinMaxC[0]);
+	plug.setAttribute( aRadiusMaxC );			
+	plug.getValue( radiusMinMaxC[1]);
 	// DBG;
 
-	plug.setAttribute(aNextPlant1);
-	st = plug.getValue(d);
-	fnV.setObject(d);
-	if (fnV.length() != pl) return;
-	MVectorArray nextPlant1 = fnV.array();
+ 
+	float3 cA;
+	plug.setAttribute( aColorAR );			
+	plug.getValue( cA[0]);
+	plug.setAttribute( aColorAG );			
+	plug.getValue( cA[1]);
+	plug.setAttribute( aColorAB );			
+	plug.getValue( cA[2]);
+	MColor colorA(cA);	// DBG;
+
+	float3 cB;
+	plug.setAttribute( aColorBR );			
+	plug.getValue( cB[0]);
+	plug.setAttribute( aColorBG );			
+	plug.getValue( cB[1]);
+	plug.setAttribute( aColorBB );			
+	plug.getValue( cB[2]);
+	MColor colorB(cB);	// DBG;
+
+	float3 cC;
+	plug.setAttribute( aColorCR );			
+	plug.getValue( cC[0]);
+	plug.setAttribute( aColorCG );			
+	plug.getValue( cC[1]);
+	plug.setAttribute( aColorCB );			
+	plug.getValue( cC[2]);
+	MColor colorC(cC);
 	// DBG;
 
-	plug.setAttribute(aNextPlant2);
-	st = plug.getValue(d);
-	fnV.setObject(d);
-	if (fnV.length() != pl) return;
-	MVectorArray nextPlant2 = fnV.array();
-	// DBG;
-
-	plug.setAttribute(aFootPos1);
-	st = plug.getValue(d);
-	fnV.setObject(d);
-	if (fnV.length() != pl) return;
-	MVectorArray footPos1 = fnV.array();
-	// DBG;
-
-	plug.setAttribute(aFootPos2);
-	st = plug.getValue(d);
-	fnV.setObject(d);
-	if (fnV.length() != pl) return;
-	MVectorArray footPos2 = fnV.array();
-	// DBG;
-
-	plug.setAttribute(aHomePos1);
-	st = plug.getValue(d);
-	fnV.setObject(d);
-	if (fnV.length() != pl) return;
-	MVectorArray homePos1 = fnV.array();
-	// DBG;
-
-	plug.setAttribute(aHomePos2);
-	st = plug.getValue(d);
-	fnV.setObject(d);
-	if (fnV.length() != pl) return;
-	MVectorArray homePos2 = fnV.array();
-	// DBG;
-
-	plug.setAttribute(aRotation1);
-	st = plug.getValue(d);
-	fnV.setObject(d);
-	if (fnV.length() != pl) return;
-	MVectorArray rotation1 = fnV.array();
-	// DBG;
-
-	plug.setAttribute(aRotation2);
-	st = plug.getValue(d);
-	fnV.setObject(d);
-	if (fnV.length() != pl) return;
-	MVectorArray rotation2 = fnV.array();
-	// DBG;
-
-	plug.setAttribute(aActualRadius1);
-	st = plug.getValue(d);
-	fnD.setObject(d);
-	if (fnD.length() != pl) return;
-	MDoubleArray actualRadius1 = fnD.array();
-	// DBG;
-
-	plug.setAttribute(aActualRadius2);
-	st = plug.getValue(d);
-	fnD.setObject(d);
-	if (fnD.length() != pl) return;
-	MDoubleArray actualRadius2 = fnD.array();
-	// DBG;
-
-	plug.setAttribute(aScale);
-	st = plug.getValue(d);
-	fnD.setObject(d);
-	if (fnD.length() != pl) return;
-	MDoubleArray scale = fnD.array();
-	// DBG;
-
-	// float3 homeOffset1;
-	// plug.setAttribute( aHomeOffset1X );			
-	// plug.getValue( homeOffset1[0]);
-	// plug.setAttribute( aHomeOffset1Y );			
-	// plug.getValue( homeOffset1[1]);
-	// plug.setAttribute( aHomeOffset1Z );			
-	// plug.getValue( homeOffset1[2]);
-	// // // DBG;
-
-	// float3 homeOffset2;
-	// plug.setAttribute( aHomeOffset2X );			
-	// plug.getValue( homeOffset2[0]);
-	// plug.setAttribute( aHomeOffset2Y );			
-	// plug.getValue( homeOffset2[1]);
-	// plug.setAttribute( aHomeOffset2Z );			
-	// plug.getValue( homeOffset2[2]);
-	// // DBG;
-
-	float2 radius1MinMax;
-	plug.setAttribute( aRadius1Min );			
-	plug.getValue( radius1MinMax[0]);
-	plug.setAttribute( aRadius1Max );			
-	plug.getValue( radius1MinMax[1]);
-	// DBG;
-
-	float2 radius2MinMax;
-	plug.setAttribute( aRadius2Min );			
-	plug.getValue( radius2MinMax[0]);
-	plug.setAttribute( aRadius2Max );			
-	plug.getValue( radius2MinMax[1]);
-	// DBG;
-
-	float3 color1;
-	plug.setAttribute( aColor1R );			
-	plug.getValue( color1[0]);
-	plug.setAttribute( aColor1G );			
-	plug.getValue( color1[1]);
-	plug.setAttribute( aColor1B );			
-	plug.getValue( color1[2]);
-	// DBG;
-
-	float3 color2;
-	plug.setAttribute( aColor2R );			
-	plug.getValue( color2[0]);
-	plug.setAttribute( aColor2G );			
-	plug.getValue( color2[1]);
-	plug.setAttribute( aColor2B );			
-	plug.getValue( color2[2]);
 
 	// DBG;
 	bool drawAxes;
 	plug.setAttribute( aDrawAxes);
 	plug.getValue(drawAxes);
-	bool drawRotationAxes;
-	plug.setAttribute( aDrawRotationAxes);
-	plug.getValue(drawRotationAxes);
 	float axesScale;
 	plug.setAttribute( aAxesScale);
 	plug.getValue(axesScale);
 	bool drawMinMaxRadius;
 	plug.setAttribute( aDrawMinMaxRadius);
 	plug.getValue(drawMinMaxRadius);
-	bool drawActualRadius;
-	plug.setAttribute( aDrawActualRadius);
-	plug.getValue(drawActualRadius);
+	bool drawRadius;
+	plug.setAttribute( aDrawRadius);
+	plug.getValue(drawRadius);
 	bool drawHomeDots;
 	plug.setAttribute( aDrawHomeDots);
 	plug.getValue(drawHomeDots);
-	bool drawhexapod;
-	plug.setAttribute( aDrawhexapod);
-	plug.getValue(drawhexapod);
+	bool drawStride;
+	plug.setAttribute( aDrawStride);
+	plug.getValue(drawStride);
 	bool drawFootDots;
 	plug.setAttribute( aDrawFootDots);
 	plug.getValue(drawFootDots);
@@ -498,70 +419,63 @@ void hexapodLocator::draw( M3dView & view, const MDagPath & path,
 	unsigned divs = 16;	
 	MFloatVectorArray circle(divs);
 	float gap = float(TAU) / float(divs);
-	for(unsigned j = 0; j < divs; ++j) { circle[j] = MFloatVector(sin(gap * j),0.0f,cos(gap * j));}
-	//DBG;
-	// cerr << "PL" << pl << endl;
-	view.beginGL(); 
+	for(unsigned j = 0; j < divs; ++j) { 
+		circle[j] = MFloatVector(sin(gap * j),0.0f,cos(gap * j));
+	}
+ 
+
+  view.beginGL(); 
 	for (int i = 0; i < pl; ++i)
 	{
-		// cerr << "pos[i] " << pos[i] << endl;
-		// cerr << "phi[i] " << phi[i] << endl;
-		// cerr << "scale[i] " << scale[i] << endl;
-
+ 
 		MMatrix mat = mayaMath::matFromPhi(
 			pos[i], 
 			phi[i], 
 			MVector(scale[i],scale[i],scale[i])
-		);
+			);
 		MFloatMatrix fmat(mat.matrix);
 
-		// need these home positions in local space
-		MFloatVector homeOffset1 = MFloatVector(MFloatPoint(homePos1[i]) * fmat.inverse());
-		MFloatVector homeOffset2 = MFloatVector(MFloatPoint(homePos2[i]) * fmat.inverse());
-		if (drawAxes){
-			drawCordSys(view, fmat, axesScale);
-		}
+		drawFoot( 
+			view, fmat, colorA, leftA[i], homeLA[i], 
+			lastPlantLA[i], nextPlantLA[i], radiusMinMaxA, radiusLA[i], circle,
+			drawMinMaxRadius, drawRadius, drawHomeDots, drawStride, drawFootDots, footDotSize
+			);
+ 
+
+		drawFoot( 
+			view, fmat, colorB, leftB[i], homeLB[i], 
+			lastPlantLB[i], nextPlantLB[i], radiusMinMaxB, radiusLB[i], circle,
+			drawMinMaxRadius, drawRadius, drawHomeDots, drawStride, drawFootDots, footDotSize
+			);
 
 
 		drawFoot( 
-			view,
-			fmat,
-			MFloatVector(color1),
-			MFloatVector(lastPlant1[i]), MFloatVector(nextPlant1[i]), MFloatVector(footPos1[i]),
-			homeOffset1, 
-			rotation1[i],
-			radius1MinMax[0], radius1MinMax[1], 
-			float(actualRadius1[i]),
-			circle,
-			drawRotationAxes,
-			axesScale,
-			drawMinMaxRadius,
-			drawActualRadius,
-			drawHomeDots,
-			drawhexapod,
-			drawFootDots,
-			footDotSize
-		);
+			view, fmat, colorC, leftC[i], homeLC[i], 
+			lastPlantLC[i], nextPlantLC[i], radiusMinMaxC, radiusLC[i], circle,
+			drawMinMaxRadius, drawRadius, drawHomeDots, drawStride, drawFootDots, footDotSize
+			);
 
 		drawFoot( 
-			view,
-			fmat,
-			MFloatVector(color2),
-			MFloatVector(lastPlant2[i]), MFloatVector(nextPlant2[i]), MFloatVector(footPos2[i]),
-			homeOffset2, 
-			rotation2[i],
-			radius2MinMax[0], radius2MinMax[1], 
-			float(actualRadius2[i]),
-			circle,
-			drawRotationAxes,
-			axesScale,
-			drawMinMaxRadius,
-			drawActualRadius,
-			drawHomeDots,
-			drawhexapod,
-			drawFootDots,
-			footDotSize
-		);
+			view, fmat, colorA, rightA[i], homeRA[i], 
+			lastPlantRA[i], nextPlantRA[i], radiusMinMaxA, radiusRA[i], circle,
+			drawMinMaxRadius, drawRadius, drawHomeDots, drawStride, drawFootDots, footDotSize
+			);
+ 
+
+		drawFoot( 
+			view, fmat, colorB, rightB[i], homeRB[i], 
+			lastPlantRB[i], nextPlantRB[i], radiusMinMaxB, radiusRB[i], circle,
+			drawMinMaxRadius, drawRadius, drawHomeDots, drawStride, drawFootDots, footDotSize
+			);
+
+
+		drawFoot( 
+			view, fmat, colorC, rightC[i], homeRC[i], 
+			lastPlantRC[i], nextPlantRC[i], radiusMinMaxC, radiusRC[i], circle,
+			drawMinMaxRadius, drawRadius, drawHomeDots, drawStride, drawFootDots, footDotSize
+			);
+
+
 
 
 	}
@@ -596,133 +510,167 @@ MStatus hexapodLocator::initialize()
 	tAttr.setStorable(false);
 	st = addAttribute( aPhi ); er;
 
-	aScale = tAttr.create("scales", "scl", MFnData::kDoubleArray , &st ); er;
+	aScale = tAttr.create("scale", "scl", MFnData::kDoubleArray , &st ); er;
 	tAttr.setStorable(false);
 	st = addAttribute( aScale ); er;
 
-	aLastPlant1 = tAttr.create("lastPlant1", "lp1", MFnData::kVectorArray , &st ); er;
+
+	aLeftA = tAttr.create("leftA", "lta", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
-	st = addAttribute( aLastPlant1 ); er;
-
-	aLastPlant2 = tAttr.create("lastPlant2", "lp2", MFnData::kVectorArray , &st ); er;
+	st = addAttribute( aLeftA); er;
+	aLeftB = tAttr.create("leftB", "ltb", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
-	st = addAttribute( aLastPlant2 ); er;
-
-	aNextPlant1 = tAttr.create("nextPlant1", "np1", MFnData::kVectorArray , &st ); er;
+	st = addAttribute( aLeftB); er;
+	aLeftC = tAttr.create("leftC", "ltc", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
-	st = addAttribute( aNextPlant1 ); er;
-
-	aNextPlant2 = tAttr.create("nextPlant2", "np2", MFnData::kVectorArray , &st ); er;
+	st = addAttribute( aLeftC); er;
+	aRightA = tAttr.create("rightA", "rta", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
-	st = addAttribute( aNextPlant2 ); er;
-
-	aFootPos1 = tAttr.create("footPos1", "fp1", MFnData::kVectorArray , &st ); er;
+	st = addAttribute( aRightA); er;
+	aRightB = tAttr.create("rightB", "rtb", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
-	st = addAttribute( aFootPos1 ); er;
-
-	aFootPos2 = tAttr.create("footPos2", "fp2", MFnData::kVectorArray , &st ); er;
+	st = addAttribute( aRightB); er;
+	aRightC = tAttr.create("rightC", "rtc", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
-	st = addAttribute( aFootPos2 ); er;
-
-	aActualRadius1 = tAttr.create("actualRadius1", "ar1", MFnData::kDoubleArray , &st ); er;
+	st = addAttribute( aRightC); er;
+	aHomeLA = tAttr.create("homeLA", "hla", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
-	st = addAttribute( aActualRadius1 ); er;
-
-	aActualRadius2 = tAttr.create("actualRadius2", "ar2", MFnData::kDoubleArray , &st ); er;
+	st = addAttribute( aHomeLA); er;
+	aHomeLB = tAttr.create("homeLB", "hlb", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
-	st = addAttribute( aActualRadius2 ); er;
-
-	aHomePos1 = tAttr.create("homePos1", "hp1", MFnData::kVectorArray , &st ); er;
+	st = addAttribute( aHomeLB); er;
+	aHomeLC = tAttr.create("homeLC", "hlc", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
-	st = addAttribute( aHomePos1 ); er;
-
-	aHomePos2 = tAttr.create("homePos2", "hp2", MFnData::kVectorArray , &st ); er;
+	st = addAttribute( aHomeLC); er;
+	aHomeRA = tAttr.create("homeRA", "hra", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
-	st = addAttribute( aHomePos2 ); er;
-
-	aRotation1 = tAttr.create("rotation1", "ro1", MFnData::kVectorArray , &st ); er;
+	st = addAttribute( aHomeRA); er;
+	aHomeRB = tAttr.create("homeRB", "hrb", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
-	st = addAttribute( aRotation1 ); er;
-
-	aRotation2 = tAttr.create("rotation2", "ro2", MFnData::kVectorArray , &st ); er;
+	st = addAttribute( aHomeRB); er;
+	aHomeRC = tAttr.create("homeRC", "hrc", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
-	st = addAttribute( aRotation2 ); er;
+	st = addAttribute( aHomeRC); er;
+	aLastPlantLA = tAttr.create("lastPlantLA", "lpla", MFnData::kVectorArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aLastPlantLA); er;
+	aLastPlantLB = tAttr.create("lastPlantLB", "lplb", MFnData::kVectorArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aLastPlantLB); er;
+	aLastPlantLC = tAttr.create("lastPlantLC", "lplc", MFnData::kVectorArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aLastPlantLC); er;
+	aLastPlantRA = tAttr.create("lastPlantRA", "lpra", MFnData::kVectorArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aLastPlantRA); er;
+	aLastPlantRB = tAttr.create("lastPlantRB", "lprb", MFnData::kVectorArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aLastPlantRB); er;
+	aLastPlantRC = tAttr.create("lastPlantRC", "lprc", MFnData::kVectorArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aLastPlantRC); er;
+	aNextPlantLA = tAttr.create("nextPlantLA", "npla", MFnData::kVectorArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aNextPlantLA); er; 
+	aNextPlantLB = tAttr.create("nextPlantLB", "nplb", MFnData::kVectorArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aNextPlantLB); er; 
+	aNextPlantLC = tAttr.create("nextPlantLC", "nplc", MFnData::kVectorArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aNextPlantLC); er; 
+	aNextPlantRA = tAttr.create("nextPlantRA", "npra", MFnData::kVectorArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aNextPlantRA); er; 
+	aNextPlantRB = tAttr.create("nextPlantRB", "nprb", MFnData::kVectorArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aNextPlantRB); er; 
+	aNextPlantRC = tAttr.create("nextPlantRC", "nprc", MFnData::kVectorArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aNextPlantRC); er; 
 
 
+	aRadiusLA= tAttr.create("radiusLA", "rdla", MFnData::kDoubleArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aRadiusLA ); er;
+	aRadiusLB= tAttr.create("radiusLB", "rdlb", MFnData::kDoubleArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aRadiusLB ); er;
+	aRadiusLC= tAttr.create("radiusLC", "rdlc", MFnData::kDoubleArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aRadiusLC ); er;
+	aRadiusRA= tAttr.create("radiusRA", "rdra", MFnData::kDoubleArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aRadiusRA ); er;
+	aRadiusRB= tAttr.create("radiusRB", "rdrb", MFnData::kDoubleArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aRadiusRB ); er;
+	aRadiusRC= tAttr.create("radiusRC", "rdrc", MFnData::kDoubleArray , &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aRadiusRC ); er;
 
-	// aHomeOffset1X = nAttr.create ("homeOffset1X", "ho1x", MFnNumericData::kFloat);
-	// aHomeOffset1Y = nAttr.create ("homeOffset1Y", "ho1y", MFnNumericData::kFloat);
-	// aHomeOffset1Z = nAttr.create ("homeOffset1Z", "ho1z", MFnNumericData::kFloat);
-	// aHomeOffset1 = nAttr.create( "homeOffset1", "ho1", aHomeOffset1X, aHomeOffset1Y, aHomeOffset1Z);
-	// nAttr.setStorable (true);
-	// nAttr.setWritable(true);
-	// nAttr.setKeyable(true);
-	// nAttr.setDefault(-1.0, 0.0, 0.0);
-	// addAttribute(aHomeOffset1);
-	
+	aRadiusMinA = nAttr.create( "radiusMinA", "rmna", MFnNumericData::kDouble);
+	aRadiusMaxA = nAttr.create( "radiusMaxA", "rmxa", MFnNumericData::kDouble);
+	aRadiusA = nAttr.create( "radiusA", "ra", aRadiusMinA, aRadiusMaxA);
+	nAttr.setStorable(true);
+	nAttr.setWritable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute(aRadiusA);
 
-	// aHomeOffset2X = nAttr.create ("homeOffset2X", "ho2x", MFnNumericData::kFloat);
-	// aHomeOffset2Y = nAttr.create ("homeOffset2Y", "ho2y", MFnNumericData::kFloat);
-	// aHomeOffset2Z = nAttr.create ("homeOffset2Z", "ho2z", MFnNumericData::kFloat);
-	// aHomeOffset2 = nAttr.create( "homeOffset2", "ho2", aHomeOffset2X, aHomeOffset2Y, aHomeOffset2Z);
-	// nAttr.setStorable (true);
-	// nAttr.setWritable(true);
-	// nAttr.setKeyable(true);
-	// nAttr.setDefault(1.0, 0.0, 0.0);
-	// addAttribute(aHomeOffset2);
+	aRadiusMinB = nAttr.create( "radiusMinB", "rmnb", MFnNumericData::kDouble);
+	aRadiusMaxB = nAttr.create( "radiusMaxB", "rmxb", MFnNumericData::kDouble);
+	aRadiusB = nAttr.create( "radiusB", "rb", aRadiusMinB, aRadiusMaxB);
+	nAttr.setStorable(true);
+	nAttr.setWritable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute(aRadiusB);
 
-
-
-	aRadius1Min = nAttr.create( "radius1Min", "r1mn", MFnNumericData::kFloat);
-	aRadius1Max = nAttr.create( "radius1Max", "r1mx", MFnNumericData::kFloat);
-	aRadius1 = nAttr.create( "radius1", "r1", aRadius1Min, aRadius1Max);
-	nAttr.setStorable(false);
-	nAttr.setReadable(true);
-	st = addAttribute(aRadius1);
-
-	aRadius2Min = nAttr.create( "radius2Min", "r2mn", MFnNumericData::kFloat);
-	aRadius2Max = nAttr.create( "radius2Max", "r2mx", MFnNumericData::kFloat);
-	aRadius2 = nAttr.create( "radius2", "r2", aRadius2Min, aRadius2Max);
-	nAttr.setStorable(false);
-	nAttr.setReadable(true);
-	st = addAttribute(aRadius2);
+	aRadiusMinC = nAttr.create( "radiusMinC", "rmnc", MFnNumericData::kDouble);
+	aRadiusMaxC = nAttr.create( "radiusMaxC", "rmxc", MFnNumericData::kDouble);
+	aRadiusC = nAttr.create( "radiusC", "rc", aRadiusMinC, aRadiusMaxC);
+	nAttr.setStorable(true);
+	nAttr.setWritable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute(aRadiusC);
 
 
-	aColor1R = nAttr.create ("color1R", "c1r", MFnNumericData::kFloat);
-	aColor1G = nAttr.create ("color1G", "c1g", MFnNumericData::kFloat);
-	aColor1B = nAttr.create ("color1B", "c1b", MFnNumericData::kFloat);
-	aColor1 = nAttr.create( "color1", "c1", aColor1R, aColor1G, aColor1B);
+	aColorAR = nAttr.create ("colorAR", "car", MFnNumericData::kFloat);
+	aColorAG = nAttr.create ("colorAG", "cag", MFnNumericData::kFloat);
+	aColorAB = nAttr.create ("colorAB", "cab", MFnNumericData::kFloat);
+	aColorA = nAttr.create( "colorA", "ca", aColorAR, aColorAG, aColorAB);
 	nAttr.setStorable (true);
 	nAttr.setWritable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(-1.0, 0.0, 0.0);
 	nAttr.setUsedAsColor(true);
-	addAttribute(aColor1);
-	
+	addAttribute(aColorA);
 
-	aColor2R = nAttr.create ("color2R", "c2r", MFnNumericData::kFloat);
-	aColor2G = nAttr.create ("color2G", "c2g", MFnNumericData::kFloat);
-	aColor2B = nAttr.create ("color2B", "c2b", MFnNumericData::kFloat);
-	aColor2 = nAttr.create( "color2", "c2", aColor2R, aColor2G, aColor2B);
+	aColorBR = nAttr.create ("colorBR", "cbr", MFnNumericData::kFloat);
+	aColorBG = nAttr.create ("colorBG", "cbg", MFnNumericData::kFloat);
+	aColorBB = nAttr.create ("colorBB", "cbb", MFnNumericData::kFloat);
+	aColorB = nAttr.create( "colorB", "cb", aColorBR, aColorBG, aColorBB);
 	nAttr.setStorable (true);
 	nAttr.setWritable(true);
 	nAttr.setKeyable(true);
-	nAttr.setDefault(1.0, 0.0, 0.0);
+	nAttr.setDefault(-1.0, 0.0, 0.0);
 	nAttr.setUsedAsColor(true);
-	addAttribute(aColor2);
+	addAttribute(aColorB);
 
+	aColorCR = nAttr.create ("colorCR", "ccr", MFnNumericData::kFloat);
+	aColorCG = nAttr.create ("colorCG", "ccg", MFnNumericData::kFloat);
+	aColorCB = nAttr.create ("colorCB", "ccb", MFnNumericData::kFloat);
+	aColorC = nAttr.create( "colorC", "cc", aColorCR, aColorCG, aColorCB);
+	nAttr.setStorable (true);
+	nAttr.setWritable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(-1.0, 0.0, 0.0);
+	nAttr.setUsedAsColor(true);
+	addAttribute(aColorC);
 
 	aDrawAxes = nAttr.create("drawAxes", "dax", MFnNumericData::kBoolean);
 	nAttr.setStorable (true);
 	nAttr.setWritable(true);
 	nAttr.setKeyable(true);
 	addAttribute(aDrawAxes);
-
-	aDrawRotationAxes = nAttr.create("drawRotationAxes", "drax", MFnNumericData::kBoolean);
-	nAttr.setStorable (true);
-	nAttr.setWritable(true);
-	nAttr.setKeyable(true);
-	addAttribute(aDrawRotationAxes);
 
 	aAxesScale = nAttr.create("axesScale", "axs", MFnNumericData::kFloat);
 	nAttr.setStorable (true);
@@ -736,11 +684,11 @@ MStatus hexapodLocator::initialize()
 	nAttr.setKeyable(true);
 	addAttribute(aDrawMinMaxRadius);
 
-	aDrawActualRadius = nAttr.create("drawActualRadius", "dar" , MFnNumericData::kBoolean);
+	aDrawRadius = nAttr.create("drawRadius", "dr" , MFnNumericData::kBoolean);
 	nAttr.setStorable (true);
 	nAttr.setWritable(true);
 	nAttr.setKeyable(true);
-	addAttribute(aDrawActualRadius);
+	addAttribute(aDrawRadius);
 
 	aDrawHomeDots = nAttr.create("drawHomeDots", "dhd" , MFnNumericData::kBoolean);
 	nAttr.setStorable (true);
@@ -748,11 +696,11 @@ MStatus hexapodLocator::initialize()
 	nAttr.setKeyable(true);
 	addAttribute(aDrawHomeDots);
 
-	aDrawhexapod = nAttr.create("drawhexapod", "dst" , MFnNumericData::kBoolean);
+	aDrawStride = nAttr.create("drawStride", "dst" , MFnNumericData::kBoolean);
 	nAttr.setStorable (true);
 	nAttr.setWritable(true);
 	nAttr.setKeyable(true);
-	addAttribute(aDrawhexapod);
+	addAttribute(aDrawStride);
 
 	aDrawFootDots = nAttr.create("drawFootDots", "dfd" , MFnNumericData::kBoolean);
 	nAttr.setStorable (true);

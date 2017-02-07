@@ -108,9 +108,9 @@ public:
 	static MObject	aRadiusC; 
 
 
-	static MObject	aSlideProfileA;
- 	static MObject	aSlideProfileB;
- 	static MObject	aSlideProfileC;
+	static MObject	aSlideProfileRampA;
+ 	static MObject	aSlideProfileRampB;
+ 	static MObject	aSlideProfileRampC;
  
 	static MObject	aCurrentTime; 
 
