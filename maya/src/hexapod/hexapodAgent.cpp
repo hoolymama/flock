@@ -23,13 +23,17 @@
 #include "HexapodAgent.h"
 
 
-HexapodAgent::HexapodAgent()
-{}
-
-HexapodAgent::setHome(){
-
-	
+HexapodAgent::HexapodAgent(const MVector &pos, const MVector & phi, double scale)
+{
+	m_matrix = mayaMath::matFromPhi(pos, phi, MVector(scale,scale,scale));
+	m_matrixInverse = m_matrix.inverse();
 }
+
+
+// HexapodAgent::setHome( ){
+
+
+// }
 
 HexapodAgent::~HexapodAgent(){
 	// meshClonerMap::iterator it  = m_clonerMap.begin();

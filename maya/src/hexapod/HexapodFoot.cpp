@@ -26,10 +26,10 @@
 HexapodFoot::HexapodFoot()
 {}
 
-HexapodFoot::setHome(){
+// HexapodFoot::setHome(){
 
 	
-}
+// }
 
 HexapodFoot::~HexapodFoot(){
 	// meshClonerMap::iterator it  = m_clonerMap.begin();

@@ -3,10 +3,7 @@
 
 #include <maya/MObject.h>
  
-
-
-// typedef std::map< int, meshCloner * > meshClonerMap ;
-
+ #include <maya/MVector.h>
 
 class HexapodFoot{
 	public:
@@ -21,18 +18,15 @@ class HexapodFoot{
 	private:
 
 
-		;
-		;
-		;
-		;
-		;
-		;
+		MVector m_home;
+		double m_minRadius;
+		double m_maxRadius;
 
+		MVector m_footPosition;
+		MVector m_lastPlant;
+		MVector m_nextPlant;
 
-		// meshClonerMap m_clonerMap;	
-		
-		// unsigned m_schoolSize;
-		// bool m_schoolSizeChanged;
+ 
 };
 
 

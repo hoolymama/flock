@@ -9,12 +9,22 @@
 #include <maya/MTime.h> 
 #include "mayaMath.h"
 #include <maya/MTypeId.h> 
- 
+ #include <maya/MPxLocatorNode.h>
 
+
+ #define LEAD_COLOR        18  // green
+#define ACTIVE_COLOR      15  // white
+#define ACTIVE_AFFECTED_COLOR  8  // purple
+#define DORMANT_COLOR      4  // blue
+#define HILITE_COLOR      17  // pale blue
+#define DORMANT_VERTEX_COLOR  8  // purple
+#define ACTIVE_VERTEX_COLOR    16  // yellow
+
+#define POINT_SIZE        2.0  
 #define ROT_TO_DEG  57.295779524
 
 
-class hexapod: public MPxNode
+class hexapod:  public MPxLocatorNode
 {
 
 public:
@@ -28,146 +38,60 @@ public:
 	// will compute output force.
 	virtual MStatus	compute( const MPlug& plug, MDataBlock& data );
 
+	virtual void draw( M3dView & view, const MDagPath & path,
+								  M3dView::DisplayStyle style,
+								  M3dView::DisplayStatus status );
+	
+		virtual bool            isBounded() const;
+	virtual MBoundingBox    boundingBox() const; 
+ 
+
 	static MTypeId	id;
-	// INPUT ARRAYS
+
 	static MObject	aPosition;	
 	static MObject	aPhi;
 	static MObject	aVelocity;	
 	static MObject	aOmega;	
-
-	// Moving feet positions
-	static MObject	aLeftA;
-	static MObject	aLeftB;
-	static MObject	aLeftC;
-	static MObject	aRightA;
-	static MObject	aRightB;
-	static MObject	aRightC;
-
-// Home positions
- 
- 	static MObject  aHomeLA;
- 	static MObject  aHomeLB;
- 	static MObject  aHomeLC;
- 	static MObject  aHomeRA;
- 	static MObject  aHomeRB;
- 	static MObject  aHomeRC;
-
-	
-	// Last and next plant
-	static MObject	aLastPlantLA;
-	static MObject	aLastPlantLB;
-	static MObject	aLastPlantLC;
-	static MObject	aLastPlantRA;
-	static MObject	aLastPlantRB;
-	static MObject	aLastPlantRC;
-
-	static MObject	aNextPlantLA; 
-	static MObject	aNextPlantLB; 
-	static MObject	aNextPlantLC; 
-	static MObject	aNextPlantRA; 
-	static MObject	aNextPlantRB; 
-	static MObject	aNextPlantRC; 
-
-	static MObject	aScale; // home and radius values are scaled
+	static MObject	aScale;
 	static MObject	aMesh;
+	static MObject	aCurrentTime; 
 
-	// 0 < StepTime < 1 means the foot is in flight.
-	// StepTime == 1 means the foot is landed 
-	static MObject	aStepTimeLA;
-	static MObject	aStepTimeLB;
-	static MObject	aStepTimeLC;
-	static MObject	aStepTimeRA;
-	static MObject	aStepTimeRB;
-	static MObject	aStepTimeRC;
-
- 	// curve ramps that attenuate the step increment value based on velocity beetle's velocity
-	static MObject	aStepIncrementRampA; 
-	static MObject	aStepIncrementRampB; 
-	static MObject	aStepIncrementRampC;
-
-
-	// static MObject aVelocityRangeLow;
-	// static MObject aVelocityRangeHigh;
-	// static MObject aVelocityRange;
-
-	// static MObject aMaxDisplacementA;
-	// static MObject aMaxDisplacementB;
-	// static MObject aMaxDisplacementC;
-
-
+ 	static MObject  aRankA;
+  static MObject  aHomeAX;
+ 	static MObject  aHomeAZ;
+  static MObject	aHomeA; 
 	static MObject	aRadiusMinA; 
 	static MObject	aRadiusMaxA;  
 	static MObject	aRadiusA; 
+ 	static MObject	aStepIncrementRampA; 
+	static MObject	aSlideProfileRampA;
 
+ 	static MObject  aRankB;
+  static MObject  aHomeBX;
+ 	static MObject  aHomeBZ;
+  static MObject	aHomeB; 
 	static MObject	aRadiusMinB; 
 	static MObject	aRadiusMaxB;  
 	static MObject	aRadiusB; 
+ 	static MObject	aStepIncrementRampB; 
+	static MObject	aSlideProfileRampB;
 
+ 	static MObject  aRankC;
+  static MObject  aHomeCX;
+ 	static MObject  aHomeCZ;
+  static MObject	aHomeC; 
 	static MObject	aRadiusMinC; 
 	static MObject	aRadiusMaxC;  
 	static MObject	aRadiusC; 
+ 	static MObject	aStepIncrementRampC; 
+	static MObject	aSlideProfileRampC;
 
-
-	static MObject	aSlideProfileRampA;
- 	static MObject	aSlideProfileRampB;
- 	static MObject	aSlideProfileRampC;
- 
-	static MObject	aCurrentTime; 
-
-
-
-	/////// OUTPUTS
 	static MObject	aOutLeftA;
 	static MObject	aOutLeftB;
 	static MObject	aOutLeftC;
 	static MObject	aOutRightA;
 	static MObject	aOutRightB;
 	static MObject	aOutRightC;
-
-
-	// Output Last and next plant
-	static MObject	aOutLastPlantLA;
-	static MObject	aOutLastPlantLB;
-	static MObject	aOutLastPlantLC;
-	static MObject	aOutLastPlantRA;
-	static MObject	aOutLastPlantRB;
-	static MObject	aOutLastPlantRC;
-
-	static MObject	aOutNextPlantLA; 
-	static MObject	aOutNextPlantLB; 
-	static MObject	aOutNextPlantLC; 
-	static MObject	aOutNextPlantRA; 
-	static MObject	aOutNextPlantRB; 
-	static MObject	aOutNextPlantRC; 
- 
-	static MObject	aOutStepTimeLA;
-	static MObject	aOutStepTimeLB;
-	static MObject	aOutStepTimeLC;
-	static MObject	aOutStepTimeRA;
-	static MObject	aOutStepTimeRB;
-	static MObject	aOutStepTimeRC;
-  
- 	static MObject  aOutHomeLA;
- 	static MObject  aOutHomeLB;
- 	static MObject  aOutHomeLC;
- 	static MObject  aOutHomeRA;
- 	static MObject  aOutHomeRB;
- 	static MObject  aOutHomeRC;
-
-  static MObject  aOutRadiusLA; 
- 	static MObject  aOutRadiusLB;
- 	static MObject  aOutRadiusLC;
- 	static MObject  aOutRadiusRA;
- 	static MObject  aOutRadiusRB;
- 	static MObject  aOutRadiusRC;
- 
-	// these atts simply echoes of the input atts - 
-	// they are for the locator
-	static MObject	aOutPosition;  
-	static MObject	aOutPhi;  
-	static MObject	aOutScale;  
-
- 
 
 private:
 	

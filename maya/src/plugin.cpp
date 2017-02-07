@@ -67,7 +67,7 @@
 #include "speedRampLookup.h"
 
 #include "hexapod.h"
-#include "hexapodLocator.h"
+// #include "hexapodLocator.h"
 
 #include "hungerState.h"
 
@@ -141,8 +141,8 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "subVectorVectorPP", subVectorVectorPP::id, subVectorVectorPP::creator, subVectorVectorPP::initialize); er;
 	st = plugin.registerNode( "speedRampLookupPP", speedRampLookupPP::id, speedRampLookupPP::creator, speedRampLookupPP::initialize); er;
  
-	st = plugin.registerNode( "hexapod", hexapod::id, hexapod::creator, hexapod::initialize); er;
- 	st = plugin.registerNode( "hexapodLocatorShape", hexapodLocator::id, hexapodLocator::creator,hexapodLocator::initialize, MPxNode::kLocatorNode  );er;
+	st = plugin.registerNode( "hexapod", hexapod::id, hexapod::creator, hexapod::initialize, MPxNode::kLocatorNode); er;
+ 	// st = plugin.registerNode( "hexapodLocatorShape", hexapodLocator::id, hexapodLocator::creator,hexapodLocator::initialize, MPxNode::kLocatorNode  );er;
  
 	st = plugin.registerNode( "hungerState", hungerState::id, hungerState::creator, hungerState::initialize); er;
  
@@ -163,7 +163,7 @@ MStatus uninitializePlugin( MObject obj)
  
 	st = plugin.deregisterNode( hungerState::id );er;
 
-	st = plugin.deregisterNode( hexapodLocator::id );er;	
+	// st = plugin.deregisterNode( hexapodLocator::id );er;	
 	st = plugin.deregisterNode( hexapod::id );er;
 	st = plugin.deregisterNode( speedRampLookupPP::id );er;
  
