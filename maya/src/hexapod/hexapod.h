@@ -9,10 +9,11 @@
 #include <maya/MTime.h> 
 #include "mayaMath.h"
 #include <maya/MTypeId.h> 
- #include <maya/MPxLocatorNode.h>
+#include <maya/MPxLocatorNode.h>
 
+#include "HexapodColony.h"
 
- #define LEAD_COLOR        18  // green
+#define LEAD_COLOR        18  // green
 #define ACTIVE_COLOR      15  // white
 #define ACTIVE_AFFECTED_COLOR  8  // purple
 #define DORMANT_COLOR      4  // blue
@@ -39,14 +40,19 @@ public:
 	virtual MStatus	compute( const MPlug& plug, MDataBlock& data );
 
 	virtual void draw( M3dView & view, const MDagPath & path,
-								  M3dView::DisplayStyle style,
-								  M3dView::DisplayStatus status );
+		M3dView::DisplayStyle style,
+		M3dView::DisplayStatus status );
 	
-		virtual bool            isBounded() const;
+	virtual bool            isBounded() const;
 	virtual MBoundingBox    boundingBox() const; 
- 
+
 
 	static MTypeId	id;
+
+	static MObject	aParticleId;
+	static MObject	aSortedId;
+	static MObject	aIdIndex;
+
 
 	static MObject	aPosition;	
 	static MObject	aPhi;
@@ -55,35 +61,35 @@ public:
 	static MObject	aScale;
 	static MObject	aMesh;
 	static MObject	aCurrentTime; 
-
- 	static MObject  aRankA;
-  static MObject  aHomeAX;
- 	static MObject  aHomeAZ;
-  static MObject	aHomeA; 
+	static MObject	aStartTime;
+	static MObject  aRankA;
+	static MObject  aHomeAX;
+	static MObject  aHomeAZ;
+	static MObject	aHomeA; 
 	static MObject	aRadiusMinA; 
 	static MObject	aRadiusMaxA;  
 	static MObject	aRadiusA; 
- 	static MObject	aStepIncrementRampA; 
+	static MObject	aStepIncrementRampA; 
 	static MObject	aSlideProfileRampA;
 
- 	static MObject  aRankB;
-  static MObject  aHomeBX;
- 	static MObject  aHomeBZ;
-  static MObject	aHomeB; 
+	static MObject  aRankB;
+	static MObject  aHomeBX;
+	static MObject  aHomeBZ;
+	static MObject	aHomeB; 
 	static MObject	aRadiusMinB; 
 	static MObject	aRadiusMaxB;  
 	static MObject	aRadiusB; 
- 	static MObject	aStepIncrementRampB; 
+	static MObject	aStepIncrementRampB; 
 	static MObject	aSlideProfileRampB;
 
- 	static MObject  aRankC;
-  static MObject  aHomeCX;
- 	static MObject  aHomeCZ;
-  static MObject	aHomeC; 
+	static MObject  aRankC;
+	static MObject  aHomeCX;
+	static MObject  aHomeCZ;
+	static MObject	aHomeC; 
 	static MObject	aRadiusMinC; 
 	static MObject	aRadiusMaxC;  
 	static MObject	aRadiusC; 
- 	static MObject	aStepIncrementRampC; 
+	static MObject	aStepIncrementRampC; 
 	static MObject	aSlideProfileRampC;
 
 	static MObject	aOutLeftA;
@@ -97,12 +103,17 @@ private:
 	
 	MTime m_lastTimeIEvaluated;
 	
+	HexapodColony * m_colony;
 
-
+	MStatus  checkArrayLength(unsigned alen, unsigned len, const MString &name);
+	MStatus checkArrayLength(const MVectorArray &arr, unsigned len, const MString &name);
+	MStatus checkArrayLength(const MDoubleArray &arr, unsigned len, const MString &name);
+	MStatus checkArrayLength(const MIntArray &arr, unsigned len, const MString &name);
+	MTime  timeValue( MDataBlock& data, MObject & attribute );
 };
 
 
-inline MStatus checkArrayLength(unsigned alen, unsigned len, const MString &name) {
+inline MStatus hexapod::checkArrayLength(unsigned alen, unsigned len, const MString &name) {
 
 	if (alen != len) {
 
@@ -114,23 +125,36 @@ inline MStatus checkArrayLength(unsigned alen, unsigned len, const MString &name
 		msg += len;
 
 		MGlobal::displayError(msg);
-			return MS::kFailure;
+		return MS::kFailure;
 	}
 	return MS::kSuccess;
 
 }
 
-inline  MStatus checkArrayLength(const MDoubleArray &arr, unsigned len, const MString &name) {
+inline  MStatus hexapod::checkArrayLength(const MDoubleArray &arr, unsigned len, const MString &name) {
 	unsigned alen = arr.length();
 	return checkArrayLength(alen, len, name);
 }
 
-
-
-inline  MStatus checkArrayLength(const MVectorArray &arr, unsigned len, const MString &name) {
+inline  MStatus hexapod::checkArrayLength(const MVectorArray &arr, unsigned len, const MString &name) {
 	unsigned alen = arr.length();
-		return checkArrayLength(alen, len, name);
+	return checkArrayLength(alen, len, name);
+}
+inline  MStatus hexapod::checkArrayLength(const MIntArray &arr, unsigned len, const MString &name) {
+	unsigned alen = arr.length();
+	return checkArrayLength(alen, len, name);
 }
 
+inline MTime hexapod::timeValue( MDataBlock& data, MObject & attribute )
+{
+	MStatus status;
+	MDataHandle hValue = data.inputValue( attribute, &status );
+	
+	MTime value(0.0);
+	if( status == MS::kSuccess )
+		value = hValue.asTime();
+	
+	return( value );
+}
 
 #endif

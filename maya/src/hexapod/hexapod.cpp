@@ -10,9 +10,10 @@
 #include <maya/MFnNumericAttribute.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnCompoundAttribute.h>
-
-
 #include <maya/MFnDoubleArrayData.h>
+
+#include <maya/MFnIntArrayData.h>
+
 #include <maya/MRampAttribute.h>
 #include <maya/MFnUnitAttribute.h>
 #include <maya/MItMeshPolygon.h>
@@ -28,7 +29,7 @@
 
 
 #include "hexapod.h"
-#include "HexapodAgent.h"
+// #include "HexapodAgent.h"
 
 #include "errorMacros.h"
 
@@ -36,7 +37,9 @@
 
 #include "mayaMath.h"
 #include "attrUtils.h"
-
+MObject hexapod::aParticleId;
+MObject hexapod::aSortedId;
+MObject hexapod::aIdIndex;
 
 MObject hexapod::aPosition;	
 MObject hexapod::aPhi;
@@ -45,6 +48,7 @@ MObject hexapod::aOmega;
 MObject hexapod::aScale;
 MObject hexapod::aMesh;
 MObject hexapod::aCurrentTime; 
+MObject hexapod::aStartTime;
 
 MObject hexapod::aRankA;
 MObject hexapod::aHomeAX;
@@ -87,11 +91,13 @@ MObject hexapod::aOutRightC;
 MTypeId hexapod::id( k_hexapod );
 
 hexapod::hexapod(){
-
+	m_colony = new HexapodColony();
 	m_lastTimeIEvaluated = MAnimControl::currentTime();
 }
 
-hexapod::~hexapod(){}
+hexapod::~hexapod(){
+	delete m_colony;
+}
 
 void *hexapod::creator()
 {	
@@ -129,6 +135,20 @@ MStatus hexapod::initialize()
 	MFnUnitAttribute	uAttr;
 	MFnCompoundAttribute cAttr;
 
+	aParticleId = tAttr.create("particleId","pid", MFnData::kDoubleArray, &st ); er;
+	tAttr.setStorable(false);
+	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
+	st = addAttribute( aParticleId);er;
+
+	aSortedId = tAttr.create("sortedId","sid", MFnData::kIntArray, &st ); er;
+	tAttr.setStorable(false);
+	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
+	st = addAttribute( aSortedId);er;
+
+	aIdIndex = tAttr.create("idIndex","idi", MFnData::kIntArray, &st ); er;
+	tAttr.setStorable(false);
+	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
+	st = addAttribute( aIdIndex );er;
 
 	aPosition = tAttr.create("position", "pos", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
@@ -157,8 +177,11 @@ MStatus hexapod::initialize()
 	aCurrentTime = uAttr.create( "currentTime", "ct", MFnUnitAttribute::kTime );
 	uAttr.setStorable(true);
 	st =  addAttribute(aCurrentTime);  er;
-
-
+	
+	aStartTime = uAttr.create( "startTime", "st", MFnUnitAttribute::kTime );
+	uAttr.setStorable(true);
+	st =  addAttribute(aStartTime);  er;
+	
 
 
 	aHomeAX = nAttr.create( "homeAX", "hax", MFnNumericData::kDouble);
@@ -294,8 +317,6 @@ MStatus hexapod::initialize()
 	st = attributeAffects( aCurrentTime, aOutRightB );er;
 	st = attributeAffects( aCurrentTime, aOutRightC );er;
 
-
-
 	return( MS::kSuccess );
 }
 
@@ -324,17 +345,38 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 
 	MObject thisNode = thisMObject();
 
-	MTime cT =  data.inputValue( aCurrentTime).asTime();
+	MTime cT = timeValue( data, aCurrentTime );
+	MTime sT = timeValue( data, aStartTime );
 	MTime dT = cT - m_lastTimeIEvaluated;
+	MTime oT = cT - sT;  // offset from start frame
 	m_lastTimeIEvaluated = cT;
+
 	double dt = dT.as( MTime::kSeconds );
 
-	/////////////////////// INPUT VECTOR ARRAYS //////////////////////////
+	/////////////////////// INPUT ARRAYS //////////////////////////
+	MDoubleArray tmpParticleId = MFnDoubleArrayData(data.inputValue(aParticleId).data()).array();
+	unsigned len = tmpParticleId.length(); 
+	cerr << "len " << len << endl;
+	MIntArray particleId(len);
+	for (int i = 0; i < len; ++i) {  particleId[i] = int(tmpParticleId[i]+0.1);  }
+
+	MIntArray sortedId = MFnIntArrayData(data.inputValue(aSortedId).data()).array();
+	MIntArray idIndex = MFnIntArrayData(data.inputValue(aIdIndex).data()).array();
 	MVectorArray pos = MFnVectorArrayData(data.inputValue(aPosition).data()).array();
 	MVectorArray phi = MFnVectorArrayData(data.inputValue(aPhi).data()).array();
 	MVectorArray vel = MFnVectorArrayData(data.inputValue(aVelocity).data()).array();
 	MVectorArray omega = MFnVectorArrayData(data.inputValue(aOmega).data()).array();
 	MDoubleArray scale = MFnDoubleArrayData(data.inputValue(aScale).data()).array();
+
+	if (checkArrayLength(sortedId, len, "hexapod::sortedId") != MS::kSuccess) return  MS::kUnknownParameter;
+	if (checkArrayLength(idIndex, len, "hexapod::idIndex") != MS::kSuccess) return  MS::kUnknownParameter;
+	if (checkArrayLength(pos, len, "hexapod::pos") != MS::kSuccess) return  MS::kUnknownParameter;
+	if (checkArrayLength(phi, len, "hexapod::phi") != MS::kSuccess) return  MS::kUnknownParameter;
+	if (checkArrayLength(vel, len, "hexapod::vel") != MS::kSuccess) return  MS::kUnknownParameter;
+	if (checkArrayLength(omega, len, "hexapod::omega") != MS::kSuccess) return  MS::kUnknownParameter;	
+	if (checkArrayLength(scale, len, "hexapod::scale") != MS::kSuccess) return  MS::kUnknownParameter;
+
+
 
 	//////////////////////////// MESH ////////////////////////////
 	MObject dMesh =  data.inputValue(aMesh).asMeshTransformed();
@@ -383,27 +425,22 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 
 
 	/////////////////////// VALIDATE ARRAYS //////////////////////////
-	unsigned pl = pos.length();
-	cerr << "pl " << pl << endl;
-
-	if (checkArrayLength(phi, pl, "hexapod::phi") != MS::kSuccess) return  MS::kUnknownParameter;
-	if (checkArrayLength(vel, pl, "hexapod::vel") != MS::kSuccess) return  MS::kUnknownParameter;
-	if (checkArrayLength(omega, pl, "hexapod::omega") != MS::kSuccess) return  MS::kUnknownParameter;	
-	if (checkArrayLength(scale, pl, "hexapod::scale") != MS::kSuccess) return  MS::kUnknownParameter;
-
-	/////// PREP OUTPUTS
-	MVectorArray outLeftA(pl);
-	MVectorArray outLeftB(pl);
-	MVectorArray outLeftC(pl);
-	MVectorArray outRightA(pl);
-	MVectorArray outRightB(pl);
-	MVectorArray outRightC(pl);
-
-	if (dt > 0.0) {
 
 
-		for (int i = 0; i < pl; ++i)
-		{
+
+
+
+
+
+	if (dt > 0.0 && oT > MTime(0.0)) {
+
+		m_colony->update(
+			particleId, sortedId, idIndex,
+			pos, phi, vel, omega, scale);
+
+
+		// for (int i = 0; i < len; ++i)
+		// {
 
 	// HexapodAgent agent(pos[i], phi[i], scale[i]);
 	// 	// agent->set()
@@ -413,8 +450,19 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 	//   );
 
 
-		}
+		// }
+	} else {
+		m_colony->clear();
 	}
+
+
+	/////// PREP OUTPUTS
+	MVectorArray outLeftA(len);
+	MVectorArray outLeftB(len);
+	MVectorArray outLeftC(len);
+	MVectorArray outRightA(len);
+	MVectorArray outRightB(len);
+	MVectorArray outRightC(len);
 
 
 	///// OUTPUTS

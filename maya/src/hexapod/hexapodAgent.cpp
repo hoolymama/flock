@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-#include <vector>
+#include <list>
 #include <maya/MObject.h>
 #include <maya/MFnDoubleArrayData.h>
 #include <maya/MFnVectorArrayData.h>
@@ -23,10 +23,11 @@
 #include "HexapodAgent.h"
 
 
-HexapodAgent::HexapodAgent(const MVector &pos, const MVector & phi, double scale)
+HexapodAgent::HexapodAgent(const MVector &pos, int particleId):
+m_particleId(particleId), m_position(pos)
 {
-	m_matrix = mayaMath::matFromPhi(pos, phi, MVector(scale,scale,scale));
-	m_matrixInverse = m_matrix.inverse();
+	// m_matrix = mayaMath::matFromPhi(pos, phi, MVector(scale,scale,scale));
+	// m_matrixInverse = m_matrix.inverse();
 }
 
 
@@ -46,4 +47,11 @@ HexapodAgent::~HexapodAgent(){
 	// }
 	
 }
+
+void HexapodAgent::update(const MVector & position){
+	m_position = position;
+}
+
  
+const MVector & HexapodAgent::position()  const {return m_position; } 
+int   HexapodAgent::id()  const {return m_particleId; } 
