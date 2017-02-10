@@ -121,6 +121,196 @@ void hexapod::draw(
 	M3dView::DisplayStatus status ) 
 {
 
+	MObject thisNode = thisMObject();
+
+	cerr << "Before draw" << endl;
+
+ 	m_colony->draw(view);
+	cerr << "After draw" << endl;
+	
+}
+
+
+
+MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
+
+{
+	MStatus st;
+	MString method("hexapod::compute");
+
+
+	if(!(
+		(plug == aOutLeftA) ||
+		(plug == aOutLeftB) ||
+		(plug == aOutLeftC) ||
+		(plug == aOutRightA) ||
+		(plug == aOutRightB) ||
+		(plug == aOutRightC) 
+		)) 
+	{
+		return( MS::kUnknownParameter);
+	}
+
+
+	MObject thisNode = thisMObject();
+
+	MTime cT = timeValue( data, aCurrentTime );
+	MTime sT = timeValue( data, aStartTime );
+	MTime dT = cT - m_lastTimeIEvaluated;
+	MTime oT = cT - sT;  // offset from start frame
+	m_lastTimeIEvaluated = cT;
+
+	double dt = dT.as( MTime::kSeconds );
+
+	/////////////////////// INPUT ARRAYS //////////////////////////
+	MDoubleArray tmpParticleId = MFnDoubleArrayData(data.inputValue(aParticleId).data()).array();
+	unsigned len = tmpParticleId.length(); 
+	cerr << "len " << len << endl;
+	MIntArray particleId(len);
+	for (int i = 0; i < len; ++i) {  particleId[i] = int(tmpParticleId[i]+0.1);  }
+
+		MIntArray sortedId = MFnIntArrayData(data.inputValue(aSortedId).data()).array();
+	MIntArray idIndex = MFnIntArrayData(data.inputValue(aIdIndex).data()).array();
+	MVectorArray pos = MFnVectorArrayData(data.inputValue(aPosition).data()).array();
+	MVectorArray phi = MFnVectorArrayData(data.inputValue(aPhi).data()).array();
+	MVectorArray vel = MFnVectorArrayData(data.inputValue(aVelocity).data()).array();
+	MVectorArray omega = MFnVectorArrayData(data.inputValue(aOmega).data()).array();
+	MDoubleArray scale = MFnDoubleArrayData(data.inputValue(aScale).data()).array();
+
+	if (checkArrayLength(sortedId, len, "hexapod::sortedId") != MS::kSuccess) return  MS::kUnknownParameter;
+	if (checkArrayLength(idIndex, len, "hexapod::idIndex") != MS::kSuccess) return  MS::kUnknownParameter;
+	if (checkArrayLength(pos, len, "hexapod::pos") != MS::kSuccess) return  MS::kUnknownParameter;
+	if (checkArrayLength(phi, len, "hexapod::phi") != MS::kSuccess) return  MS::kUnknownParameter;
+	if (checkArrayLength(vel, len, "hexapod::vel") != MS::kSuccess) return  MS::kUnknownParameter;
+	if (checkArrayLength(omega, len, "hexapod::omega") != MS::kSuccess) return  MS::kUnknownParameter;	
+	if (checkArrayLength(scale, len, "hexapod::scale") != MS::kSuccess) return  MS::kUnknownParameter;
+
+
+
+	//////////////////////////// MESH ////////////////////////////
+	MObject dMesh =  data.inputValue(aMesh).asMeshTransformed();
+	MFnMesh meshFn(dMesh, &st) ;
+	if (st.error()) {MGlobal::displayError("hexapod Needs a mesh") ; return MS::kUnknownParameter;}
+	MMeshIsectAccelParams ap = meshFn.autoUniformGridParams();
+	MItMeshPolygon polyIter(dMesh, &st);
+	if (st.error()) {MGlobal::displayError("hexapod Needs a mesh") ; return MS::kUnknownParameter;}
+	////////////////////////////////////////////////////////////////////////////////////
+
+	MDataHandle hRankA = data.inputValue(aRankA);
+	double	homeAX	= hRankA.child(aHomeAX).asDouble();
+	double	homeAZ	= hRankA.child(aHomeAZ).asDouble();
+	double	radiusMinA	= hRankA.child(aRadiusMinA).asDouble();
+	double	radiusMaxA	= hRankA.child(aRadiusMaxA).asDouble();
+
+	MDataHandle hRankB = data.inputValue(aRankB);
+	double	homeBX	= hRankB.child(aHomeBX).asDouble();
+	double	homeBZ	= hRankB.child(aHomeBZ).asDouble();
+	double	radiusMinB	= hRankB.child(aRadiusMinB).asDouble();
+	double	radiusMaxB	= hRankB.child(aRadiusMaxB).asDouble();
+
+	MDataHandle hRankC = data.inputValue(aRankC);
+	double	homeCX	= hRankC.child(aHomeCX).asDouble();
+	double	homeCZ	= hRankC.child(aHomeCZ).asDouble();
+	double	radiusMinC	= hRankC.child(aRadiusMinC).asDouble();
+	double	radiusMaxC	= hRankC.child(aRadiusMaxC).asDouble();
+
+
+
+
+	// MDataHandle hRankA = block.inputValue(aRankA);
+	// double	radiusMinA	= hRankA.child(aRadiusMinA).asDouble();
+	// double	radiusMaxA	= hRankA.child(aRadiusMaxA).asDouble();
+	// double	radiusMinA	= hRankA.child(aRadiusMinA).asDouble();
+	// double	radiusMaxA	= hRankA.child(aRadiusMaxA).asDouble();
+
+
+	// /////////////////////// RAMP ATTRIBUTES //////////////////////////
+	// MRampAttribute stepIncrementRampA( thisMObject() , aStepIncrementRampA, &st ); er; 
+	// MRampAttribute stepIncrementRampB( thisMObject() , aStepIncrementRampB, &st ); er; 
+	// MRampAttribute stepIncrementRampC( thisMObject() , aStepIncrementRampC, &st ); er;
+
+	// MRampAttribute slideProfileRampA( thisMObject() , aSlideProfileRampA, &st ); er; 
+	// MRampAttribute slideProfileRampB( thisMObject() , aSlideProfileRampB, &st ); er; 
+	// MRampAttribute slideProfileRampC( thisMObject() , aSlideProfileRampC, &st ); er;
+	// ///////////////////////////////////////////////////////////////////////////
+
+	// 	/////////////////////// VECTOR ATTRIBUTES //////////////////////////
+	// MVector homeLA = data.inputValue(aHomeLA).asVector();
+	// MVector homeLB = data.inputValue(aHomeLB).asVector();
+	// MVector homeLC = data.inputValue(aHomeLC).asVector();
+	// MVector homeRA = data.inputValue(aHomeRA).asVector();
+	// MVector homeRB = data.inputValue(aHomeRB).asVector();
+	// MVector homeRC = data.inputValue(aHomeRC).asVector();
+	// ///////////////////////////////////////////////////////////////////////////
+
+
+	// /////////////////////// DOUBLE ATTRIBUTES //////////////////////////
+	// double	radiusMinA	= data.inputValue(aRadiusMinA).asDouble();
+	// double	radiusMaxA	= data.inputValue(aRadiusMaxA).asDouble();
+	// double	radiusMinB	= data.inputValue(aRadiusMinB).asDouble();
+	// double	radiusMaxB	= data.inputValue(aRadiusMaxB).asDouble();
+	// double	radiusMinC	= data.inputValue(aRadiusMinC).asDouble();
+	// double	radiusMaxC	= data.inputValue(aRadiusMaxC).asDouble();
+
+
+	/////////////////////// VALIDATE ARRAYS //////////////////////////
+
+
+
+
+	cerr << "In compute" << endl;
+
+
+	if (dt > 0.0 && oT > MTime(0.0)) {
+
+
+		cerr << particleId << endl;
+		m_colony->update(
+			dt,
+			particleId, sortedId, idIndex,
+			pos, phi, vel, omega, scale,
+			homeAX, homeAZ, homeBX, homeBZ, homeCX, homeCZ,
+			radiusMinA, radiusMaxA, radiusMinB, radiusMaxB, radiusMinC, radiusMaxC
+			);
+
+
+
+		// for (int i = 0; i < len; ++i)
+		// {
+
+	// HexapodAgent agent(pos[i], phi[i], scale[i]);
+	// 	// agent->set()
+	//  agent.createFootLA(
+	//  	leftA[i], homeLA, lastPlantLA[i], nextPlantLA[i],
+	//   stepTimeLA[i], radiusMinA, radiusMaxA
+	//   );
+
+
+		// }
+	} else {
+		m_colony->clear();
+	}
+
+
+	/////// PREP OUTPUTS
+	MVectorArray outLeftA(len, MVector(homeAX,0.0,homeAZ));
+	MVectorArray outLeftB(len, MVector(homeBX,0.0,homeBZ));
+	MVectorArray outLeftC(len, MVector(homeCX,0.0,homeCZ));
+	MVectorArray outRightA(len, MVector(homeAX,0.0,-homeAZ));
+	MVectorArray outRightB(len, MVector(homeBX,0.0,-homeBZ));
+	MVectorArray outRightC(len, MVector(homeCX,0.0,-homeCZ));
+
+
+	///// OUTPUTS
+	st = outputData(hexapod::aOutLeftA, data, outLeftA);
+	st = outputData(hexapod::aOutLeftB, data, outLeftB);
+	st = outputData(hexapod::aOutLeftC, data, outLeftC);
+	st = outputData(hexapod::aOutRightA, data, outRightA);
+	st = outputData(hexapod::aOutRightB, data, outRightB);
+	st = outputData(hexapod::aOutRightC, data, outRightC);
+
+
+	return( MS::kSuccess );
 }
 
 
@@ -320,160 +510,4 @@ MStatus hexapod::initialize()
 	return( MS::kSuccess );
 }
 
-
-
-
-MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
-
-{
-	MStatus st;
-	MString method("hexapod::compute");
-
-
-	if(!(
-		(plug == aOutLeftA) ||
-		(plug == aOutLeftB) ||
-		(plug == aOutLeftC) ||
-		(plug == aOutRightA) ||
-		(plug == aOutRightB) ||
-		(plug == aOutRightC) 
-		)) 
-	{
-		return( MS::kUnknownParameter);
-	}
-
-
-	MObject thisNode = thisMObject();
-
-	MTime cT = timeValue( data, aCurrentTime );
-	MTime sT = timeValue( data, aStartTime );
-	MTime dT = cT - m_lastTimeIEvaluated;
-	MTime oT = cT - sT;  // offset from start frame
-	m_lastTimeIEvaluated = cT;
-
-	double dt = dT.as( MTime::kSeconds );
-
-	/////////////////////// INPUT ARRAYS //////////////////////////
-	MDoubleArray tmpParticleId = MFnDoubleArrayData(data.inputValue(aParticleId).data()).array();
-	unsigned len = tmpParticleId.length(); 
-	cerr << "len " << len << endl;
-	MIntArray particleId(len);
-	for (int i = 0; i < len; ++i) {  particleId[i] = int(tmpParticleId[i]+0.1);  }
-
-	MIntArray sortedId = MFnIntArrayData(data.inputValue(aSortedId).data()).array();
-	MIntArray idIndex = MFnIntArrayData(data.inputValue(aIdIndex).data()).array();
-	MVectorArray pos = MFnVectorArrayData(data.inputValue(aPosition).data()).array();
-	MVectorArray phi = MFnVectorArrayData(data.inputValue(aPhi).data()).array();
-	MVectorArray vel = MFnVectorArrayData(data.inputValue(aVelocity).data()).array();
-	MVectorArray omega = MFnVectorArrayData(data.inputValue(aOmega).data()).array();
-	MDoubleArray scale = MFnDoubleArrayData(data.inputValue(aScale).data()).array();
-
-	if (checkArrayLength(sortedId, len, "hexapod::sortedId") != MS::kSuccess) return  MS::kUnknownParameter;
-	if (checkArrayLength(idIndex, len, "hexapod::idIndex") != MS::kSuccess) return  MS::kUnknownParameter;
-	if (checkArrayLength(pos, len, "hexapod::pos") != MS::kSuccess) return  MS::kUnknownParameter;
-	if (checkArrayLength(phi, len, "hexapod::phi") != MS::kSuccess) return  MS::kUnknownParameter;
-	if (checkArrayLength(vel, len, "hexapod::vel") != MS::kSuccess) return  MS::kUnknownParameter;
-	if (checkArrayLength(omega, len, "hexapod::omega") != MS::kSuccess) return  MS::kUnknownParameter;	
-	if (checkArrayLength(scale, len, "hexapod::scale") != MS::kSuccess) return  MS::kUnknownParameter;
-
-
-
-	//////////////////////////// MESH ////////////////////////////
-	MObject dMesh =  data.inputValue(aMesh).asMeshTransformed();
-	MFnMesh meshFn(dMesh, &st) ;
-	if (st.error()) {MGlobal::displayError("hexapod Needs a mesh") ; return MS::kUnknownParameter;}
-	MMeshIsectAccelParams ap = meshFn.autoUniformGridParams();
-	MItMeshPolygon polyIter(dMesh, &st);
-	if (st.error()) {MGlobal::displayError("hexapod Needs a mesh") ; return MS::kUnknownParameter;}
-	////////////////////////////////////////////////////////////////////////////////////
-
-
-	// MDataHandle hRankA = block.inputValue(aRankA);
-	// double	radiusMinA	= hRankA.child(aRadiusMinA).asDouble();
-	// double	radiusMaxA	= hRankA.child(aRadiusMaxA).asDouble();
-	// double	radiusMinA	= hRankA.child(aRadiusMinA).asDouble();
-	// double	radiusMaxA	= hRankA.child(aRadiusMaxA).asDouble();
-
-
-	// /////////////////////// RAMP ATTRIBUTES //////////////////////////
-	// MRampAttribute stepIncrementRampA( thisMObject() , aStepIncrementRampA, &st ); er; 
-	// MRampAttribute stepIncrementRampB( thisMObject() , aStepIncrementRampB, &st ); er; 
-	// MRampAttribute stepIncrementRampC( thisMObject() , aStepIncrementRampC, &st ); er;
-
-	// MRampAttribute slideProfileRampA( thisMObject() , aSlideProfileRampA, &st ); er; 
-	// MRampAttribute slideProfileRampB( thisMObject() , aSlideProfileRampB, &st ); er; 
-	// MRampAttribute slideProfileRampC( thisMObject() , aSlideProfileRampC, &st ); er;
-	// ///////////////////////////////////////////////////////////////////////////
-
-	// 	/////////////////////// VECTOR ATTRIBUTES //////////////////////////
-	// MVector homeLA = data.inputValue(aHomeLA).asVector();
-	// MVector homeLB = data.inputValue(aHomeLB).asVector();
-	// MVector homeLC = data.inputValue(aHomeLC).asVector();
-	// MVector homeRA = data.inputValue(aHomeRA).asVector();
-	// MVector homeRB = data.inputValue(aHomeRB).asVector();
-	// MVector homeRC = data.inputValue(aHomeRC).asVector();
-	// ///////////////////////////////////////////////////////////////////////////
-
-
-	// /////////////////////// DOUBLE ATTRIBUTES //////////////////////////
-	// double	radiusMinA	= data.inputValue(aRadiusMinA).asDouble();
-	// double	radiusMaxA	= data.inputValue(aRadiusMaxA).asDouble();
-	// double	radiusMinB	= data.inputValue(aRadiusMinB).asDouble();
-	// double	radiusMaxB	= data.inputValue(aRadiusMaxB).asDouble();
-	// double	radiusMinC	= data.inputValue(aRadiusMinC).asDouble();
-	// double	radiusMaxC	= data.inputValue(aRadiusMaxC).asDouble();
-
-
-	/////////////////////// VALIDATE ARRAYS //////////////////////////
-
-
-
-
-
-
-
-	if (dt > 0.0 && oT > MTime(0.0)) {
-
-		m_colony->update(
-			particleId, sortedId, idIndex,
-			pos, phi, vel, omega, scale);
-
-
-		// for (int i = 0; i < len; ++i)
-		// {
-
-	// HexapodAgent agent(pos[i], phi[i], scale[i]);
-	// 	// agent->set()
-	//  agent.createFootLA(
-	//  	leftA[i], homeLA, lastPlantLA[i], nextPlantLA[i],
-	//   stepTimeLA[i], radiusMinA, radiusMaxA
-	//   );
-
-
-		// }
-	} else {
-		m_colony->clear();
-	}
-
-
-	/////// PREP OUTPUTS
-	MVectorArray outLeftA(len);
-	MVectorArray outLeftB(len);
-	MVectorArray outLeftC(len);
-	MVectorArray outRightA(len);
-	MVectorArray outRightB(len);
-	MVectorArray outRightC(len);
-
-
-	///// OUTPUTS
-	st = outputData(hexapod::aOutLeftA, data, outLeftA);
-	st = outputData(hexapod::aOutLeftB, data, outLeftB);
-	st = outputData(hexapod::aOutLeftC, data, outLeftC);
-	st = outputData(hexapod::aOutRightA, data, outRightA);
-	st = outputData(hexapod::aOutRightB, data, outRightB);
-	st = outputData(hexapod::aOutRightC, data, outRightC);
-
-
-	return( MS::kSuccess );
-}
 

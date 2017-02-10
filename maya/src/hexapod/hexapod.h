@@ -62,6 +62,7 @@ public:
 	static MObject	aMesh;
 	static MObject	aCurrentTime; 
 	static MObject	aStartTime;
+
 	static MObject  aRankA;
 	static MObject  aHomeAX;
 	static MObject  aHomeAZ;
@@ -71,6 +72,7 @@ public:
 	static MObject	aRadiusA; 
 	static MObject	aStepIncrementRampA; 
 	static MObject	aSlideProfileRampA;
+
 
 	static MObject  aRankB;
 	static MObject  aHomeBX;
