@@ -5,7 +5,7 @@
 #include <maya/M3dView.h>
 
 #include "HexapodAgent.h"
-#include "HexapodHome.h"
+#include "HexapodFoot.h"
 
 // typedef std::vector<HexapodAgent*> AGENT_VECTOR;
 
@@ -48,16 +48,6 @@ public:
 private:
 	
 	std::list<HexapodAgent*> m_agents;
-	// MIntArray m_sortedIds ;
-
-
-	HexapodHome m_LA;
-	HexapodHome m_LB;
-	HexapodHome m_LC;
-	HexapodHome m_RA;
-	HexapodHome m_RB;
-	HexapodHome m_RC;
-
 
 
 };

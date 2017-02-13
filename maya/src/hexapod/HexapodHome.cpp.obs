@@ -12,14 +12,15 @@ HexapodHome::HexapodHome(double x, double z, double min, double max, MColor& col
 	float fmin = float(min);
 	float fmax = float(max);
 
+	// cerr << "fmin: " << fmin << "fmax: " << fmax << endl;
 
 	float gap = float(TAU) / float(divs);
 	for(unsigned j = 0; j < divs; ++j) { 
 		float vertx = sin(gap * j);
 		float vertz = cos(gap * j);
 		
-		m_minCircle[j] = MFloatVector( (vertx*fmin)+fx ,0.0f,(vertz*fmin)+fz );
-		m_maxCircle[j] = MFloatVector( (vertx*fmax)+fx ,0.0f,(vertz*fmax)+fz );
+		m_minCircle[j] = MFloatPoint( (vertx*fmin)+fx ,0.0f,(vertz*fmin)+fz, 1.0 );
+		m_maxCircle[j] = MFloatPoint( (vertx*fmax)+fx ,0.0f,(vertz*fmax)+fz, 1.0 );
 	}
 
 }
@@ -33,7 +34,7 @@ HexapodHome::~HexapodHome(){ }
 
 
 void HexapodHome::drawACircle(M3dView & view, 
-	const MFloatVectorArray & points, 
+	const MFloatPointArray & points, 
 	const MFloatMatrix & matrix, 
 	const MColor& color) const {
 

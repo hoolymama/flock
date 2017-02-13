@@ -31,12 +31,12 @@
 
 
 HexapodColony::HexapodColony( ) 
-:m_agents(), m_LA(), m_LB(), m_LC(), m_RA(), m_RB(), m_RC()
+:m_agents()
 {}
 
 
 void HexapodColony::clear(){
-	cerr << "HexapodColony::clear" << endl;
+	// cerr << "HexapodColony::clear" << endl;
 	std::list<HexapodAgent*>::iterator iter = m_agents.begin();
 	while (iter != m_agents.end()) {
 		delete *iter;
@@ -73,21 +73,12 @@ MStatus HexapodColony::update(
 	const double radiusMinC, 
 	const double radiusMaxC
 	){
-
-	MColor red(1.0, 0.0, 0.0 );
-	MColor blue(0.0, 0.0, 1.0 );
-	
-	m_LA = HexapodHome(homeAX, homeAZ, radiusMinA, radiusMinA,  red ); 
-	m_LB = HexapodHome(homeBX, homeBZ, radiusMinB, radiusMinB,  red );
-	m_LC = HexapodHome(homeCX, homeCZ, radiusMinC, radiusMinC,  red );
-
-	m_RA = HexapodHome(homeAX, -homeAZ, radiusMinA, radiusMinA,  blue );
-	m_RB = HexapodHome(homeBX, -homeBZ, radiusMinB, radiusMinB,  blue );
-	m_RC = HexapodHome(homeCX, -homeCZ, radiusMinC, radiusMinC,  blue );
+ 
+ 
 
 	const MIntArray & right = sortedId;
 
-	cerr << "-------------- HexapodColony::update --------------" << endl;
+	// cerr << "-------------- HexapodColony::update --------------" << endl;
 // int lPeg = 0;
 	int rPeg = 0;
 
@@ -96,12 +87,12 @@ MStatus HexapodColony::update(
 	while (true) {
 		if (agent == m_agents.end() && rPeg == right.length()) {
 // finished
-			cerr << "m_agents ended && right ended - so break" << endl;
+			// cerr << "m_agents ended && right ended - so break" << endl;
 			break;
 		}
 
 if (rPeg == right.length()) { // finished adding right stuff. delete the rest of left.
-	cerr << "right ended only - so delete current left: id=" << (*agent)->id() << endl;
+	// cerr << "right ended only - so delete current left: id=" << (*agent)->id() << endl;
 
 	shadow = agent; 
 	agent++;
@@ -112,7 +103,7 @@ if (rPeg == right.length()) { // finished adding right stuff. delete the rest of
 // remove shadow;
 } else if (agent == m_agents.end()) {
 	unsigned index = idIndex[rPeg];
-	cerr << "left ended only - so push new right: id=" << particleId[index] << endl;
+	// cerr << "left ended only - so push new right: id=" << particleId[index] << endl;
 // insert new agent with id right[rPeg] before end
 	m_agents.push_back(new HexapodAgent( 
 		particleId[index],
@@ -120,12 +111,15 @@ if (rPeg == right.length()) { // finished adding right stuff. delete the rest of
 		phi[index], 
 		vel[index],
 		omega[index],
-		scale[index]
+		scale[index],
+		homeAX, homeAZ, radiusMinA,  radiusMaxA,
+		homeBX, homeBZ, radiusMinB,  radiusMaxB,
+		homeCX, homeCZ, radiusMinC,  radiusMaxC
 		));
 	rPeg++;
 } else if (right[rPeg] < (*agent)->id()) {
 	unsigned index = idIndex[rPeg];
-	cerr << "right position less than left so insert new right: id=" << particleId[idIndex[rPeg]] << endl;
+	// cerr << "right position less than left so insert new right: id=" << particleId[idIndex[rPeg]] << endl;
 
 	m_agents.insert(agent, new HexapodAgent(   			
 		particleId[index],
@@ -133,25 +127,33 @@ if (rPeg == right.length()) { // finished adding right stuff. delete the rest of
 		phi[index], 
 		vel[index],
 		omega[index],
-		scale[index]));
+		scale[index],
+		homeAX, homeAZ, radiusMinA,  radiusMaxA,
+		homeBX, homeBZ, radiusMinB,  radiusMaxB,
+		homeCX, homeCZ, radiusMinC,  radiusMaxC
+		));
 
 // insert new agent with id right[rPeg] before (*agent)
 	rPeg++;
 } else if (right[rPeg]  == (*agent)->id()) {
 	unsigned index = idIndex[rPeg];
-	cerr << "right position equal to left so update left with right: id=" << particleId[idIndex[rPeg]] << endl;
+	// cerr << "right position equal to left so update left with right: id=" << particleId[idIndex[rPeg]] << endl;
 
 	(*agent)->set( 
 		pos[index],
 		phi[index], 
 		vel[index],
 		omega[index],
-		scale[index]);
+		scale[index],
+		homeAX, homeAZ, radiusMinA,  radiusMaxA,
+		homeBX, homeBZ, radiusMinB,  radiusMaxB,
+		homeCX, homeCZ, radiusMinC,  radiusMaxC
+		);
 // update (*agent)
 	rPeg++;
 	agent++;
 } else { // right[rPeg] > (*agent)->id()
-	cerr << "right position greater than left so remove left: id=" << (*agent)->id() << endl;
+	// cerr << "right position greater than left so remove left: id=" << (*agent)->id() << endl;
 
 	shadow = agent; 
 	agent++;
@@ -178,14 +180,17 @@ void HexapodColony::draw(M3dView & view  ){
 	std::list<HexapodAgent*>::iterator agent = m_agents.begin();
 	double d44[4][4];
 	while (agent != m_agents.end()) {
-		(*agent)->matrix().get(d44);
-		MFloatMatrix fmat(d44);
-		m_LA.draw(view,fmat);
-		m_LB.draw(view,fmat);
-		m_LC.draw(view,fmat);
-		m_RA.draw(view,fmat);
-		m_RB.draw(view,fmat);
-		m_RC.draw(view,fmat);
+		(*agent)->draw(view);
+
+		// (*agent)->matrix().get(d44);
+	 //   MFloatMatrix fmat(d44);
+ 
+		// m_homeLA.draw(view, fmat);
+		// m_homeLB.draw(view, fmat);
+		// m_homeLC.draw(view, fmat);
+		// m_homeRA.draw(view, fmat);
+		// m_homeRB.draw(view, fmat);
+		// m_homeRC.draw(view, fmat);
 		agent++;
 	}
 

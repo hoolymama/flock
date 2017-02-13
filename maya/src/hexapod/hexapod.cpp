@@ -123,10 +123,10 @@ void hexapod::draw(
 
 	MObject thisNode = thisMObject();
 
-	cerr << "Before draw" << endl;
+	// cerr << "Before draw" << endl;
 
  	m_colony->draw(view);
-	cerr << "After draw" << endl;
+	// cerr << "After draw" << endl;
 	
 }
 
@@ -165,11 +165,11 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 	/////////////////////// INPUT ARRAYS //////////////////////////
 	MDoubleArray tmpParticleId = MFnDoubleArrayData(data.inputValue(aParticleId).data()).array();
 	unsigned len = tmpParticleId.length(); 
-	cerr << "len " << len << endl;
+	// cerr << "len " << len << endl;
 	MIntArray particleId(len);
 	for (int i = 0; i < len; ++i) {  particleId[i] = int(tmpParticleId[i]+0.1);  }
 
-		MIntArray sortedId = MFnIntArrayData(data.inputValue(aSortedId).data()).array();
+	MIntArray sortedId = MFnIntArrayData(data.inputValue(aSortedId).data()).array();
 	MIntArray idIndex = MFnIntArrayData(data.inputValue(aIdIndex).data()).array();
 	MVectorArray pos = MFnVectorArrayData(data.inputValue(aPosition).data()).array();
 	MVectorArray phi = MFnVectorArrayData(data.inputValue(aPhi).data()).array();
@@ -197,22 +197,22 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 	////////////////////////////////////////////////////////////////////////////////////
 
 	MDataHandle hRankA = data.inputValue(aRankA);
-	double	homeAX	= hRankA.child(aHomeAX).asDouble();
-	double	homeAZ	= hRankA.child(aHomeAZ).asDouble();
-	double	radiusMinA	= hRankA.child(aRadiusMinA).asDouble();
-	double	radiusMaxA	= hRankA.child(aRadiusMaxA).asDouble();
+	double	homeAX	= hRankA.child(aHomeA).child(aHomeAX).asDouble();
+	double	homeAZ	= hRankA.child(aHomeA).child(aHomeAZ).asDouble();
+	double	radiusMinA	= hRankA.child(aRadiusA).child(aRadiusMinA).asDouble();
+	double	radiusMaxA	= hRankA.child(aRadiusA).child(aRadiusMaxA).asDouble();
 
 	MDataHandle hRankB = data.inputValue(aRankB);
-	double	homeBX	= hRankB.child(aHomeBX).asDouble();
-	double	homeBZ	= hRankB.child(aHomeBZ).asDouble();
-	double	radiusMinB	= hRankB.child(aRadiusMinB).asDouble();
-	double	radiusMaxB	= hRankB.child(aRadiusMaxB).asDouble();
+	double	homeBX	= hRankB.child(aHomeB).child(aHomeBX).asDouble();
+	double	homeBZ	= hRankB.child(aHomeB).child(aHomeBZ).asDouble();
+	double	radiusMinB	= hRankB.child(aRadiusB).child(aRadiusMinB).asDouble();
+	double	radiusMaxB	= hRankB.child(aRadiusB).child(aRadiusMaxB).asDouble();
 
 	MDataHandle hRankC = data.inputValue(aRankC);
-	double	homeCX	= hRankC.child(aHomeCX).asDouble();
-	double	homeCZ	= hRankC.child(aHomeCZ).asDouble();
-	double	radiusMinC	= hRankC.child(aRadiusMinC).asDouble();
-	double	radiusMaxC	= hRankC.child(aRadiusMaxC).asDouble();
+	double	homeCX	= hRankC.child(aHomeC).child(aHomeCX).asDouble();
+	double	homeCZ	= hRankC.child(aHomeC).child(aHomeCZ).asDouble();
+	double	radiusMinC	= hRankC.child(aRadiusC).child(aRadiusMinC).asDouble();
+	double	radiusMaxC	= hRankC.child(aRadiusC).child(aRadiusMaxC).asDouble();
 
 
 
@@ -258,13 +258,15 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 
 
 
-	cerr << "In compute" << endl;
+	// cerr << "In compute" << endl;
 
 
 	if (dt > 0.0 && oT > MTime(0.0)) {
 
+ 
 
-		cerr << particleId << endl;
+
+		// cerr << particleId << endl;
 		m_colony->update(
 			dt,
 			particleId, sortedId, idIndex,

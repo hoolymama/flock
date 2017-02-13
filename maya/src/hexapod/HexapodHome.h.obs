@@ -24,9 +24,11 @@ public:
 
 void drawACircle(
 	M3dView & view, 
-	const MFloatVectorArray & points, 
+	const MFloatPointArray & points, 
 	const MFloatMatrix & matrix, 
 	const MColor& color) const;
+
+
 
 	const double & x()  const ;
 	const double & z()  const ;
@@ -39,8 +41,8 @@ private:
 	double m_z;
 	double m_min;
 	double m_max;
-	MFloatVectorArray m_minCircle;
-	MFloatVectorArray m_maxCircle;
+	MFloatPointArray m_minCircle;
+	MFloatPointArray m_maxCircle;
 	MColor m_color;
 };
 

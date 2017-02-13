@@ -3,7 +3,7 @@
 
 #include <maya/MVector.h>
 #include <maya/MMatrix.h>
- 
+#include <maya/M3dView.h>
 
 #include "HexapodFoot.h"
 #include "mayaMath.h"
@@ -15,21 +15,32 @@ class HexapodAgent{
 public:
 
 	HexapodAgent(	
-		unsigned particleId,
-		const MVector &pos,
-		const MVector &phi,
-		const MVector &vel,
-		const MVector &omega,
-		double scale);
+	unsigned particleId,
+	const MVector &pos,
+	const MVector &phi,
+	const MVector &vel,
+	const MVector &omega,
+	double scale,
+	double homeAX, double homeAZ, double radiusMinA, double radiusMaxA,
+	double homeBX, double homeBZ, double radiusMinB, double radiusMaxB,
+	double homeCX, double homeCZ, double radiusMinC, double radiusMaxC
+	);
 
 	~HexapodAgent();
 	
 	void set(	
-		const MVector &pos,
-		const MVector &phi,
-		const MVector &vel,
-		const MVector &omega,
-		double scale);
+	const MVector &pos,
+	const MVector &phi,
+	const MVector &vel,
+	const MVector &omega,
+	double scale,
+	double homeAX,double  homeAZ,double  radiusMinA,double   radiusMaxA,
+	double homeBX,double  homeBZ,double  radiusMinB,double   radiusMaxB,
+	double homeCX,double  homeCZ,double  radiusMinC,double   radiusMaxC
+		);
+
+	void draw(M3dView & view) const;
+
 
 	const MVector &  position()  const ;
 	int  id()  const;
@@ -46,6 +57,15 @@ private:
 
 	MMatrix m_matrix;
 	MMatrix m_matrixInverse;
+
+	HexapodFoot m_footLA;
+	HexapodFoot m_footLB;
+	HexapodFoot m_footLC;
+	HexapodFoot m_footRA;
+	HexapodFoot m_footRB;
+	HexapodFoot m_footRC;
+
+
 
 };
 
