@@ -4,10 +4,10 @@
 #include <maya/MVector.h>
 #include <maya/MMatrix.h>
 #include <maya/M3dView.h>
-
+#include <maya/MString.h>
 #include "HexapodFoot.h"
 #include "mayaMath.h"
-
+#include "displayMask.h"
 // typedef std::map< int, meshCloner * > meshClonerMap ;
 
 
@@ -15,31 +15,32 @@ class HexapodAgent{
 public:
 
 	HexapodAgent(	
-	unsigned particleId,
-	const MVector &pos,
-	const MVector &phi,
-	const MVector &vel,
-	const MVector &omega,
-	double scale,
-	double homeAX, double homeAZ, double radiusMinA, double radiusMaxA,
-	double homeBX, double homeBZ, double radiusMinB, double radiusMaxB,
-	double homeCX, double homeCZ, double radiusMinC, double radiusMaxC
-	);
+		unsigned particleId,
+		const MVector &pos,
+		const MVector &phi,
+		const MVector &vel,
+		const MVector &omega,
+		double scale,
+		double homeAX, double homeAZ, double radiusMinA, double radiusMaxA,
+		double homeBX, double homeBZ, double radiusMinB, double radiusMaxB,
+		double homeCX, double homeCZ, double radiusMinC, double radiusMaxC
+		);
 
 	~HexapodAgent();
 	
-	void set(	
-	const MVector &pos,
-	const MVector &phi,
-	const MVector &vel,
-	const MVector &omega,
-	double scale,
-	double homeAX,double  homeAZ,double  radiusMinA,double   radiusMaxA,
-	double homeBX,double  homeBZ,double  radiusMinB,double   radiusMaxB,
-	double homeCX,double  homeCZ,double  radiusMinC,double   radiusMaxC
+	void update(	
+		double dt,
+		const MVector &pos,
+		const MVector &phi,
+		const MVector &vel,
+		const MVector &omega,
+		double scale,
+		double homeAX,double  homeAZ,double  radiusMinA,double   radiusMaxA,
+		double homeBX,double  homeBZ,double  radiusMinB,double   radiusMaxB,
+		double homeCX,double  homeCZ,double  radiusMinC,double   radiusMaxC
 		);
 
-	void draw(M3dView & view) const;
+	void draw( M3dView & view, const DisplayMask & mask) const;
 
 
 	const MVector &  position()  const ;

@@ -38,19 +38,32 @@ global proc AEhexapodTemplate(string $nodeName)
 	AEaddRampControl ($nodeName+".slideProfileRampC");	
 	editorTemplate -endLayout;
 
+	editorTemplate -cl 0 -beginLayout "Diagnostics";		
+	editorTemplate -addControl "displayPlants";
+	editorTemplate -addControl "displayHome";
+	editorTemplate -addControl "displayFootPosition";
+	editorTemplate -addControl "displayId";
+	editorTemplate -endLayout;
+
 	editorTemplate -cl 0 -beginLayout "Time";		
+	editorTemplate -addControl "startTime";		
 	editorTemplate -addControl "currentTime";	
 	editorTemplate -endLayout;
 	
-
+	editorTemplate -suppress "rankA";
+	editorTemplate -suppress "rankB";
+	editorTemplate -suppress "rankC";
+	
 	editorTemplate -suppress "sortedId";
- 	editorTemplate -suppress "idIndex";
-	editorTemplate -suppress "aPosition";
-	editorTemplate -suppress "aPhi";
-	editorTemplate -suppress "aVelocity";
-	editorTemplate -suppress "aOmega";
+	editorTemplate -suppress "particleId";
+	editorTemplate -suppress "idIndex";
+	editorTemplate -suppress "position";
+	editorTemplate -suppress "phi";
+	editorTemplate -suppress "velocity";
+	editorTemplate -suppress "omega";
 	editorTemplate -suppress "scale";
 	editorTemplate -suppress "mesh";
+	editorTemplate -suppress "startTime";
 
 	editorTemplate -suppress "outLeftA";
 	editorTemplate -suppress "outLeftB";
@@ -59,8 +72,11 @@ global proc AEhexapodTemplate(string $nodeName)
 	editorTemplate -suppress "outRightB";
 	editorTemplate -suppress "outRightC";
 	
-
-
+	editorTemplate -suppress "localPosition";
+	
+	editorTemplate -suppress "localScale";
+	
+	AElocatorInclude $nodeName;
 
 	editorTemplate -addExtraControls;
 	editorTemplate -endScrollLayout;

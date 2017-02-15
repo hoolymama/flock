@@ -51,7 +51,7 @@ void HexapodColony::clear(){
 
 
 MStatus HexapodColony::update( 
-	const double dt, 
+	double dt, double maxVelocity, 
 	const MIntArray & particleId, 
 	const MIntArray & sortedId, 
 	const MIntArray & idIndex,
@@ -71,10 +71,14 @@ MStatus HexapodColony::update(
 	const double radiusMinB, 
 	const double radiusMaxB, 
 	const double radiusMinC, 
-	const double radiusMaxC
+	const double radiusMaxC,
+	const	MRampAttribute &incRampA,
+	const	MRampAttribute &incRampB,
+	const	MRampAttribute &incRampC
+
 	){
- 
- 
+
+
 
 	const MIntArray & right = sortedId;
 
@@ -139,7 +143,8 @@ if (rPeg == right.length()) { // finished adding right stuff. delete the rest of
 	unsigned index = idIndex[rPeg];
 	// cerr << "right position equal to left so update left with right: id=" << particleId[idIndex[rPeg]] << endl;
 
-	(*agent)->set( 
+	(*agent)->update( 
+		dt, 
 		pos[index],
 		phi[index], 
 		vel[index],
@@ -172,25 +177,16 @@ HexapodColony::~HexapodColony(){
 }
 
 
-void HexapodColony::draw(M3dView & view  ){
+void HexapodColony::draw(
+	M3dView & view, const DisplayMask & mask	) const {
 
 	view.beginGL(); 
 	glPushAttrib(GL_CURRENT_BIT);
 
-	std::list<HexapodAgent*>::iterator agent = m_agents.begin();
+	std::list<HexapodAgent*>::const_iterator agent = m_agents.begin();
 	double d44[4][4];
 	while (agent != m_agents.end()) {
-		(*agent)->draw(view);
-
-		// (*agent)->matrix().get(d44);
-	 //   MFloatMatrix fmat(d44);
- 
-		// m_homeLA.draw(view, fmat);
-		// m_homeLB.draw(view, fmat);
-		// m_homeLC.draw(view, fmat);
-		// m_homeRA.draw(view, fmat);
-		// m_homeRB.draw(view, fmat);
-		// m_homeRC.draw(view, fmat);
+		(*agent)->draw(view,mask);
 		agent++;
 	}
 

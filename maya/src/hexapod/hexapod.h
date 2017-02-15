@@ -63,6 +63,9 @@ public:
 	static MObject	aCurrentTime; 
 	static MObject	aStartTime;
 
+	static MObject aMaxVelocity;
+
+
 	static MObject  aRankA;
 	static MObject  aHomeAX;
 	static MObject  aHomeAZ;
@@ -93,6 +96,16 @@ public:
 	static MObject	aRadiusC; 
 	static MObject	aStepIncrementRampC; 
 	static MObject	aSlideProfileRampC;
+
+	static MObject	aDisplayPlants;
+	static MObject	aDisplayHome;
+	static MObject	aDisplayFootPosition;
+	static MObject	aDisplayId;
+	
+
+
+
+
 
 	static MObject	aOutLeftA;
 	static MObject	aOutLeftB;

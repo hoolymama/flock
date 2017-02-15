@@ -6,28 +6,37 @@
 #include <maya/MFloatMatrix.h>
 
 #include <maya/MVector.h>
-
+#include "displayMask.h"
 class HexapodFoot{
 public:
 
-HexapodFoot();
+	HexapodFoot();
 
- HexapodFoot(	
-	double homeX, 
-	double homeZ, 
-	double minRadius, 
-	double maxRadius,
-	const MMatrix & agentMatrix 
-	);
+	HexapodFoot(	
+		double homeX, 
+		double homeZ, 
+		double minRadius, 
+		double maxRadius,
+		const MMatrix & agentMatrix 
+		);
 
- 
+
 
 	~HexapodFoot();
+ 
+	bool  footIsOutside(const MMatrix &agentMatrix, MPoint & nextPlant) const ;
 
 
-	void setHome(double homeX, double homeZ, double radiusMin, double radiusMax);
+	void update(
+		double dt, 
+		double homeX, 
+		double homeZ, 
+		double radiusMin, 
+		double radiusMax,
+		const MMatrix & agentMatrix,
+		const MMatrix & agentMatrixInverse);
 
-	void draw(M3dView & view, MFloatMatrix & matrix) const;
+	void draw(M3dView & view, MFloatMatrix & matrix,  const DisplayMask & mask) const;
 
 	void drawCircleAtHome(
 		M3dView & view, 
@@ -35,6 +44,7 @@ HexapodFoot();
 		float radius,
 		const MColor& color) const ;
 
+	void  drawFootAndPlants( M3dView & view,  const DisplayMask & mask ) const ;
 private:
 	
 	double m_stepParam;
@@ -54,6 +64,7 @@ private:
 	double m_homeZ;
 	double m_minRadius;
 	double m_maxRadius;
+	double m_radius;
 
 
 

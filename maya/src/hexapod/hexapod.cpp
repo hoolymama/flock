@@ -29,7 +29,7 @@
 
 
 #include "hexapod.h"
-// #include "HexapodAgent.h"
+#include "displayMask.h"
 
 #include "errorMacros.h"
 
@@ -49,6 +49,8 @@ MObject hexapod::aScale;
 MObject hexapod::aMesh;
 MObject hexapod::aCurrentTime; 
 MObject hexapod::aStartTime;
+
+MObject hexapod::aMaxVelocity;
 
 MObject hexapod::aRankA;
 MObject hexapod::aHomeAX;
@@ -81,6 +83,11 @@ MObject hexapod::aRadiusC;
 MObject hexapod::aStepIncrementRampC; 
 MObject hexapod::aSlideProfileRampC;
 
+MObject hexapod::aDisplayPlants;
+MObject hexapod::aDisplayHome;
+MObject hexapod::aDisplayFootPosition;
+MObject hexapod::aDisplayId;
+
 MObject hexapod::aOutLeftA;
 MObject hexapod::aOutLeftB;
 MObject hexapod::aOutLeftC;
@@ -89,6 +96,9 @@ MObject hexapod::aOutRightB;
 MObject hexapod::aOutRightC;
 
 MTypeId hexapod::id( k_hexapod );
+
+
+ 
 
 hexapod::hexapod(){
 	m_colony = new HexapodColony();
@@ -123,9 +133,22 @@ void hexapod::draw(
 
 	MObject thisNode = thisMObject();
 
-	// cerr << "Before draw" << endl;
+	DisplayMask mask;
 
- 	m_colony->draw(view);
+	MPlug plug( thisNode, aDisplayPlants);
+	plug.getValue(mask.displayPlants);
+ 
+	plug.setAttribute( aDisplayHome);
+	plug.getValue(mask.displayHome);
+
+	plug.setAttribute( aDisplayFootPosition);
+	plug.getValue(mask.displayFootPosition);
+
+	plug.setAttribute( aDisplayId);
+	plug.getValue(mask.displayId);
+
+
+ 	m_colony->draw(view, mask);
 	// cerr << "After draw" << endl;
 	
 }
@@ -201,63 +224,27 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 	double	homeAZ	= hRankA.child(aHomeA).child(aHomeAZ).asDouble();
 	double	radiusMinA	= hRankA.child(aRadiusA).child(aRadiusMinA).asDouble();
 	double	radiusMaxA	= hRankA.child(aRadiusA).child(aRadiusMaxA).asDouble();
+	MRampAttribute stepIncrementRampA( thisMObject() , aStepIncrementRampA, &st ); er; 
+
 
 	MDataHandle hRankB = data.inputValue(aRankB);
 	double	homeBX	= hRankB.child(aHomeB).child(aHomeBX).asDouble();
 	double	homeBZ	= hRankB.child(aHomeB).child(aHomeBZ).asDouble();
 	double	radiusMinB	= hRankB.child(aRadiusB).child(aRadiusMinB).asDouble();
 	double	radiusMaxB	= hRankB.child(aRadiusB).child(aRadiusMaxB).asDouble();
+	MRampAttribute stepIncrementRampB( thisMObject() , aStepIncrementRampB, &st ); er; 
 
 	MDataHandle hRankC = data.inputValue(aRankC);
 	double	homeCX	= hRankC.child(aHomeC).child(aHomeCX).asDouble();
 	double	homeCZ	= hRankC.child(aHomeC).child(aHomeCZ).asDouble();
 	double	radiusMinC	= hRankC.child(aRadiusC).child(aRadiusMinC).asDouble();
 	double	radiusMaxC	= hRankC.child(aRadiusC).child(aRadiusMaxC).asDouble();
+	MRampAttribute stepIncrementRampC( thisMObject() , aStepIncrementRampC, &st ); er; 
 
-
-
-
-	// MDataHandle hRankA = block.inputValue(aRankA);
-	// double	radiusMinA	= hRankA.child(aRadiusMinA).asDouble();
-	// double	radiusMaxA	= hRankA.child(aRadiusMaxA).asDouble();
-	// double	radiusMinA	= hRankA.child(aRadiusMinA).asDouble();
-	// double	radiusMaxA	= hRankA.child(aRadiusMaxA).asDouble();
-
-
-	// /////////////////////// RAMP ATTRIBUTES //////////////////////////
-	// MRampAttribute stepIncrementRampA( thisMObject() , aStepIncrementRampA, &st ); er; 
-	// MRampAttribute stepIncrementRampB( thisMObject() , aStepIncrementRampB, &st ); er; 
-	// MRampAttribute stepIncrementRampC( thisMObject() , aStepIncrementRampC, &st ); er;
-
-	// MRampAttribute slideProfileRampA( thisMObject() , aSlideProfileRampA, &st ); er; 
-	// MRampAttribute slideProfileRampB( thisMObject() , aSlideProfileRampB, &st ); er; 
-	// MRampAttribute slideProfileRampC( thisMObject() , aSlideProfileRampC, &st ); er;
-	// ///////////////////////////////////////////////////////////////////////////
-
-	// 	/////////////////////// VECTOR ATTRIBUTES //////////////////////////
-	// MVector homeLA = data.inputValue(aHomeLA).asVector();
-	// MVector homeLB = data.inputValue(aHomeLB).asVector();
-	// MVector homeLC = data.inputValue(aHomeLC).asVector();
-	// MVector homeRA = data.inputValue(aHomeRA).asVector();
-	// MVector homeRB = data.inputValue(aHomeRB).asVector();
-	// MVector homeRC = data.inputValue(aHomeRC).asVector();
-	// ///////////////////////////////////////////////////////////////////////////
-
-
-	// /////////////////////// DOUBLE ATTRIBUTES //////////////////////////
-	// double	radiusMinA	= data.inputValue(aRadiusMinA).asDouble();
-	// double	radiusMaxA	= data.inputValue(aRadiusMaxA).asDouble();
-	// double	radiusMinB	= data.inputValue(aRadiusMinB).asDouble();
-	// double	radiusMaxB	= data.inputValue(aRadiusMaxB).asDouble();
-	// double	radiusMinC	= data.inputValue(aRadiusMinC).asDouble();
-	// double	radiusMaxC	= data.inputValue(aRadiusMaxC).asDouble();
-
-
-	/////////////////////// VALIDATE ARRAYS //////////////////////////
-
-
-
-
+	double	maxVelocity	= data.inputValue(aMaxVelocity).asDouble();
+ 
+ 
+ 
 	// cerr << "In compute" << endl;
 
 
@@ -268,11 +255,12 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 
 		// cerr << particleId << endl;
 		m_colony->update(
-			dt,
+			dt, maxVelocity,
 			particleId, sortedId, idIndex,
 			pos, phi, vel, omega, scale,
 			homeAX, homeAZ, homeBX, homeBZ, homeCX, homeCZ,
-			radiusMinA, radiusMaxA, radiusMinB, radiusMaxB, radiusMinC, radiusMaxC
+			radiusMinA, radiusMaxA, radiusMinB, radiusMaxB, radiusMinC, radiusMaxC,
+			stepIncrementRampA, stepIncrementRampB, stepIncrementRampC
 			);
 
 
@@ -375,6 +363,13 @@ MStatus hexapod::initialize()
 	st =  addAttribute(aStartTime);  er;
 	
 
+	aMaxVelocity = nAttr.create("maxVelocity", "mvl", MFnNumericData::kDouble);
+	nAttr.setStorable (true);
+	nAttr.setWritable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(1.0);
+	st = addAttribute(aMaxVelocity); er;
+
 
 	aHomeAX = nAttr.create( "homeAX", "hax", MFnNumericData::kDouble);
 	aHomeAZ = nAttr.create( "homeAZ", "haz", MFnNumericData::kDouble);
@@ -461,9 +456,28 @@ MStatus hexapod::initialize()
 	st = addAttribute(aRankC);er;
 
 
+	aDisplayPlants = nAttr.create( "displayPlants", "dpl",MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	addAttribute( aDisplayPlants ); 
+	aDisplayHome = nAttr.create( "displayHome", "dhm",MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	addAttribute( aDisplayHome ); 
+	aDisplayFootPosition = nAttr.create( "displayFootPosition", "dfp",MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	addAttribute( aDisplayFootPosition ); 
+	aDisplayId = nAttr.create( "displayId", "did",MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	addAttribute( aDisplayId ); 
 
-
-
+ 
 
 	/////// OUTPUTS
 	aOutLeftA = tAttr.create("outLeftA", "ola", MFnData::kVectorArray , &st ); er;

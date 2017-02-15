@@ -5,6 +5,10 @@
 #include <sstream>
 
 #include <vector>
+#include <algorithm>
+#include <math.h> 
+
+
 #include <maya/MObject.h>
 #include <maya/MFnDoubleArrayData.h>
 #include <maya/MFnVectorArrayData.h>
@@ -24,6 +28,7 @@
 
 const double  PI  = 3.141592653;
 const double  TAU = 2.0 * PI;
+const double  nearlyOne = 1.0 - 0.000001;
 
 static int circleVertexCount = 16;
 const float gap = TAU / circleVertexCount;
@@ -59,28 +64,103 @@ HexapodFoot::HexapodFoot(
 m_homeX(homeX),
 m_homeZ(homeZ),
 m_minRadius(minRadius),
-m_maxRadius(maxRadius) 
+m_maxRadius(maxRadius)
 {
 
 	m_footPosition = MPoint(homeX, 0, homeZ) * agentMatrix;
 	m_lastPlant = m_footPosition;
 	m_nextPlant = m_footPosition;
+
+
+
 	m_stepParam = 1.0;
+	m_radius = (maxRadius+minRadius)/2.0; 
+// 	cerr << "CTOR: "   << endl;
+// 	cerr << "m_minRadius: " << m_minRadius << endl;
+// cerr << "m_maxRadius: " << m_maxRadius << endl;
+// 	cerr << "m_radius: " << m_radius << endl;
+
 
 }
 
 HexapodFoot::~HexapodFoot(){}
 
-void HexapodFoot::setHome(
+
+bool HexapodFoot::footIsOutside(const MMatrix &agentMatrix, MPoint & nextPlant) const {
+
+	double dmat[4][4] = {
+		{m_radius,0.0,0.0,0.0},
+		{0.0,m_radius,0.0,0.0},
+		{0.0,0.0,m_radius,0.0},
+		{ m_homeX,0.0,m_homeZ,1.0}
+	};
+
+	MMatrix homeRadiusMatrix = MMatrix(dmat) * agentMatrix;
+	MPoint localFoot = m_footPosition  * homeRadiusMatrix.inverse();
+
+ 	/*
+	pick a point on the radius in the direction opposite to where we went out.
+ 	*/
+	double dist = sqrt(localFoot.x*localFoot.x)+(localFoot.z*localFoot.z);
+
+	if  (dist >= 1) {
+		MPoint localTarget =  localFoot / (-dist);
+		nextPlant = localTarget * homeRadiusMatrix;
+		return true;
+	}
+	return false;
+}
+
+
+
+void HexapodFoot::update(
+	double dt,
 	double homeX, 
 	double homeZ, 
 	double radiusMin, 
-	double radiusMax) 
+	double radiusMax,
+	const MMatrix & agentMatrix,
+	const MMatrix & agentMatrixInverse) 
 {
- 	m_homeX = homeX;
- 	m_homeZ = homeZ;
- 	m_minRadius = radiusMin;
- 	m_maxRadius = radiusMax;
+	m_homeX = homeX;
+	m_homeZ = homeZ;
+	m_minRadius = radiusMin;
+	m_maxRadius = radiusMax;
+
+	m_radius = (m_maxRadius + m_minRadius) * 0.5;
+	cerr << "m_radius: " << m_radius << endl;
+
+
+
+
+		/* is foot in a step */
+	if (m_stepParam < 1.0) {
+		double tmp = m_stepParam + 0.25;
+		m_stepParam = std::min(tmp, 1.0);
+			/* advance the foot a bit*/
+		m_footPosition = (m_lastPlant*(1.0 - m_stepParam)) +(m_nextPlant * m_stepParam);
+	} else {
+				/*
+					not in step - so check if foot is outside circle (projected into ground plane)
+				*/
+		MPoint next;
+		if (footIsOutside(agentMatrix, next)) {
+			m_lastPlant = m_footPosition;
+			m_nextPlant = next;
+			m_stepParam = 0;
+		}
+	}
+
+
+
+	  // m_footPosition = MPoint(m_homeX, 0, m_homeZ, 1.0) * agentMatrix;
+
+ 	// m_radius = (radiusMax+radiusMin)/2.0;
+// 	cerr << "SET HOME: "   << endl;
+//  		cerr << "m_minRadius: " << m_minRadius << endl;
+// cerr << "m_maxRadius: " << m_maxRadius << endl;
+// 	cerr << "m_radius: " << m_radius << endl;
+
 }
 
 
@@ -95,7 +175,7 @@ void HexapodFoot::drawCircleAtHome(
 		{0.0f,radius,0.0f,0.0f},
 		{0.0f,0.0f,radius,0.0f},
 		{float(m_homeX),0.0f,float(m_homeZ),1.0f}
-		};
+	};
 
 	MFloatMatrix circleMatrix(fmat);
 	circleMatrix = circleMatrix * agentMatrix;
@@ -116,19 +196,59 @@ void HexapodFoot::drawCircleAtHome(
 	glEnd();
 };
 
-void HexapodFoot::draw(M3dView & view, MFloatMatrix & agentMatrix) const {
+
+void HexapodFoot::drawFootAndPlants( M3dView & view,  const DisplayMask & mask ) const {
+
+	glPushAttrib(GL_CURRENT_BIT);
+
+	glPointSize(4);
+
+	glBegin( GL_POINTS );
+	if (mask.displayPlants){
+		view.setDrawColor( MColor( MColor::kRGB, 0.0, 0.0, 0.0 ) );
+		glVertex3d( m_lastPlant.x , m_lastPlant.y ,m_lastPlant.z );
+		view.setDrawColor( MColor( MColor::kRGB, 1.0, 1.0, 1.0 ) );
+		glVertex3d( m_nextPlant.x , m_nextPlant.y ,m_nextPlant.z );
+	}
+	if (mask.displayFootPosition){
+
+		view.setDrawColor( MColor( MColor::kRGB, 0.0, 1.0,0.0 ) );
+		glVertex3d( m_footPosition.x , m_footPosition.y ,m_footPosition.z );
+	}
+	glEnd();
+
+	glPopAttrib();
+
+}
+
+void HexapodFoot::draw(M3dView & view, MFloatMatrix & agentMatrix,  const DisplayMask & mask) const {
 	
-	HexapodFoot::drawCircleAtHome(view, 
-		agentMatrix, 
-		float(m_minRadius), 
-		MColor(0.0, 0.0, 1.0)
-		);
-	
-	HexapodFoot::drawCircleAtHome(view, 
-		agentMatrix, 
-		float(m_maxRadius), 
-		MColor(1.0, 0.0, 0.0)
-		);
+	if (mask.displayHome){
+		HexapodFoot::drawCircleAtHome(view, 
+			agentMatrix, 
+			float(m_minRadius), 
+			MColor(0.0, 0.0, 1.0)
+			);
+		
+		HexapodFoot::drawCircleAtHome(view, 
+			agentMatrix, 
+			float(m_maxRadius), 
+			MColor(1.0, 0.0, 0.0)
+			);
+
+		
+		HexapodFoot::drawCircleAtHome(view, 
+			agentMatrix, 
+			float(m_radius), 
+			MColor(1.0, 1.0, 1.0)
+			);
+	}
+		/* world space */
+	HexapodFoot::drawFootAndPlants(view, mask);
+
+
+
+
 };
 
 
