@@ -5,47 +5,93 @@
 #include <maya/MMatrix.h>
 #include <maya/M3dView.h>
 #include <maya/MString.h>
+
+#include <maya/MRampAttribute.h>
 #include "HexapodFoot.h"
 #include "mayaMath.h"
 #include "displayMask.h"
-// typedef std::map< int, meshCloner * > meshClonerMap ;
+#include "rankData.h"
 
+class HexapodFoot;
 
-class HexapodAgent{
+class HexapodAgent {
 public:
 
+	// HexapodAgent(	
+	// 	double dt,
+	// 	unsigned particleId,
+	// 	const MVector &pos,
+	// 	const MVector &phi,
+	// 	const MVector &vel,
+	// 	const MVector &omega,
+	// 	double scale,
+	// 	double homeAX, double homeAZ, double radiusMinA, double radiusMaxA,
+	// 	double homeBX, double homeBZ, double radiusMinB, double radiusMaxB,
+	// 	double homeCX, double homeCZ, double radiusMinC, double radiusMaxC
+	// 	);
+
 	HexapodAgent(	
+		double dt,
 		unsigned particleId,
 		const MVector &pos,
 		const MVector &phi,
 		const MVector &vel,
 		const MVector &omega,
 		double scale,
-		double homeAX, double homeAZ, double radiusMinA, double radiusMaxA,
-		double homeBX, double homeBZ, double radiusMinB, double radiusMaxB,
-		double homeCX, double homeCZ, double radiusMinC, double radiusMaxC
+ 		rankData &rankA,
+
+ 		rankData &rankB,
+
+ 		rankData &rankC,
+ 		const MVector &bodyOffset
+
 		);
 
 	~HexapodAgent();
-	
-	void update(	
-		double dt,
+
+	void  buildMatrices(
 		const MVector &pos,
 		const MVector &phi,
 		const MVector &vel,
 		const MVector &omega,
 		double scale,
-		double homeAX,double  homeAZ,double  radiusMinA,double   radiusMaxA,
-		double homeBX,double  homeBZ,double  radiusMinB,double   radiusMaxB,
-		double homeCX,double  homeCZ,double  radiusMinC,double   radiusMaxC
+		double dt);
+
+	void update(	
+		double dt, double maxSpeed,
+		const MVector &pos,
+		const MVector &phi,
+		const MVector &vel,
+		const MVector &omega,
+		double scale,
+ 		rankData &rankA,
+
+ 		rankData &rankB,
+
+ 		rankData &rankC,
+ 		const MVector &bodyOffset,
+
+		MRampAttribute &plantSpeedBiasRamp,
+		MRampAttribute &anteriorRadiusRamp,
+		MRampAttribute &lateralRadiusRamp,
+		MRampAttribute &posteriorRadiusRamp
 		);
 
 	void draw( M3dView & view, const DisplayMask & mask) const;
 
+	void getOutputData(
+		MVector& la, MVector& lb, MVector& lc, 
+		MVector& ra, MVector& rb, MVector& rc, 
+		MVector& position, MVector& phi, double &scale) const;
 
 	const MVector &  position()  const ;
 	int  id()  const;
 	const MMatrix & matrix() const;
+	const MMatrix & matrixInverse() const;
+
+	const MMatrix & matrixNext() const;
+
+	MVector worldBodyPosition() const;
 
 private:
 
@@ -55,9 +101,12 @@ private:
 	MVector m_velocity;
 	MVector m_omega;
 	double m_scale;
-
+	MVector m_bodyOffset;
 	MMatrix m_matrix;
 	MMatrix m_matrixInverse;
+
+	/* m_matrixNext is where the agent is likely to be in one frame */
+	MMatrix m_matrixNext;
 
 	HexapodFoot m_footLA;
 	HexapodFoot m_footLB;
@@ -66,7 +115,7 @@ private:
 	HexapodFoot m_footRB;
 	HexapodFoot m_footRC;
 
-
+ 
 
 };
 

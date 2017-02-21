@@ -232,7 +232,7 @@ MStatus flockShape::initialize(){
 	// gAttr.setCached(false);
 	// st = addAttribute( aScalePP );er;
 
-	aScalePP = tAttr.create("scalePP","spp", MFnData::kVectorArray, &st ); er;
+	aScalePP = tAttr.create("scalePP","spp", MFnData::kDoubleArray, &st ); er;
 	tAttr.setStorable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	st = addAttribute( aScalePP );er;

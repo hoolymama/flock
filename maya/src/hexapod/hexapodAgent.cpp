@@ -1,50 +1,74 @@
 
-#include "HexapodFoot.h"
 #include "HexapodAgent.h"
+#include "HexapodFoot.h"
+
 
 HexapodAgent::HexapodAgent(
+	double dt,
 	unsigned particleId,
 	const MVector &pos,
 	const MVector &phi,
 	const MVector &vel,
 	const MVector &omega,
 	double scale,
-	double homeAX, double homeAZ, double radiusMinA, double radiusMaxA,
-	double homeBX, double homeBZ, double radiusMinB, double radiusMaxB,
-	double homeCX, double homeCZ, double radiusMinC, double radiusMaxC
+	rankData &rankA,
+	rankData &rankB,
+	rankData &rankC,
+	const MVector &bodyOffset
 
-	): m_particleId(particleId), 
+	): 
+m_particleId(particleId), 
 m_position(pos), 
 m_phi(phi), 
 m_velocity(vel), 
 m_omega(omega), 
-m_scale(scale)
-
+m_scale(scale),
+m_bodyOffset(bodyOffset)
 {
-	m_matrix = mayaMath::matFromPhi(pos, phi, MVector(scale,scale,scale));
-	m_matrixInverse = m_matrix.inverse();
 
-	m_footLA = HexapodFoot(homeAX, homeAZ, radiusMinA,  radiusMaxA, m_matrix);
-	m_footLB = HexapodFoot(homeBX, homeBZ, radiusMinB,  radiusMaxB, m_matrix);
-	m_footLC = HexapodFoot(homeCX, homeCZ, radiusMinC,  radiusMaxC, m_matrix);
-	m_footRA = HexapodFoot(homeAX, -homeAZ, radiusMinA,  radiusMaxA, m_matrix);
-	m_footRB = HexapodFoot(homeBX, -homeBZ, radiusMinB,  radiusMaxB, m_matrix);
-	m_footRC = HexapodFoot(homeCX, -homeCZ, radiusMinC,  radiusMaxC, m_matrix);
+	buildMatrices(pos,phi,vel,omega, scale, dt);
+	/* build the feet. Give them a pointer to this object 
+	so they can use matrices to maintain the foot positions in world space
+	*/
+	m_footLA = HexapodFoot(rankA.homeX, rankA.homeZ, rankA.radiusMin,  rankA.radiusMax,  this);
+	m_footLB = HexapodFoot(rankB.homeX, rankB.homeZ, rankB.radiusMin,  rankB.radiusMax,  this);
+	m_footLC = HexapodFoot(rankC.homeX, rankC.homeZ, rankC.radiusMin,  rankC.radiusMax,  this);
+	m_footRA = HexapodFoot(rankA.homeX, -rankA.homeZ, rankA.radiusMin,  rankA.radiusMax, this);
+	m_footRB = HexapodFoot(rankB.homeX, -rankB.homeZ, rankB.radiusMin,  rankB.radiusMax, this);
+	m_footRC = HexapodFoot(rankC.homeX, -rankC.homeZ, rankC.radiusMin,  rankC.radiusMax, this);
 
 }
 
 HexapodAgent::~HexapodAgent(){ }
 
+
+void HexapodAgent::buildMatrices(
+	const MVector &pos,
+	const MVector &phi,
+	const MVector &vel,
+	const MVector &omega,
+	double scale, double dt) 
+{
+	m_matrix = mayaMath::matFromPhi(pos, phi, MVector(scale,scale,scale));
+	m_matrixInverse = m_matrix.inverse();
+	m_matrixNext = mayaMath::matFromPhi(pos+(vel*dt), phi+(omega*dt), MVector(scale,scale,scale));
+}
+
 void HexapodAgent::update(
-	double dt,
+	double dt, double maxSpeed,
 	const MVector &pos,
 	const MVector &phi,
 	const MVector &vel,
 	const MVector &omega,
 	double scale,
-	double homeAX, double  homeAZ,double  radiusMinA,double   radiusMaxA,
-	double homeBX, double  homeBZ,double  radiusMinB,double   radiusMaxB,
-	double homeCX, double  homeCZ,double  radiusMinC,double   radiusMaxC
+	rankData &rankA,
+	rankData &rankB,
+	rankData &rankC,
+	const MVector &bodyOffset,
+	MRampAttribute &plantSpeedBiasRamp,
+	MRampAttribute &anteriorRadiusRamp,
+	MRampAttribute &lateralRadiusRamp,
+	MRampAttribute &posteriorRadiusRamp
 	)
 {
 	m_position = pos;
@@ -52,17 +76,84 @@ void HexapodAgent::update(
 	m_velocity = vel;
 	m_omega = omega;
 	m_scale = scale;
+	m_bodyOffset = bodyOffset;
 
-	m_matrix = mayaMath::matFromPhi(pos, phi, MVector(scale,scale,scale));
-	m_matrixInverse = m_matrix.inverse();
+	buildMatrices(pos,phi,vel,omega, scale, dt);
 
-	m_footLA.update(dt, homeAX,  homeAZ, radiusMinA, radiusMaxA, m_matrix, m_matrixInverse);
-	m_footLB.update(dt, homeBX,  homeBZ, radiusMinB, radiusMaxB, m_matrix, m_matrixInverse);
-	m_footLC.update(dt, homeCX,  homeCZ, radiusMinC, radiusMaxC, m_matrix, m_matrixInverse);
-	m_footRA.update(dt, homeAX, -homeAZ, radiusMinA, radiusMaxA, m_matrix, m_matrixInverse);
-	m_footRB.update(dt, homeBX, -homeBZ, radiusMinB, radiusMaxB, m_matrix, m_matrixInverse);
-	m_footRC.update(dt, homeCX, -homeCZ, radiusMinC, radiusMaxC, m_matrix, m_matrixInverse);
+ 	/* 
+	A planted foot plans a new plant and transitions to a step when 
+	it is found to be outside its constraining circle. 
+
+	For any given foot, the size of the constraining circle is a 
+	function of the stepParameter of the three neighboring feet:
+	in-front: (Anterior)
+	behind (Posterior)
+	opposite side (lateral) 
+
+	the sense of anterior and posterior wrap around. Meaning: 
+	The foot in rank B has anterior=A posterior=C
+	The foot in rank A has anterior=C posterior=B
+	The foot in rank C has anterior=B posterior=A
+
+	By modulating the constraining circles based on neighboring feet
+	the agent tends to sync its steps in differnt phases front to back, 
+	and it makes left and right alternate in normal walking.
+
+	When the agent turns,stops, or moves backwards, the feet tend 
+	to do what is necessary to move, while keeping most feet on
+	the ground at any one time
+ 	*/
+	m_footLA.updateHomeCircles(rankA.homeX,  rankA.homeZ, rankA.radiusMin, rankA.radiusMax, 
+		m_footLC.stepParam(),m_footRA.stepParam(),m_footLB.stepParam(),
+		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp);
+
+	m_footLB.updateHomeCircles(rankB.homeX,  rankB.homeZ, rankB.radiusMin, rankB.radiusMax, 
+		m_footLA.stepParam(),m_footRB.stepParam(),m_footLC.stepParam(),
+		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp);
+
+	m_footLC.updateHomeCircles(rankC.homeX,  rankC.homeZ, rankC.radiusMin, rankC.radiusMax, 
+		m_footLB.stepParam(),m_footRC.stepParam(),m_footLA.stepParam(),
+		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp);
+
+	m_footRA.updateHomeCircles(rankA.homeX, -rankA.homeZ, rankA.radiusMin, rankA.radiusMax, 
+		m_footRC.stepParam(),m_footLA.stepParam(),m_footRB.stepParam(),
+		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp);
+
+	m_footRB.updateHomeCircles(rankB.homeX, -rankB.homeZ, rankB.radiusMin, rankB.radiusMax, 
+		m_footRA.stepParam(),m_footLB.stepParam(),m_footRC.stepParam(),
+		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp);
+
+	m_footRC.updateHomeCircles(rankC.homeX, -rankC.homeZ, rankC.radiusMin, rankC.radiusMax, 
+		m_footRB.stepParam(),m_footLC.stepParam(),m_footRA.stepParam(),
+		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp);
+
+	m_footLA.update(dt, maxSpeed, rankA.stepIncrementRamp, plantSpeedBiasRamp);
+	m_footLB.update(dt, maxSpeed, rankB.stepIncrementRamp, plantSpeedBiasRamp);
+	m_footLC.update(dt, maxSpeed, rankC.stepIncrementRamp, plantSpeedBiasRamp);
+	m_footRA.update(dt, maxSpeed, rankA.stepIncrementRamp, plantSpeedBiasRamp);
+	m_footRB.update(dt, maxSpeed, rankB.stepIncrementRamp, plantSpeedBiasRamp);
+	m_footRC.update(dt, maxSpeed, rankC.stepIncrementRamp, plantSpeedBiasRamp);
 }
+void HexapodAgent::getOutputData(
+	MVector& la, MVector& lb, MVector& lc, 
+	MVector& ra, MVector& rb, MVector& rc, 
+	MVector& position, MVector& phi, double &scale) const 
+{
+	la = m_footLA.position();
+	lb = m_footLB.position();
+	lc = m_footLC.position();
+	ra = m_footRA.position();
+	rb = m_footRB.position();
+	rc = m_footRC.position();
+	position = worldBodyPosition();
+	phi = m_phi;
+	scale = m_scale;
+}
+
+MVector HexapodAgent::worldBodyPosition() const {
+	return MVector(MPoint(m_bodyOffset) * m_matrix);
+}
+
 
 void HexapodAgent::draw(
 	M3dView & view, const DisplayMask & mask 
@@ -87,6 +178,11 @@ void HexapodAgent::draw(
 	}
 }
 
+
 const MVector & HexapodAgent::position()  const {return m_position; } 
-int   HexapodAgent::id()  const {return m_particleId; } 
+int HexapodAgent::id() const {return m_particleId; } 
 const MMatrix & HexapodAgent::matrix() const {return m_matrix;}
+const MMatrix & HexapodAgent::matrixInverse() const {return m_matrixInverse;}
+// const MMatrix & HexapodAgent::localVelocityMatrix() const {return m_localVelocityMatrix;}
+const MMatrix & HexapodAgent::matrixNext() const {return m_matrixNext;}
+

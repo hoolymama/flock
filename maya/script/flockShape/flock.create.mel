@@ -15,7 +15,7 @@ Copyright (c) 2008 __MyCompanyName__. All rights reserved.
 global proc string flock.create(){
 
 
-	string $psys[] = `ls -sl -dag -leaf -type "particle"`;
+	string $psys[] = `ls -sl -dag -leaf -type "nParticle"`;
 	if (!(`size $psys` == 1) ) error("Need exactly one particle picked");
 	string $p = $psys[0];
 	string $flock = `createNode "flockShape"`;
@@ -69,7 +69,7 @@ global proc string[] flock.addMeshes(){
 		int $fInId = attr.findNextUnconnectedIndex($flockShape+".inMeshes");
 		int $fOutId = attr.findNextUnconnectedIndex($flockShape+".outMeshes");
 		int $fid =  max($fInId, $fOutId);
-		connectAttr -f ($mesh+".outMesh") ($flockShape+".inMeshes["+$fid+"].mesh");
+		connectAttr -f ($mesh+".worldMesh") ($flockShape+".inMeshes["+$fid+"].mesh");
 
 		string $newMesh = `createNode "mesh"`;
 		connectAttr -f   ($flockShape+".outMeshes["+$fid+"]") ($newMesh + ".inMesh");

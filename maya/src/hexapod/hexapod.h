@@ -2,7 +2,9 @@
 #ifndef _hexapod
 #define _hexapod
 
-
+/*
+This is the main Maya locator node for hexapod.
+*/
 #include <maya/MVectorArray.h> 
 #include <maya/MDoubleArray.h> 
 #include <maya/MEulerRotation.h>
@@ -11,6 +13,7 @@
 #include <maya/MTypeId.h> 
 #include <maya/MPxLocatorNode.h>
 
+#include <maya/MGlobal.h>
 #include "HexapodColony.h"
 
 #define LEAD_COLOR        18  // green
@@ -36,7 +39,7 @@ public:
 	static void		*creator();
 	static MStatus	initialize();
 
-	// will compute output force.
+
 	virtual MStatus	compute( const MPlug& plug, MDataBlock& data );
 
 	virtual void draw( M3dView & view, const MDagPath & path,
@@ -49,23 +52,71 @@ public:
 
 	static MTypeId	id;
 
+	/*
+	aParticleId, aSortedId, aIdIndex
+	Int arrays to help us determine which agents are: 
+	new born
+	existing already
+	dead
+	*/
 	static MObject	aParticleId;
 	static MObject	aSortedId;
 	static MObject	aIdIndex;
 
-
+	/*
+	attributes that make up the bugs matrix at
+	the current time and in the future
+	*/
 	static MObject	aPosition;	
 	static MObject	aPhi;
 	static MObject	aVelocity;	
 	static MObject	aOmega;	
 	static MObject	aScale;
+
+	/*ground detection*/
 	static MObject	aMesh;
+
+/* time attribs for the simulation*/
 	static MObject	aCurrentTime; 
 	static MObject	aStartTime;
+	static MObject	aDefaultWhenDormant;
 
-	static MObject aMaxVelocity;
+	/* maxSpeed is used to normalize the speed of 
+	a foot or an agent to lookup a value from a ramp
+	*/
+	static MObject aMaxSpeed;
+
+	/*
+  a speed based ramp that determines a value from 0-1
+  which is used in foot plant planning to put the
+  plant at the center of the home circle (0) or on the leading
+  edge of the circle (1) or somewhere between  
+	*/
+	static MObject aPlantSpeedBiasRamp;
 
 
+	/*
+	These three attributes are ramps that are used when setting
+	the constraining circle radius for any given foot. 
+	See HexapodAgent::update implementation.
+	*/
+	static MObject aAnteriorRadiusRamp;
+	static MObject aLateralRadiusRamp;
+	static MObject aPosteriorRadiusRamp;
+
+	/*
+	parameters related to feet in rank A B and C
+	homeX and Z define the offset from center.
+
+	radius min and max define the range of size for the 
+	actual foot constraining circle
+
+	stepIncrementRamp defines how much the stepParam 
+	should be incremented based on the speed a foot is 
+	traveling.
+
+	slideProfileRamp -- UNUSED RIGHT NOW
+	*/
 	static MObject  aRankA;
 	static MObject  aHomeAX;
 	static MObject  aHomeAZ;
@@ -97,15 +148,25 @@ public:
 	static MObject	aStepIncrementRampC; 
 	static MObject	aSlideProfileRampC;
 
+
+	static MObject	aBodyOffset;
+
+	/*
+		specify what components and info to draw with 
+		openGL
+	*/
 	static MObject	aDisplayPlants;
 	static MObject	aDisplayHome;
 	static MObject	aDisplayFootPosition;
 	static MObject	aDisplayId;
+	static MObject	aDisplaySpeed;
 	
-
-
-
-
+	/*
+	outputs
+	should be in the same order as input particles.
+	*/
+	static MObject	aOutIdIndex;
+	static MObject	aOutSortedId;
 
 	static MObject	aOutLeftA;
 	static MObject	aOutLeftB;
@@ -113,6 +174,10 @@ public:
 	static MObject	aOutRightA;
 	static MObject	aOutRightB;
 	static MObject	aOutRightC;
+	static MObject	aOutPosition;
+	static MObject	aOutPhi;
+	static MObject	aOutScale;
+
 
 private:
 	
@@ -120,7 +185,7 @@ private:
 	
 	HexapodColony * m_colony;
 
-	MStatus  checkArrayLength(unsigned alen, unsigned len, const MString &name);
+	MStatus checkArrayLength(unsigned alen, unsigned len, const MString &name);
 	MStatus checkArrayLength(const MVectorArray &arr, unsigned len, const MString &name);
 	MStatus checkArrayLength(const MDoubleArray &arr, unsigned len, const MString &name);
 	MStatus checkArrayLength(const MIntArray &arr, unsigned len, const MString &name);

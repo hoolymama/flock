@@ -16,7 +16,20 @@ global proc AEhexapodTemplate(string $nodeName)
 	editorTemplate -addControl "homeRC";
 	editorTemplate -endLayout;
 	
+  editorTemplate -cl 0 -beginLayout "Local Speed";	
+	editorTemplate -addControl "maxSpeed";
+	AEaddRampControl ($nodeName+".plantSpeedBiasRamp");	
+	editorTemplate -endLayout;
+
+
+
+	editorTemplate -cl 0 -beginLayout "Phase Coordination";	
+	AEaddRampControl ($nodeName+".anteriorRadiusRamp");	
+	AEaddRampControl ($nodeName+".lateralRadiusRamp");	
+	AEaddRampControl ($nodeName+".posteriorRadiusRamp");	
+	editorTemplate -endLayout;
 	
+ 
 	editorTemplate -cl 0 -beginLayout "Rank A";	
 	editorTemplate -addControl "homeA";
 	editorTemplate -addControl "radiusA";
@@ -38,16 +51,26 @@ global proc AEhexapodTemplate(string $nodeName)
 	AEaddRampControl ($nodeName+".slideProfileRampC");	
 	editorTemplate -endLayout;
 
-	editorTemplate -cl 0 -beginLayout "Diagnostics";		
+	editorTemplate -cl 0 -beginLayout "Body";	
+	editorTemplate -addControl "bodyOffset";
+	editorTemplate -endLayout;
+
+
+	editorTemplate -cl 0 -beginLayout "Diagnostics";	
+	editorTemplate -beginNoOptimize;	
 	editorTemplate -addControl "displayPlants";
 	editorTemplate -addControl "displayHome";
 	editorTemplate -addControl "displayFootPosition";
 	editorTemplate -addControl "displayId";
+	editorTemplate -endNoOptimize;
+	editorTemplate -addControl "displaySpeed";
+	
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Time";		
 	editorTemplate -addControl "startTime";		
-	editorTemplate -addControl "currentTime";	
+	editorTemplate -addControl "currentTime";
+  editorTemplate -addControl "defaultWhenDormant";
 	editorTemplate -endLayout;
 	
 	editorTemplate -suppress "rankA";

@@ -14,6 +14,7 @@
 #include <maya/MFnVectorArrayData.h>
 #include <maya/MFnIntArrayData.h>
 
+#include <maya/MRampAttribute.h>
 #include <maya/MFnDependencyNode.h>
 #include <maya/MPlug.h>
 
@@ -23,12 +24,14 @@
 
 
 #include "mayaMath.h"
-
+#include "errorMacros.h"
 #include "HexapodFoot.h"
+#include "HexapodAgent.h"
+
 
 const double  PI  = 3.141592653;
 const double  TAU = 2.0 * PI;
-const double  nearlyOne = 1.0 - 0.000001;
+const double  epsilon = 0.000001;
 
 static int circleVertexCount = 16;
 const float gap = TAU / circleVertexCount;
@@ -59,34 +62,57 @@ HexapodFoot::HexapodFoot(
 	double homeZ, 
 	double minRadius, 
 	double maxRadius,
-	const MMatrix & agentMatrix 
+	const HexapodAgent * pAgent
 	):  
-m_homeX(homeX),
-m_homeZ(homeZ),
-m_minRadius(minRadius),
-m_maxRadius(maxRadius)
+	m_homeX(homeX),
+	m_homeZ(homeZ),
+	m_minRadius(minRadius),
+	m_maxRadius(maxRadius),
+	m_speed(0),
+	m_pAgent(pAgent)
 {
 
-	m_footPosition = MPoint(homeX, 0, homeZ) * agentMatrix;
+	/*
+	We arbitrarily start with: 
+		Both plants and the foot together
+		StepParam of 1.0 which means planted.
+		Radius halfway between min and max.
+	*/
+
+	m_footPosition = MPoint(homeX, 0, homeZ) * pAgent->matrix();
 	m_lastPlant = m_footPosition;
 	m_nextPlant = m_footPosition;
-
-
-
 	m_stepParam = 1.0;
 	m_radius = (maxRadius+minRadius)/2.0; 
-// 	cerr << "CTOR: "   << endl;
-// 	cerr << "m_minRadius: " << m_minRadius << endl;
-// cerr << "m_maxRadius: " << m_maxRadius << endl;
-// 	cerr << "m_radius: " << m_radius << endl;
-
 
 }
 
 HexapodFoot::~HexapodFoot(){}
 
 
-bool HexapodFoot::footIsOutside(const MMatrix &agentMatrix, MPoint & nextPlant) const {
+float HexapodFoot::stepParam() const { return float(m_stepParam);}
+
+MVector HexapodFoot::position() const {return MVector(m_footPosition);}
+
+/*
+Determine whether the foot needs to find a new plant.
+
+We construct a matrix that represents the 
+local space of the constraining circle and we bring the foot into
+that space and test if it is outside the circle. If so it maybe
+that we need to plan a new plant.
+
+However, if the home point is moving towards the planted foot, 
+then in theory we can just wait until it comes to us, and 
+therefore skip a re-plant. 
+
+We use a dot product between the foot and the velocity vector, 
+and really this is a bit of a rough heuristic. 
+To know whether the foot will actually be in the radius in the future
+we should test the sweep of the circle along the velocity.
+*/
+
+bool HexapodFoot::needsNewPlant(const MVector &localVelocity) const {
 
 	double dmat[4][4] = {
 		{m_radius,0.0,0.0,0.0},
@@ -95,75 +121,141 @@ bool HexapodFoot::footIsOutside(const MMatrix &agentMatrix, MPoint & nextPlant) 
 		{ m_homeX,0.0,m_homeZ,1.0}
 	};
 
-	MMatrix homeRadiusMatrix = MMatrix(dmat) * agentMatrix;
+	MMatrix homeRadiusMatrix = MMatrix(dmat) * m_pAgent->matrix();
 	MPoint localFoot = m_footPosition  * homeRadiusMatrix.inverse();
 
- 	/*
-	pick a point on the radius in the direction opposite to where we went out.
- 	*/
-	double dist = sqrt(localFoot.x*localFoot.x)+(localFoot.z*localFoot.z);
-
-	if  (dist >= 1) {
-		MPoint localTarget =  localFoot / (-dist);
-		nextPlant = localTarget * homeRadiusMatrix;
-		return true;
-	}
-	return false;
+	bool outside = ((localFoot.x*localFoot.x)+(localFoot.z*localFoot.z) >= 1);
+	if (!outside) return false;
+	return (( MVector(localFoot) * localVelocity ) < 0) ;
 }
 
+/*
+We use the agents matrix and matrixNext to figure out where
+this foot's home will be at dt in the future. We then calc 
+the velocity from that 
+*/
+MVector HexapodFoot::getLocalVelocity(double dt) const {
+	MStatus st;
+	MPoint  localHome(m_homeX,0,m_homeZ);
+	MMatrix localNextMatrix = m_pAgent->matrixNext() *  m_pAgent->matrixInverse();
+	MPoint localNext = localHome * localNextMatrix;
+	localNext.y = 0;
+	return MVector(localNext - localHome) / dt;
+}
 
+/*
+We make a guess about where the home point will be in the future 
+at the time when the foot will land. Then, using the plant bias,
+we set the plant to be either at the home, or on the far edge of the circle,
+or at some point between. Plant bias is based on speed
+*/
+MPoint HexapodFoot::planNextPlant( 
+	double dt, 
+	float increment, 
+	const MVector localVelocity,
+	float plantBias) const 
+{
+	double timeToPlant = dt / increment; /* time-to-plant in seconds */
+ 	MPoint result =  MPoint(m_homeX,0,m_homeZ) +  (localVelocity * timeToPlant); /* local home at plant time*/
+	if (plantBias > 0.0) {
+		result += localVelocity.normal() * (m_radius*plantBias); /* put plant on other side of radius*/
+	}
 
-void HexapodFoot::update(
-	double dt,
+	result = result *  m_pAgent->matrix(); /* put plant position in world space*/
+	return result;
+}
+
+/*
+Update the inner and outer radius.
+Then set the actual circle radius at some point inbetween.
+The circle radius is a function of the stepParams of 
+three adjacent feet. Specifically, the sum of the 
+output values from three lookup curves where the stepParams
+are the inputs.
+
+This mechanism, by adjusting the circle radius, has the effect
+of changing the probability that the foot will want to plan a
+new plant on this frame. If many of the other feet are in mid 
+step, this foot will almost definitely stay on the ground.
+*/
+void HexapodFoot::updateHomeCircles(	
 	double homeX, 
 	double homeZ, 
 	double radiusMin, 
 	double radiusMax,
-	const MMatrix & agentMatrix,
-	const MMatrix & agentMatrixInverse) 
+	float anteriorStepParam,
+	float lateralStepParam,
+	float posteriorStepParam,
+	MRampAttribute &anteriorRadiusRamp,
+	MRampAttribute &lateralRadiusRamp,
+	MRampAttribute &posteriorRadiusRamp
+	)
 {
+	MStatus st;
+
 	m_homeX = homeX;
 	m_homeZ = homeZ;
+
+	float anterior, lateral, posterior;
+	anteriorRadiusRamp.getValueAtPosition(  anteriorStepParam, anterior, &st ); er;
+	lateralRadiusRamp.getValueAtPosition(  lateralStepParam, lateral, &st ); er;
+	posteriorRadiusRamp.getValueAtPosition(  posteriorStepParam, posterior, &st ); er;
+
+	float total = anterior + lateral + posterior;
 	m_minRadius = radiusMin;
 	m_maxRadius = radiusMax;
-
-	m_radius = (m_maxRadius + m_minRadius) * 0.5;
-	cerr << "m_radius: " << m_radius << endl;
-
-
-
-
-		/* is foot in a step */
-	if (m_stepParam < 1.0) {
-		double tmp = m_stepParam + 0.25;
-		m_stepParam = std::min(tmp, 1.0);
-			/* advance the foot a bit*/
-		m_footPosition = (m_lastPlant*(1.0 - m_stepParam)) +(m_nextPlant * m_stepParam);
-	} else {
-				/*
-					not in step - so check if foot is outside circle (projected into ground plane)
-				*/
-		MPoint next;
-		if (footIsOutside(agentMatrix, next)) {
-			m_lastPlant = m_footPosition;
-			m_nextPlant = next;
-			m_stepParam = 0;
-		}
-	}
-
-
-
-	  // m_footPosition = MPoint(m_homeX, 0, m_homeZ, 1.0) * agentMatrix;
-
- 	// m_radius = (radiusMax+radiusMin)/2.0;
-// 	cerr << "SET HOME: "   << endl;
-//  		cerr << "m_minRadius: " << m_minRadius << endl;
-// cerr << "m_maxRadius: " << m_maxRadius << endl;
-// 	cerr << "m_radius: " << m_radius << endl;
-
+	m_radius =radiusMin + (double(total) * (radiusMax-radiusMin));
 }
 
 
+/*
+run the update - effectively a sim step 
+If the stepParam is less than 1.0, then the foot is in mid step.
+In that case we add some increment to the stepParam, and move the 
+foot accrordingly towards the planned plant position. 
+
+If step param is at 1.0, then the foot is stationary on the ground.
+We check to see if it needs to be repositioned, and if so we plan 
+a new plant and launch into a step. If not, then it stays where 
+it is for another frame.
+*/
+void HexapodFoot::update(
+	double dt, double maxSpeed,
+	MRampAttribute &incRamp,
+	MRampAttribute &plantSpeedBiasRamp
+	) 
+{
+
+	MStatus st;
+
+	/* prep velocity, increment, speed */
+	MVector localVelocity = getLocalVelocity(dt);
+	m_speed = localVelocity.length();
+	float normalizedSpeed = float(m_speed / maxSpeed);
+	float increment;
+	incRamp.getValueAtPosition( normalizedSpeed, increment, &st ); er;
+
+
+		/* is foot in a step */
+	if (m_stepParam < (1.0-epsilon)) {
+		/* advance the foot a bit*/
+		m_stepParam = std::min((m_stepParam + increment), 1.0);
+		m_footPosition = (m_lastPlant*(1.0 - m_stepParam)) +(m_nextPlant * m_stepParam);
+	} else {
+		/* not in a step - so check if a plant is needed */
+		if (needsNewPlant(localVelocity)) {
+			float  plantBias;
+			plantSpeedBiasRamp.getValueAtPosition( normalizedSpeed, plantBias, &st ); er;
+			m_lastPlant = m_footPosition;
+			m_nextPlant = planNextPlant(dt, increment, localVelocity, plantBias);
+			m_stepParam = 0;
+		} 
+		// else nothing - leave it where it is
+	}
+}
+
+
+// draw functions
 void HexapodFoot::drawCircleAtHome(
 	M3dView & view, 
 	const MFloatMatrix & agentMatrix, 
@@ -212,7 +304,7 @@ void HexapodFoot::drawFootAndPlants( M3dView & view,  const DisplayMask & mask )
 	}
 	if (mask.displayFootPosition){
 
-		view.setDrawColor( MColor( MColor::kRGB, 0.0, 1.0,0.0 ) );
+		view.setDrawColor( MColor( MColor::kRGB, 0.0, 1.0, 0.0 ) );
 		glVertex3d( m_footPosition.x , m_footPosition.y ,m_footPosition.z );
 	}
 	glEnd();
@@ -221,7 +313,20 @@ void HexapodFoot::drawFootAndPlants( M3dView & view,  const DisplayMask & mask )
 
 }
 
-void HexapodFoot::draw(M3dView & view, MFloatMatrix & agentMatrix,  const DisplayMask & mask) const {
+void HexapodFoot::drawDoubleValue(M3dView & view, double value) const {
+	MPoint dpos = MPoint(m_homeX, 0, m_homeZ) * m_pAgent->matrix();
+	MFloatVector pos(float(dpos.x), float(dpos.y) , float(dpos.z));
+
+	MString val;
+	val.set (value, 4);
+	view.setDrawColor( MColor( MColor::kRGB, 1.0,0.5,0.0 ) );
+	view.drawText(val, pos, M3dView::kLeft);		
+
+}
+
+void HexapodFoot::draw(M3dView & view, 
+	MFloatMatrix & agentMatrix, 
+	const DisplayMask & mask) const {
 	
 	if (mask.displayHome){
 		HexapodFoot::drawCircleAtHome(view, 
@@ -236,7 +341,7 @@ void HexapodFoot::draw(M3dView & view, MFloatMatrix & agentMatrix,  const Displa
 			MColor(1.0, 0.0, 0.0)
 			);
 
-		
+
 		HexapodFoot::drawCircleAtHome(view, 
 			agentMatrix, 
 			float(m_radius), 
@@ -246,6 +351,9 @@ void HexapodFoot::draw(M3dView & view, MFloatMatrix & agentMatrix,  const Displa
 		/* world space */
 	HexapodFoot::drawFootAndPlants(view, mask);
 
+	if (mask.displaySpeed) {
+		HexapodFoot::drawDoubleValue(view, m_speed);
+	}
 
 
 

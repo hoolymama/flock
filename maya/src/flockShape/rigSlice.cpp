@@ -64,7 +64,7 @@ rigSlice::rigSlice(MObject &node, MDataBlock & data)
 	const MVectorArray tpp = MFnVectorArrayData(data.inputValue(flockShape::aTranslatePP).data()).array();
 	const MVectorArray rpp = MFnVectorArrayData(data.inputValue(flockShape::aRotatePP).data()).array();
 	const MVectorArray rupp = MFnVectorArrayData(data.inputValue(flockShape::aRotateUpPP).data()).array();
-	const MVectorArray spp = MFnVectorArrayData(data.inputValue(flockShape::aScalePP).data()).array();
+	const MDoubleArray spp = MFnDoubleArrayData(data.inputValue(flockShape::aScalePP).data()).array();
 	//MObject o = data.inputValue(flockShape::aScalePP).data();
 
 	// MVectorArray spp_v;
@@ -299,7 +299,7 @@ rigSlice::rigSlice(MObject &node, MDataBlock & data)
 			}
 
 			if (do_s) {
-				s = spp[index];
+				s =  MVector(spp[index],spp[index],spp[index]);
 			} else {
 				s = MVector(1.0,1.0,1.0);
 			}

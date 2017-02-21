@@ -49,8 +49,15 @@ MObject hexapod::aScale;
 MObject hexapod::aMesh;
 MObject hexapod::aCurrentTime; 
 MObject hexapod::aStartTime;
+MObject hexapod::aDefaultWhenDormant;
 
-MObject hexapod::aMaxVelocity;
+MObject hexapod::aMaxSpeed;
+MObject hexapod::aPlantSpeedBiasRamp;
+
+MObject hexapod::aAnteriorRadiusRamp;
+MObject hexapod::aLateralRadiusRamp;
+MObject hexapod::aPosteriorRadiusRamp;
+
 
 MObject hexapod::aRankA;
 MObject hexapod::aHomeAX;
@@ -83,10 +90,16 @@ MObject hexapod::aRadiusC;
 MObject hexapod::aStepIncrementRampC; 
 MObject hexapod::aSlideProfileRampC;
 
+
+MObject hexapod::aBodyOffset;
+
+
 MObject hexapod::aDisplayPlants;
 MObject hexapod::aDisplayHome;
 MObject hexapod::aDisplayFootPosition;
 MObject hexapod::aDisplayId;
+MObject hexapod::aDisplaySpeed;
+
 
 MObject hexapod::aOutLeftA;
 MObject hexapod::aOutLeftB;
@@ -94,11 +107,17 @@ MObject hexapod::aOutLeftC;
 MObject hexapod::aOutRightA;
 MObject hexapod::aOutRightB;
 MObject hexapod::aOutRightC;
+MObject hexapod::aOutPosition;
+MObject hexapod::aOutPhi;
+
+MObject hexapod::aOutScale;
+MObject hexapod::aOutIdIndex;
+MObject hexapod::aOutSortedId;
 
 MTypeId hexapod::id( k_hexapod );
 
 
- 
+
 
 hexapod::hexapod(){
 	m_colony = new HexapodColony();
@@ -137,7 +156,7 @@ void hexapod::draw(
 
 	MPlug plug( thisNode, aDisplayPlants);
 	plug.getValue(mask.displayPlants);
- 
+
 	plug.setAttribute( aDisplayHome);
 	plug.getValue(mask.displayHome);
 
@@ -147,8 +166,10 @@ void hexapod::draw(
 	plug.setAttribute( aDisplayId);
 	plug.getValue(mask.displayId);
 
+	plug.setAttribute( aDisplaySpeed);
+	plug.getValue(mask.displaySpeed);
 
- 	m_colony->draw(view, mask);
+	m_colony->draw(view, mask);
 	// cerr << "After draw" << endl;
 	
 }
@@ -159,7 +180,6 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 
 {
 	MStatus st;
-	MString method("hexapod::compute");
 
 
 	if(!(
@@ -168,49 +188,28 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 		(plug == aOutLeftC) ||
 		(plug == aOutRightA) ||
 		(plug == aOutRightB) ||
-		(plug == aOutRightC) 
+		(plug == aOutRightC) ||
+		(plug == aOutPosition) ||
+		(plug == aOutScale) ||
+		(plug == aOutIdIndex) ||
+		(plug == aOutSortedId) ||		
+		(plug == aOutPhi) 
 		)) 
 	{
 		return( MS::kUnknownParameter);
 	}
-
 
 	MObject thisNode = thisMObject();
 
 	MTime cT = timeValue( data, aCurrentTime );
 	MTime sT = timeValue( data, aStartTime );
 	MTime dT = cT - m_lastTimeIEvaluated;
-	MTime oT = cT - sT;  // offset from start frame
+	MTime oT = cT - sT;  
 	m_lastTimeIEvaluated = cT;
 
 	double dt = dT.as( MTime::kSeconds );
 
-	/////////////////////// INPUT ARRAYS //////////////////////////
-	MDoubleArray tmpParticleId = MFnDoubleArrayData(data.inputValue(aParticleId).data()).array();
-	unsigned len = tmpParticleId.length(); 
-	// cerr << "len " << len << endl;
-	MIntArray particleId(len);
-	for (int i = 0; i < len; ++i) {  particleId[i] = int(tmpParticleId[i]+0.1);  }
-
-	MIntArray sortedId = MFnIntArrayData(data.inputValue(aSortedId).data()).array();
-	MIntArray idIndex = MFnIntArrayData(data.inputValue(aIdIndex).data()).array();
-	MVectorArray pos = MFnVectorArrayData(data.inputValue(aPosition).data()).array();
-	MVectorArray phi = MFnVectorArrayData(data.inputValue(aPhi).data()).array();
-	MVectorArray vel = MFnVectorArrayData(data.inputValue(aVelocity).data()).array();
-	MVectorArray omega = MFnVectorArrayData(data.inputValue(aOmega).data()).array();
-	MDoubleArray scale = MFnDoubleArrayData(data.inputValue(aScale).data()).array();
-
-	if (checkArrayLength(sortedId, len, "hexapod::sortedId") != MS::kSuccess) return  MS::kUnknownParameter;
-	if (checkArrayLength(idIndex, len, "hexapod::idIndex") != MS::kSuccess) return  MS::kUnknownParameter;
-	if (checkArrayLength(pos, len, "hexapod::pos") != MS::kSuccess) return  MS::kUnknownParameter;
-	if (checkArrayLength(phi, len, "hexapod::phi") != MS::kSuccess) return  MS::kUnknownParameter;
-	if (checkArrayLength(vel, len, "hexapod::vel") != MS::kSuccess) return  MS::kUnknownParameter;
-	if (checkArrayLength(omega, len, "hexapod::omega") != MS::kSuccess) return  MS::kUnknownParameter;	
-	if (checkArrayLength(scale, len, "hexapod::scale") != MS::kSuccess) return  MS::kUnknownParameter;
-
-
-
-	//////////////////////////// MESH ////////////////////////////
+ 	//////////////////////////// MESH ////////////////////////////
 	MObject dMesh =  data.inputValue(aMesh).asMeshTransformed();
 	MFnMesh meshFn(dMesh, &st) ;
 	if (st.error()) {MGlobal::displayError("hexapod Needs a mesh") ; return MS::kUnknownParameter;}
@@ -219,86 +218,105 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 	if (st.error()) {MGlobal::displayError("hexapod Needs a mesh") ; return MS::kUnknownParameter;}
 	////////////////////////////////////////////////////////////////////////////////////
 
-	MDataHandle hRankA = data.inputValue(aRankA);
-	double	homeAX	= hRankA.child(aHomeA).child(aHomeAX).asDouble();
-	double	homeAZ	= hRankA.child(aHomeA).child(aHomeAZ).asDouble();
-	double	radiusMinA	= hRankA.child(aRadiusA).child(aRadiusMinA).asDouble();
-	double	radiusMaxA	= hRankA.child(aRadiusA).child(aRadiusMaxA).asDouble();
-	MRampAttribute stepIncrementRampA( thisMObject() , aStepIncrementRampA, &st ); er; 
+	bool showDefault = data.inputValue(aDefaultWhenDormant).asBool();
 
 
-	MDataHandle hRankB = data.inputValue(aRankB);
-	double	homeBX	= hRankB.child(aHomeB).child(aHomeBX).asDouble();
-	double	homeBZ	= hRankB.child(aHomeB).child(aHomeBZ).asDouble();
-	double	radiusMinB	= hRankB.child(aRadiusB).child(aRadiusMinB).asDouble();
-	double	radiusMaxB	= hRankB.child(aRadiusB).child(aRadiusMaxB).asDouble();
-	MRampAttribute stepIncrementRampB( thisMObject() , aStepIncrementRampB, &st ); er; 
+		/////// PREP OUTPUTS
+	MVectorArray outLeftA;
+	MVectorArray outLeftB;
+	MVectorArray outLeftC;
+	MVectorArray outRightA;
+	MVectorArray outRightB;
+	MVectorArray outRightC;
+	MVectorArray outPosition;
+	MVectorArray outPhi;
+	MDoubleArray outScale;
 
-	MDataHandle hRankC = data.inputValue(aRankC);
-	double	homeCX	= hRankC.child(aHomeC).child(aHomeCX).asDouble();
-	double	homeCZ	= hRankC.child(aHomeC).child(aHomeCZ).asDouble();
-	double	radiusMinC	= hRankC.child(aRadiusC).child(aRadiusMinC).asDouble();
-	double	radiusMaxC	= hRankC.child(aRadiusC).child(aRadiusMaxC).asDouble();
-	MRampAttribute stepIncrementRampC( thisMObject() , aStepIncrementRampC, &st ); er; 
+	MIntArray idIndex = MFnIntArrayData(data.inputValue(aIdIndex).data()).array();
+	MIntArray sortedId = MFnIntArrayData(data.inputValue(aSortedId).data()).array();
 
-	double	maxVelocity	= data.inputValue(aMaxVelocity).asDouble();
- 
- 
- 
-	// cerr << "In compute" << endl;
-
-
-	if (dt > 0.0 && oT > MTime(0.0)) {
-
- 
-
-
-		// cerr << particleId << endl;
-		m_colony->update(
-			dt, maxVelocity,
-			particleId, sortedId, idIndex,
-			pos, phi, vel, omega, scale,
-			homeAX, homeAZ, homeBX, homeBZ, homeCX, homeCZ,
-			radiusMinA, radiusMaxA, radiusMinB, radiusMaxB, radiusMinC, radiusMaxC,
-			stepIncrementRampA, stepIncrementRampB, stepIncrementRampC
-			);
+	MVectorArray phiIn = MFnVectorArrayData(data.inputValue(aPhi).data()).array();
 
 
 
-		// for (int i = 0; i < len; ++i)
-		// {
+	cerr << "================: "<< dt << endl;
+	cerr << "oT: "<< oT << endl;
+	cerr << "dt: "<< dt << endl;
+	cerr << "sortedId.length(): "<< sortedId.length() << endl;
+	cerr << "showDefault: "<< showDefault << endl;
 
-	// HexapodAgent agent(pos[i], phi[i], scale[i]);
-	// 	// agent->set()
-	//  agent.createFootLA(
-	//  	leftA[i], homeLA, lastPlantLA[i], nextPlantLA[i],
-	//   stepTimeLA[i], radiusMinA, radiusMaxA
-	//   );
+	if (dt < 0 ||  oT < MTime(0.0)) {
+				cerr << "BACKWARDS: "<< endl;
 
-
-		// }
-	} else {
 		m_colony->clear();
+		data.setClean(hexapod::aOutIdIndex);
+		data.setClean(hexapod::aOutSortedId);
+		data.setClean(hexapod::aOutLeftA);
+		data.setClean(hexapod::aOutLeftB);
+		data.setClean(hexapod::aOutLeftC);
+		data.setClean(hexapod::aOutRightA);
+		data.setClean(hexapod::aOutRightB);
+		data.setClean(hexapod::aOutRightC);
+		data.setClean(hexapod::aOutPosition);
+		data.setClean(hexapod::aOutPhi);
+		data.setClean(hexapod::aOutScale);
+		return( MS::kSuccess );
 	}
 
 
-	/////// PREP OUTPUTS
-	MVectorArray outLeftA(len, MVector(homeAX,0.0,homeAZ));
-	MVectorArray outLeftB(len, MVector(homeBX,0.0,homeBZ));
-	MVectorArray outLeftC(len, MVector(homeCX,0.0,homeCZ));
-	MVectorArray outRightA(len, MVector(homeAX,0.0,-homeAZ));
-	MVectorArray outRightB(len, MVector(homeBX,0.0,-homeBZ));
-	MVectorArray outRightC(len, MVector(homeCX,0.0,-homeCZ));
+	if( (sortedId.length() == 0) && showDefault) {
+
+			cerr << "DEFAULT: "<<  endl;
+
+		m_colony->clear();
+		m_colony->getDefaultOutputData(
+			thisNode, data,
+			outLeftA,outLeftB,outLeftC,outRightA,
+			outRightB,outRightC,outPosition,outPhi, outScale
+			);
+		st = outputData(hexapod::aOutIdIndex, data, MIntArray(1,0) );er;
+		st = outputData(hexapod::aOutSortedId, data,MIntArray(1,0) );er;
+		st = outputData(hexapod::aOutLeftA, data, outLeftA);er;
+		st = outputData(hexapod::aOutLeftB, data, outLeftB);er;
+		st = outputData(hexapod::aOutLeftC, data, outLeftC);er;
+		st = outputData(hexapod::aOutRightA, data, outRightA);er;
+		st = outputData(hexapod::aOutRightB, data, outRightB);er;
+		st = outputData(hexapod::aOutRightC, data, outRightC);er;
+		st = outputData(hexapod::aOutPosition, data, outPosition);er;
+		st = outputData(hexapod::aOutPhi, data, outPhi);er;
+		st = outputData(hexapod::aOutScale, data, outScale);er;
+		return( MS::kSuccess );
+	}
 
 
-	///// OUTPUTS
+	if (dt >  0.0 ) {
+					// cerr << "UPDATE AND OUTPUT COLONY: "<<   endl;
+ 		m_colony->update(dt, thisNode, data);
+	}
+	 // else {
+		// 	cerr << "OUTPUT COLONY: (NO UPDATE)"<<   endl;
+ 	// }
+
+	m_colony->getOutputData(idIndex, outLeftA,outLeftB,outLeftC,outRightA,
+		outRightB,outRightC,outPosition,outPhi, outScale
+		);
+
+	// cerr << "PHI IN: " << phiIn << endl; 	
+	// cerr << "PHI OUT: " << outPhi << endl; 
+
+
+	st = outputData(hexapod::aOutIdIndex, data, idIndex);
+	st = outputData(hexapod::aOutSortedId, data, sortedId);
+
 	st = outputData(hexapod::aOutLeftA, data, outLeftA);
 	st = outputData(hexapod::aOutLeftB, data, outLeftB);
 	st = outputData(hexapod::aOutLeftC, data, outLeftC);
 	st = outputData(hexapod::aOutRightA, data, outRightA);
 	st = outputData(hexapod::aOutRightB, data, outRightB);
 	st = outputData(hexapod::aOutRightC, data, outRightC);
-
+	st = outputData(hexapod::aOutPosition, data, outPosition);
+	st = outputData(hexapod::aOutPhi, data, outPhi);
+	st = outputData(hexapod::aOutScale, data, outScale);
 
 	return( MS::kSuccess );
 }
@@ -330,6 +348,8 @@ MStatus hexapod::initialize()
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	st = addAttribute( aIdIndex );er;
 
+
+
 	aPosition = tAttr.create("position", "pos", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
 	st = addAttribute( aPosition ); er;
@@ -357,18 +377,37 @@ MStatus hexapod::initialize()
 	aCurrentTime = uAttr.create( "currentTime", "ct", MFnUnitAttribute::kTime );
 	uAttr.setStorable(true);
 	st =  addAttribute(aCurrentTime);  er;
-	
+
 	aStartTime = uAttr.create( "startTime", "st", MFnUnitAttribute::kTime );
 	uAttr.setStorable(true);
 	st =  addAttribute(aStartTime);  er;
 	
+	aDefaultWhenDormant = nAttr.create( "defaultWhenDormant", "dwd",MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	addAttribute( aDefaultWhenDormant ); 
 
-	aMaxVelocity = nAttr.create("maxVelocity", "mvl", MFnNumericData::kDouble);
+
+
+	aMaxSpeed = nAttr.create("maxSpeed", "msp", MFnNumericData::kDouble);
 	nAttr.setStorable (true);
 	nAttr.setWritable(true);
 	nAttr.setKeyable(true);
-	nAttr.setDefault(1.0);
-	st = addAttribute(aMaxVelocity); er;
+	nAttr.setDefault(100.0);
+	st = addAttribute(aMaxSpeed); er;
+
+	aPlantSpeedBiasRamp = rAttr.createCurveRamp("plantSpeedBiasRamp","psbr",&st);er;
+	st = addAttribute( aPlantSpeedBiasRamp );er;
+
+	aAnteriorRadiusRamp= rAttr.createCurveRamp("anteriorRadiusRamp","arr",&st);er;
+	st = addAttribute( aAnteriorRadiusRamp );er;
+	aLateralRadiusRamp= rAttr.createCurveRamp("lateralRadiusRamp","lrr",&st);er;
+	st = addAttribute( aLateralRadiusRamp );er;
+	aPosteriorRadiusRamp= rAttr.createCurveRamp("posteriorRadiusRamp","prr",&st);er;
+	st = addAttribute( aPosteriorRadiusRamp );er;
+
+
 
 
 	aHomeAX = nAttr.create( "homeAX", "hax", MFnNumericData::kDouble);
@@ -455,6 +494,14 @@ MStatus hexapod::initialize()
 	cAttr.addChild(aSlideProfileRampC);
 	st = addAttribute(aRankC);er;
 
+	aBodyOffset= nAttr.createPoint( "bodyOffset", "bof" );
+	nAttr.setStorable(true);
+
+	nAttr.setKeyable(true);
+	nAttr.setReadable(true);
+	nAttr.setHidden(false);
+	nAttr.setWritable(true);
+	st = addAttribute( aBodyOffset );er;
 
 	aDisplayPlants = nAttr.create( "displayPlants", "dpl",MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
@@ -477,7 +524,13 @@ MStatus hexapod::initialize()
 	nAttr.setDefault(true);
 	addAttribute( aDisplayId ); 
 
- 
+	aDisplaySpeed = nAttr.create( "displaySpeed", "dsp",MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	addAttribute( aDisplaySpeed ); 
+
+
 
 	/////// OUTPUTS
 	aOutLeftA = tAttr.create("outLeftA", "ola", MFnData::kVectorArray , &st ); er;
@@ -516,12 +569,48 @@ MStatus hexapod::initialize()
 	tAttr.setWritable(false);
 	st = addAttribute( aOutRightC ); er;
 
+	aOutPosition = tAttr.create("outPosition", "opos", MFnData::kVectorArray , &st ); er;
+	tAttr.setStorable(false);
+	tAttr.setReadable(true);
+	tAttr.setWritable(false);
+	st = addAttribute( aOutPosition ); er;
+
+	aOutPhi = tAttr.create("outPhi", "ophi", MFnData::kVectorArray , &st ); er;
+	tAttr.setStorable(false);
+	tAttr.setReadable(true);
+	tAttr.setWritable(false);
+	st = addAttribute( aOutPhi ); er;
+
+	aOutScale = tAttr.create("outScale", "oscl", MFnData::kDoubleArray , &st ); er;
+	tAttr.setStorable(false);
+	tAttr.setReadable(true);
+	tAttr.setWritable(false);
+	st = addAttribute( aOutScale ); er;
+
+	aOutIdIndex = tAttr.create("outIdIndex", "oidx", MFnData::kIntArray , &st ); er;
+	tAttr.setStorable(false);
+	tAttr.setReadable(true);
+	tAttr.setWritable(false);
+	st = addAttribute( aOutIdIndex ); er;
+
+	aOutSortedId = tAttr.create("outSortedId", "osid", MFnData::kIntArray , &st ); er;
+	tAttr.setStorable(false);
+	tAttr.setReadable(true);
+	tAttr.setWritable(false);
+	st = addAttribute( aOutSortedId ); er;
+
+
 	st = attributeAffects( aCurrentTime, aOutLeftA );er;
 	st = attributeAffects( aCurrentTime, aOutLeftB );er;
 	st = attributeAffects( aCurrentTime, aOutLeftC );er;
 	st = attributeAffects( aCurrentTime, aOutRightA );er;
 	st = attributeAffects( aCurrentTime, aOutRightB );er;
 	st = attributeAffects( aCurrentTime, aOutRightC );er;
+	st = attributeAffects( aCurrentTime, aOutPosition );er;
+	st = attributeAffects( aCurrentTime, aOutPhi );er;
+	st = attributeAffects( aCurrentTime, aOutScale );er;
+	st = attributeAffects( aCurrentTime, aOutIdIndex );er;
+	st = attributeAffects( aCurrentTime, aOutSortedId );er;
 
 	return( MS::kSuccess );
 }

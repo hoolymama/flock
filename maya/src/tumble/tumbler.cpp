@@ -44,7 +44,7 @@
 
 #include "tumbler.h"
 #include "errorMacros.h"
-
+#include "attrUtils.h"
 #include "jMayaIds.h"
 
 //#include "attributeInlines.h"
@@ -424,17 +424,25 @@ MStatus tumbler::compute(const MPlug& plug, MDataBlock& data)
 
 
 
-	MVectorArray  outPhi(len);
+	// MVectorArray  outPhi(len);
+	// MVectorArray  outOmega(len);
+	// MVectorArray  outFront(len);
+	// MVectorArray  outUp(len);
+	// MVectorArray  outRotation(len);
+	// MVectorArray  outPoints;
+	// outPoints.copy(points);
+	
+
+	if (dt > 0.0) {
+	// MVectorArray  outPoints;
+	// outPoints.copy(points);
+
+	 MVectorArray  outPhi(len);
 	MVectorArray  outOmega(len);
 	MVectorArray  outFront(len);
 	MVectorArray  outUp(len);
 	MVectorArray  outRotation(len);
-	MVectorArray  outPoints;
-	outPoints.copy(points);
 	
-	
-	if (dt > 0.0) {
-
 		//cerr << "about to simstep" << endl;
 		st = simStep( 	dt,
 			data, 
@@ -453,8 +461,6 @@ MStatus tumbler::compute(const MPlug& plug, MDataBlock& data)
 			outUp,					
 			outRotation
 			);
-	}
-// 	cerr << "done  simstep" << endl;
 
 
 	MDataHandle hOutFront = data.outputValue(aOutFront);
@@ -487,11 +493,56 @@ MStatus tumbler::compute(const MPlug& plug, MDataBlock& data)
 	hOutRotation.set( dOutRotation );
 //	data.setClean( aOutRotation);''
 	
-		MDataHandle hOutPoints = data.outputValue(aOutPoints);
-		MFnVectorArrayData fnOutPoints;
-		MObject dOutPoints = fnOutPoints.create( points, &st );er;
-		hOutPoints.set( dOutPoints );
-	//	data.setClean( aOutPoints);
+	MDataHandle hOutPoints = data.outputValue(aOutPoints);
+	MFnVectorArrayData fnOutPoints;
+	MObject dOutPoints = fnOutPoints.create( points, &st );er;
+	hOutPoints.set( dOutPoints );
+	
+	// st = outputData(tumbler::aOutFront, data, outFront );er;
+	// st = outputData(tumbler::aOutUp, data, outUp );er;
+	// st = outputData(tumbler::aOutPhi, data, outPhi );er;
+	// st = outputData(tumbler::aOutOmega, data, outOmega );er;
+	// st = outputData(tumbler::aOutRotation, data, outRotation );er;
+	// st = outputData(tumbler::aOutPoints, data, points );er;
+	}
+// 	cerr << "done  simstep" << endl;
+
+
+// 	MDataHandle hOutFront = data.outputValue(aOutFront);
+// 	MFnVectorArrayData fnOutFront;
+// 	MObject dOutFront = fnOutFront.create( outFront, &st );er;
+// 	hOutFront.set( dOutFront );
+// //	data.setClean( aOutFront);
+
+// 	MDataHandle hOutUp = data.outputValue(aOutUp);
+// 	MFnVectorArrayData fnOutUp;
+// 	MObject dOutUp = fnOutUp.create( outUp, &st );er;
+// 	hOutUp.set( dOutUp );
+// //	data.setClean( aOutUp);
+
+// 	MDataHandle hOutPhi = data.outputValue(aOutPhi);
+// 	MFnVectorArrayData fnOutPhi;
+// 	MObject dOutPhi = fnOutPhi.create( outPhi, &st );er;
+// 	hOutPhi.set( dOutPhi );
+// //	data.setClean( aOutPhi);
+
+// 	MDataHandle hOutOmega = data.outputValue(aOutOmega);
+// 	MFnVectorArrayData fnOutOmega;
+// 	MObject dOutOmega = fnOutOmega.create( outOmega, &st );er;
+// 	hOutOmega.set( dOutOmega );
+// //	data.setClean( aOutOmega);
+
+// 	MDataHandle hOutRotation = data.outputValue(aOutRotation);
+// 	MFnVectorArrayData fnOutRotation;
+// 	MObject dOutRotation = fnOutRotation.create( outRotation, &st );er;
+// 	hOutRotation.set( dOutRotation );
+// //	data.setClean( aOutRotation);''
+	
+// 	MDataHandle hOutPoints = data.outputValue(aOutPoints);
+// 	MFnVectorArrayData fnOutPoints;
+// 	MObject dOutPoints = fnOutPoints.create( points, &st );er;
+// 	hOutPoints.set( dOutPoints );
+// //	data.setClean( aOutPoints);
 
 	data.setClean( aOutRotationData);
 
