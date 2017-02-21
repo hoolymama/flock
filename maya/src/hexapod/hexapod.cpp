@@ -239,14 +239,14 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 
 
 
-	cerr << "================: "<< dt << endl;
-	cerr << "oT: "<< oT << endl;
-	cerr << "dt: "<< dt << endl;
-	cerr << "sortedId.length(): "<< sortedId.length() << endl;
-	cerr << "showDefault: "<< showDefault << endl;
+	// cerr << "================: "<< dt << endl;
+	// cerr << "oT: "<< oT << endl;
+	// cerr << "dt: "<< dt << endl;
+	// cerr << "sortedId.length(): "<< sortedId.length() << endl;
+	// cerr << "showDefault: "<< showDefault << endl;
 
 	if (dt < 0 ||  oT < MTime(0.0)) {
-				cerr << "BACKWARDS: "<< endl;
+				// cerr << "BACKWARDS: "<< endl;
 
 		m_colony->clear();
 		data.setClean(hexapod::aOutIdIndex);
