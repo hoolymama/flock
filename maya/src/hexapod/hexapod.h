@@ -28,6 +28,7 @@ This is the main Maya locator node for hexapod.
 #define ROT_TO_DEG  57.295779524
 
 
+
 class hexapod:  public MPxLocatorNode
 {
 
@@ -126,6 +127,8 @@ public:
 	static MObject	aRadiusA; 
 	static MObject	aStepIncrementRampA; 
 	static MObject	aSlideProfileRampA;
+	static MObject	aLiftProfileRampA;
+	static MObject	aLiftProfileRangeA;
 
 
 	static MObject  aRankB;
@@ -137,6 +140,8 @@ public:
 	static MObject	aRadiusB; 
 	static MObject	aStepIncrementRampB; 
 	static MObject	aSlideProfileRampB;
+	static MObject	aLiftProfileRampB;
+	static MObject	aLiftProfileRangeB;
 
 	static MObject  aRankC;
 	static MObject  aHomeCX;
@@ -147,9 +152,31 @@ public:
 	static MObject	aRadiusC; 
 	static MObject	aStepIncrementRampC; 
 	static MObject	aSlideProfileRampC;
+	static MObject	aLiftProfileRampC;
+	static MObject	aLiftProfileRangeC;
 
 
 	static MObject	aBodyOffset;
+	static MObject	aActuatorActive;
+	static MObject	aActuatorRank;
+	static MObject	aActuatorInputAxis; 
+ 
+	static MObject	aActuatorInputMin;
+	static MObject	aActuatorInputMax;
+	static MObject	aActuatorInputRange;
+	static MObject	aActuatorInputMirror;
+
+
+	static MObject	aActuatorOutputMin;
+	static MObject	aActuatorOutputMax;
+	static MObject	aActuatorOutputRange;
+
+	// X,Y,Z,Step - ranges are dim for step
+	static MObject	aActuatorRamp;
+		// tx, ty, tz, rx, ry, rz
+	static MObject	aActuatorOutputChannel; 
+	static MObject	aBodyActuator;
+
 
 	/*
 		specify what components and info to draw with 
@@ -160,7 +187,7 @@ public:
 	static MObject	aDisplayFootPosition;
 	static MObject	aDisplayId;
 	static MObject	aDisplaySpeed;
-	
+
 	/*
 	outputs
 	should be in the same order as input particles.
@@ -180,9 +207,12 @@ public:
 
 
 private:
-	
+enum Rank { kAnterior, kMedial, kPosterior };
+enum ActuatorAxis { kStepParam, kX, kY, kZ};
+enum ActuatorChannel { kTX, kTY, kTZ, kRX, kRY, kRZ };
+
 	MTime m_lastTimeIEvaluated;
-	
+
 	HexapodColony * m_colony;
 
 	MStatus checkArrayLength(unsigned alen, unsigned len, const MString &name);
@@ -229,11 +259,11 @@ inline MTime hexapod::timeValue( MDataBlock& data, MObject & attribute )
 {
 	MStatus status;
 	MDataHandle hValue = data.inputValue( attribute, &status );
-	
+
 	MTime value(0.0);
 	if( status == MS::kSuccess )
 		value = hValue.asTime();
-	
+
 	return( value );
 }
 

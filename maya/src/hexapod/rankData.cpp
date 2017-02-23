@@ -52,6 +52,14 @@ rankData::rankData(MDataBlock &data, 	const MObject &node, MString rank)
 	childstr = ("stepIncrementRamp"+rank);
 	att = dn.attribute(childstr);
 	stepIncrementRamp = MRampAttribute( node , att  ); 
+
+	childstr = ("slideProfileRamp"+rank);
+	att = dn.attribute(childstr);
+	slideProfileRamp = MRampAttribute( node , att  ); 
+
+	childstr = ("liftProfileRamp"+rank);
+	att = dn.attribute(childstr);
+	liftProfileRamp = MRampAttribute( node , att  ); 
  
 }
 

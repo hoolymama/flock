@@ -103,36 +103,36 @@ void HexapodAgent::update(
 	to do what is necessary to move, while keeping most feet on
 	the ground at any one time
  	*/
-	m_footLA.updateHomeCircles(rankA.homeX,  rankA.homeZ, rankA.radiusMin, rankA.radiusMax, 
+	m_footLA.updateHomeCircles(rankA, 
 		m_footLC.stepParam(),m_footRA.stepParam(),m_footLB.stepParam(),
 		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp);
 
-	m_footLB.updateHomeCircles(rankB.homeX,  rankB.homeZ, rankB.radiusMin, rankB.radiusMax, 
+	m_footLB.updateHomeCircles(rankB, 
 		m_footLA.stepParam(),m_footRB.stepParam(),m_footLC.stepParam(),
 		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp);
 
-	m_footLC.updateHomeCircles(rankC.homeX,  rankC.homeZ, rankC.radiusMin, rankC.radiusMax, 
+	m_footLC.updateHomeCircles(rankC, 
 		m_footLB.stepParam(),m_footRC.stepParam(),m_footLA.stepParam(),
 		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp);
 
-	m_footRA.updateHomeCircles(rankA.homeX, -rankA.homeZ, rankA.radiusMin, rankA.radiusMax, 
+	m_footRA.updateHomeCircles(rankA, 
 		m_footRC.stepParam(),m_footLA.stepParam(),m_footRB.stepParam(),
-		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp);
+		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp, true);
 
-	m_footRB.updateHomeCircles(rankB.homeX, -rankB.homeZ, rankB.radiusMin, rankB.radiusMax, 
+	m_footRB.updateHomeCircles(rankB, 
 		m_footRA.stepParam(),m_footLB.stepParam(),m_footRC.stepParam(),
-		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp);
+		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp, true);
 
-	m_footRC.updateHomeCircles(rankC.homeX, -rankC.homeZ, rankC.radiusMin, rankC.radiusMax, 
+	m_footRC.updateHomeCircles(rankC, 
 		m_footRB.stepParam(),m_footLC.stepParam(),m_footRA.stepParam(),
-		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp);
+		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp, true);
 
-	m_footLA.update(dt, maxSpeed, rankA.stepIncrementRamp, plantSpeedBiasRamp);
-	m_footLB.update(dt, maxSpeed, rankB.stepIncrementRamp, plantSpeedBiasRamp);
-	m_footLC.update(dt, maxSpeed, rankC.stepIncrementRamp, plantSpeedBiasRamp);
-	m_footRA.update(dt, maxSpeed, rankA.stepIncrementRamp, plantSpeedBiasRamp);
-	m_footRB.update(dt, maxSpeed, rankB.stepIncrementRamp, plantSpeedBiasRamp);
-	m_footRC.update(dt, maxSpeed, rankC.stepIncrementRamp, plantSpeedBiasRamp);
+	m_footLA.update(dt, maxSpeed, rankA, plantSpeedBiasRamp);
+	m_footLB.update(dt, maxSpeed, rankB, plantSpeedBiasRamp);
+	m_footLC.update(dt, maxSpeed, rankC, plantSpeedBiasRamp);
+	m_footRA.update(dt, maxSpeed, rankA, plantSpeedBiasRamp);
+	m_footRB.update(dt, maxSpeed, rankB, plantSpeedBiasRamp);
+	m_footRC.update(dt, maxSpeed, rankC, plantSpeedBiasRamp);
 }
 void HexapodAgent::getOutputData(
 	MVector& la, MVector& lb, MVector& lc, 
@@ -183,6 +183,5 @@ const MVector & HexapodAgent::position()  const {return m_position; }
 int HexapodAgent::id() const {return m_particleId; } 
 const MMatrix & HexapodAgent::matrix() const {return m_matrix;}
 const MMatrix & HexapodAgent::matrixInverse() const {return m_matrixInverse;}
-// const MMatrix & HexapodAgent::localVelocityMatrix() const {return m_localVelocityMatrix;}
 const MMatrix & HexapodAgent::matrixNext() const {return m_matrixNext;}
 

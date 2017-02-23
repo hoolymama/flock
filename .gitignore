@@ -10,3 +10,5 @@ tmp/
 *.sublime-workspace
 *.sublime-project
 .mayaSwatches
+movies/
+maya_plugin_reload.*.ma

@@ -178,23 +178,26 @@ of changing the probability that the foot will want to plan a
 new plant on this frame. If many of the other feet are in mid 
 step, this foot will almost definitely stay on the ground.
 */
+
+
+
 void HexapodFoot::updateHomeCircles(	
-	double homeX, 
-	double homeZ, 
-	double radiusMin, 
-	double radiusMax,
+ 	const rankData & rank,
 	float anteriorStepParam,
 	float lateralStepParam,
 	float posteriorStepParam,
 	MRampAttribute &anteriorRadiusRamp,
 	MRampAttribute &lateralRadiusRamp,
-	MRampAttribute &posteriorRadiusRamp
+	MRampAttribute &posteriorRadiusRamp,
+	bool negateRank
 	)
 {
 	MStatus st;
 
-	m_homeX = homeX;
-	m_homeZ = homeZ;
+	m_homeX = rank.homeX;
+	m_homeZ = negateRank ? -(rank.homeZ) : rank.homeZ;
+	m_minRadius = rank.radiusMin;
+	m_maxRadius = rank.radiusMax;
 
 	float anterior, lateral, posterior;
 	anteriorRadiusRamp.getValueAtPosition(  anteriorStepParam, anterior, &st ); er;
@@ -202,9 +205,7 @@ void HexapodFoot::updateHomeCircles(
 	posteriorRadiusRamp.getValueAtPosition(  posteriorStepParam, posterior, &st ); er;
 
 	float total = anterior + lateral + posterior;
-	m_minRadius = radiusMin;
-	m_maxRadius = radiusMax;
-	m_radius =radiusMin + (double(total) * (radiusMax-radiusMin));
+	m_radius = m_minRadius + (double(total) * (m_maxRadius-m_minRadius));
 }
 
 
@@ -218,10 +219,62 @@ If step param is at 1.0, then the foot is stationary on the ground.
 We check to see if it needs to be repositioned, and if so we plan 
 a new plant and launch into a step. If not, then it stays where 
 it is for another frame.
+// */
+// void HexapodFoot::update(
+// 	double dt, double maxSpeed,
+// 	MRampAttribute &incRamp,
+// 	MRampAttribute &plantSpeedBiasRamp
+// 	) 
+// {
+
+// 	MStatus st;
+
+// 	/* prep velocity, increment, speed */
+// 	MVector localVelocity = getLocalVelocity(dt);
+// 	m_speed = localVelocity.length();
+// 	float normalizedSpeed = float(m_speed / maxSpeed);
+// 	float increment;
+// 	incRamp.getValueAtPosition( normalizedSpeed, increment, &st ); er;
+
+
+// 		/* is foot in a step */
+// 	if (m_stepParam < (1.0-epsilon)) {
+// 		/* advance the foot a bit*/
+// 		m_stepParam = std::min((m_stepParam + increment), 1.0);
+// 		m_footPosition = (m_lastPlant*(1.0 - m_stepParam)) +(m_nextPlant * m_stepParam);
+// 	} else {
+// 		/* not in a step - so check if a plant is needed */
+// 		if (needsNewPlant(localVelocity)) {
+// 			float  plantBias;
+// 			plantSpeedBiasRamp.getValueAtPosition( normalizedSpeed, plantBias, &st ); er;
+// 			m_lastPlant = m_footPosition;
+// 			m_nextPlant = planNextPlant(dt, increment, localVelocity, plantBias);
+// 			m_stepParam = 0;
+// 		} 
+// 		// else nothing - leave it where it is
+// 	}
+// }
+
+/*
+
 */
+MPoint HexapodFoot::calcFootPosition(rankData& rank) const {
+	MStatus st;
+	float height;
+	rank.liftProfileRamp.getValueAtPosition( float(m_stepParam), height, &st ); er;
+
+	float slide;
+	rank.slideProfileRamp.getValueAtPosition( float(m_stepParam), slide, &st ); er;
+
+	MVector yOffset = MVector(0, height, 0) * m_pAgent->matrix();
+
+
+	return MPoint((m_lastPlant*(1.0 - slide)) + (m_nextPlant * slide)) + yOffset;
+}
+
 void HexapodFoot::update(
 	double dt, double maxSpeed,
-	MRampAttribute &incRamp,
+  rankData & rank,
 	MRampAttribute &plantSpeedBiasRamp
 	) 
 {
@@ -233,14 +286,20 @@ void HexapodFoot::update(
 	m_speed = localVelocity.length();
 	float normalizedSpeed = float(m_speed / maxSpeed);
 	float increment;
-	incRamp.getValueAtPosition( normalizedSpeed, increment, &st ); er;
+
+	// 	MRampAttribute stepIncrementRamp;
+	// MRampAttribute slideProfileRamp;
+	// MRampAttribute liftProfileRamp;
+
+	rank.stepIncrementRamp.getValueAtPosition( normalizedSpeed, increment, &st ); er;
 
 
 		/* is foot in a step */
 	if (m_stepParam < (1.0-epsilon)) {
 		/* advance the foot a bit*/
 		m_stepParam = std::min((m_stepParam + increment), 1.0);
-		m_footPosition = (m_lastPlant*(1.0 - m_stepParam)) +(m_nextPlant * m_stepParam);
+		m_footPosition = calcFootPosition(rank);
+		// m_footPosition = (m_lastPlant*(1.0 - m_stepParam)) +(m_nextPlant * m_stepParam);
 	} else {
 		/* not in a step - so check if a plant is needed */
 		if (needsNewPlant(localVelocity)) {
@@ -253,7 +312,6 @@ void HexapodFoot::update(
 		// else nothing - leave it where it is
 	}
 }
-
 
 // draw functions
 void HexapodFoot::drawCircleAtHome(

@@ -1,62 +1,340 @@
 
+/*
+Set up the new control for the first time
+*/
+global proc AEActuatorNew(string $nodeAttr){
+
+	print($nodeAttr+"\n");
+
+	setUITemplate -pst attributeEditorTemplate;
+	string $nodeName = attr.nodeFromNodeAttr($nodeAttr);
+	string $controlName = AE.controlNameFromNodeAttr($nodeAttr); 
+
+	button -label "Add" ($controlName+"ADDBTN");
+	columnLayout -adj 1 $controlName;
+	setParent ..;
+	AEActuatorReplace($nodeAttr);
+	setUITemplate -ppt;
+}
+
+
+proc string gradientControlName(string $controlName, int $index) {
+	return  ($controlName+ "GRAD_"+$index);
+}
+
+proc string gradientOptionVarName(string $controlName, int $index) {
+	return  ($controlName+ "OV_"+$index);
+}
+
+/* 
+	When the ramp control has changed, set the attributes
+	and update the numeric entry to reflect the values of the 
+	current key
+	*/
+	global proc onActuatorRampControlChange(string $nodeAttr, int $index, string $ramp)
+	{
+
+		string $str = `gradientControlNoAttr -q -as $ramp`;
+		string $buff[];
+		int $nToks = tokenize($str,",",$buff);
+		int $nControlStops = $nToks / 3;
+		int $actualStopIndices[] =  `getAttr -mi ($nodeAttr+"["+$index+"].actuatorRamp")`;
+		int $nActualStops = `size $actualStopIndices`;
+
+		int $i = 0;
+		for ( $i = 0;$i< $nControlStops; $i++) {
+			int $buffIndex =  $i*3;
+			float $val = float($buff[$buffIndex]);
+			float $pos = float($buff[($buffIndex+1)]);
+			int $interp = int($buff[($buffIndex+2)]);
+			string $cmd=("setAttr "+$nodeAttr+"["+$index+"].actuatorRamp["+$i+"] "+ $val +" "+$pos+" "+ $interp+";");
+			evalEcho($cmd);
+		}
+		print("\n");
+		for ($j in $actualStopIndices) {
+			if ($j >= $i) {
+				removeMultiInstance  ($nodeAttr+"["+$index+"].actuatorRamp["+$j+"]");
+			}
+		}
+		setNumericEntryRowToCurrentKey($ramp);
+	}
+
+
+/*
+
+*/
+global proc setNumericEntryRowToCurrentKey(string $ramp) {
+	string $str = `gradientControlNoAttr -q -as $ramp`;
+	string $buff[];
+	int $nToks = tokenize($str,",",$buff);
+
+	int $key = `gradientControlNoAttr -q -currentKey $ramp`;
+	int $buffIndex =  $key*3;
+
+	float $val = float($buff[$buffIndex]);
+	float $pos = float($buff[($buffIndex+1)]);
+	int $interp = int($buff[($buffIndex+2)]);
+
+	optionMenuGrp -e -sl  ($interp+1)  ($ramp + "InterpOM");
+	floatFieldGrp -e -v1   $pos  -v2 $val   ($ramp + "PosValueGrp") ;
+}
+
+/* 
+If user enters values in the umeric row, we
+need to update the currently selected key
+*/
+global proc onActuatorNumericRowChange(string $nodeAttr, int $index,  string $ramp, string $ovName)
+{
+	float $val =  `floatFieldGrp -q -v2 ($ramp + "PosValueGrp") `;
+	float $pos =  `floatFieldGrp -q -v1 ($ramp + "PosValueGrp") `;
+	int $interp = `optionMenuGrp -q -sl ($ramp + "InterpOM") `;
+	$interp-=1;
+	int $key = `gradientControlNoAttr -q -currentKey $ramp`;
+
+	string $arr[] = `optionVar -q  $ovName`;
+	// print $arr;
+	$arr[$key] = ($val+","+$pos+","+$interp);
+	
+	string $newStr =  string.join($arr, ",");
+	gradientControlNoAttr -e -as $newStr  $ramp;
+
+	onActuatorRampControlChange($nodeAttr,  $index,  $ramp);
+}
+
+proc int ensureAtLeastOneStop(string $nodeAttr, int $index){
+	int $numStops = `getAttr -size ($nodeAttr+"["+$index+"].actuatorRamp")`;
+	if ( $numStops == 0) {
+		setAttr ($nodeAttr+"["+$index+"].actuatorRamp[0].actuatorRamp_Position") 0;
+		$numStops = 1;
+	}
+	return $numStops;
+}
+
+proc fillOptionVar(string $nodeAttr, int $index, string $ovName){
+	float $vals[] = `getAttr  ($nodeAttr+"["+$index+"].actuatorRamp[*]")`;
+	int $numVals = `size $vals`;
+	optionVar -clearArray $ovName;
+	for ($i=0;$i<$numVals; $i+=3) {
+		string $stop = ($vals[$i]+","+$vals[($i+1)]+","+$vals[($i+2)]);
+		optionVar -stringValueAppend  $ovName $stop;
+	}
+}
+
+/* build the UI for the gradient control */
+proc string addGradientControl(string $nodeAttr, int $index){
+	string $controlName = AE.controlNameFromNodeAttr($nodeAttr); 
+	string $gradCtrlName = gradientControlName($controlName, $index);
+	string $ovName = gradientOptionVarName($controlName, $index);
+
+	ensureAtLeastOneStop($nodeAttr, $index);
+	fillOptionVar($nodeAttr, $index, $ovName);
+
+	string $rampFrame = `frameLayout -lv 0 -cll 0 -h 150 -bv 1 ($gradCtrlName + "Frame")`;
+	string $rampForm = `formLayout ($gradCtrlName + "Form")`;
+	string $ramp = `gradientControlNoAttr $gradCtrlName`;
+
+	gradientControlNoAttr -e 
+	-currentKey 0
+	-changeCommand ("onActuatorRampControlChange(\""+$nodeAttr+"\","+$index+",\""+$ramp+"\")") 
+	-optionVar $ovName $ramp;
+
+	string $interpMenu = `optionMenuGrp 
+	-label "Interp"  
+	-cw 1 40 -cw 2 80  ($gradCtrlName + "InterpOM")`;
+	menuItem -label "None";
+	menuItem -label "Linear";
+	menuItem -label "Smooth";
+	menuItem -label "Spline";
+	setParent $rampForm;
+
+	string  $numericRowChangeCmd = ("onActuatorNumericRowChange(\""+$nodeAttr+"\","+$index+",\""+$ramp+"\",\""+$ovName+"\")");
+	optionMenuGrp -e 
+	-changeCommand  $numericRowChangeCmd  $interpMenu ;
+
+	string $posValueGrp = `floatFieldGrp -numberOfFields 2 -label "Pos/Value" -cw 1 80  ($gradCtrlName + "PosValueGrp") `;
+	floatFieldGrp -e -cc $numericRowChangeCmd $posValueGrp;
+	setParent $rampForm;
+
+
+	formLayout
+	-edit
+	-attachForm $ramp "left"  3 
+	-attachForm $ramp "right"  3 
+	-attachForm $ramp "top" 2
+	-attachControl $ramp "bottom" 5  $interpMenu
+
+	-attachForm $interpMenu "left" 3
+	-attachNone $interpMenu "right" 
+	-attachNone $interpMenu "top"
+	-attachForm $interpMenu "bottom" 5
+
+	-attachControl $posValueGrp "left" 5  $interpMenu
+	-attachNone $posValueGrp "right"  
+	-attachNone $posValueGrp "top"  
+	-attachForm $posValueGrp "bottom"  5
+	$rampForm;
+
+
+	setNumericEntryRowToCurrentKey($ramp);
+
+
+	return $rampFrame;
+}
+
+
+global proc updateActuatorFrameLabel(
+	string $nodeAttr,
+	int $index,
+	string $frame){
+
+	string $rank = `getAttr -as ($nodeAttr+"["+$index+"].actuatorRank")`;
+	string $axis = `getAttr -as ($nodeAttr+"["+$index+"].actuatorInputAxis")`;
+	string $channel = `getAttr -as ($nodeAttr+"["+$index+"].actuatorOutputChannel")`;
+	int $active = `getAttr ($nodeAttr+"["+$index+"].actuatorActive")`;
+
+	print("$rank: "+ $rank+"\n");
+	print("$axis: "+ $axis+"\n");
+	print("$channel: "+ $channel+"\n");
+	print("$active: "+ $active+"\n");
+
+	print($nodeAttr+"["+$index+"].actuatorRank");
+
+	string $activeStr = $active ? " (Active)" : " (Inactive)";
+	string $label = ($rank+":"+$axis+"-->"+$channel+ $activeStr);
+	frameLayout -e -l  $label $frame;
+}
+
+
+global proc addActuatorPlug(string $nodeAttr) {
+	int $index = attr.findNextNonExistentIndex($nodeAttr);
+	setAttr ($nodeAttr+"["+$index+"].actuatorActive") 1;
+}
+
+global proc AEActuatorReplace(string $nodeAttr){
+	setUITemplate -pst attributeEditorTemplate;
+	string $nodeName = attr.nodeFromNodeAttr($nodeAttr);
+	string $controlName = AE.controlNameFromNodeAttr($nodeAttr); 
+	setParent $controlName;
+	string $frames[] = `layout -q -ca $controlName`;
+	for ($frame in $frames) {
+		deleteUI($frame);
+	}
+	print("AEActuatorReplace: "+ $nodeAttr +"\n");
+
+	int $indices[] = `getAttr -mi $nodeAttr`;
+	print($indices);
+	int $numAtts = `size $indices`;
+	for ($index in $indices) {
+		print("adding plug "+$index+"\n");
+		setParent $controlName;
+		string $frame = `frameLayout -cll 1 -cl 0 -label ("actuator:"+$index)`;
+
+		string $c = `columnLayout -adj 1`;
+		string $activeCtl = `attrControlGrp  -l "Active"  -attribute ( $nodeAttr+"["+$index+"].actuatorActive")`;
+ 	  // button   -h 16 -label  "Update Label" ;
+
+ 	  setParent $c;
+
+ 	  string $row = `rowLayout -numberOfColumns 2   `;
+ 	  string $rankCtl = `attrEnumOptionMenuGrp -cw 1 60 -cw 2 80 -l "Rank"   -at ( $nodeAttr+"["+$index+"].actuatorRank")`;
+ 	  string $axisCtl = `attrEnumOptionMenuGrp -cw 1 60 -cw 2 80 -l "Axis"   -at ( $nodeAttr+"["+$index+"].actuatorInputAxis")`;
+ 	  setParent $c;
+		// setParent $c;
+
+		attrFieldGrp -l "Input Range" -attribute ( $nodeAttr+"["+$index+"].actuatorInputRange");
+		setParent $c;
+		string $mirrorCtl = `attrControlGrp  -l "Mirror"  -attribute ( $nodeAttr+"["+$index+"].actuatorInputMirror")`;
+		setParent $c;
+
+		string $rampFrame = addGradientControl($nodeAttr, $index);
+		setParent $c;
+
+
+		$row = `rowLayout -numberOfColumns 2  -cw 1 160 `;
+		string $channelCtl = `attrEnumOptionMenuGrp -cw 1 80 -cw 2 80  -l "Channel"   
+		-at ( $nodeAttr+"["+$index+"].actuatorOutputChannel")`;
+		setParent $c;
+		attrFieldGrp -l "Output Range" -attribute ( $nodeAttr+"["+$index+"].actuatorOutputRange");
+		setParent $c;
+
+		// attrControlGrp    -l "Multiplier"  -attribute ( $nodeAttr+"["+$index+"].actuatorOutputScale");
+		// setParent $c;
+		separator -height 30 -style "in";
+		string $row = `rowLayout -numberOfColumns 2    `;
+		string $deleteBtn = `symbolButton  -h 20 -image "smallTrash.xpm" -ann "Delete"` ;
+		string $labelBtn = `symbolButton  -h 20 -image "out_floatLogic.png" -ann "Sync"` ;
+		setParent $c;
+
+		string $updateFrameLabelCmd = ("updateActuatorFrameLabel(\""+$nodeAttr+"\", "+$index+", \""+$frame+"\")");
+		string $delIndexCmd = ("removeMultiInstance \""+$nodeAttr+"["+$index+"]\"");
+
+		symbolButton -e -c  $updateFrameLabelCmd $labelBtn;
+		symbolButton -e -c  $delIndexCmd $deleteBtn;
+
+		eval($updateFrameLabelCmd);
+	}
+
+	button  -e -c ("addActuatorPlug(\""+$nodeAttr+"\")") ($controlName+"ADDBTN");
+
+	setUITemplate -ppt;
+}
+
+
 global proc AEhexapodTemplate(string $nodeName)
 {
 	
-	
-
 	editorTemplate -beginScrollLayout;
-	
-	
-	editorTemplate -cl 0 -beginLayout "Foot Home Position";	
-	editorTemplate -addControl "homeLA";
-	editorTemplate -addControl "homeLB";
-	editorTemplate -addControl "homeLC";
-	editorTemplate -addControl "homeRA";
-	editorTemplate -addControl "homeRB";
-	editorTemplate -addControl "homeRC";
-	editorTemplate -endLayout;
-	
-  editorTemplate -cl 0 -beginLayout "Local Speed";	
+
+	editorTemplate -cl 0 -beginLayout "Local Speed";	
 	editorTemplate -addControl "maxSpeed";
 	AEaddRampControl ($nodeName+".plantSpeedBiasRamp");	
 	editorTemplate -endLayout;
 
 
 
-	editorTemplate -cl 0 -beginLayout "Phase Coordination";	
+	editorTemplate -cl 1 -beginLayout "Phase Coordination";	
 	AEaddRampControl ($nodeName+".anteriorRadiusRamp");	
 	AEaddRampControl ($nodeName+".lateralRadiusRamp");	
 	AEaddRampControl ($nodeName+".posteriorRadiusRamp");	
 	editorTemplate -endLayout;
 	
- 
-	editorTemplate -cl 0 -beginLayout "Rank A";	
+
+	editorTemplate -cl 1 -beginLayout "Rank A";	
 	editorTemplate -addControl "homeA";
 	editorTemplate -addControl "radiusA";
 	AEaddRampControl ($nodeName+".stepIncrementRampA");	
 	AEaddRampControl ($nodeName+".slideProfileRampA");	
+	AEaddRampControl ($nodeName+".liftProfileRampA");	
 	editorTemplate -endLayout;
 	
-	editorTemplate -cl 0 -beginLayout "Rank B";	
+	editorTemplate -cl 1 -beginLayout "Rank B";	
 	editorTemplate -addControl "homeB";
 	editorTemplate -addControl "radiusB";
 	AEaddRampControl ($nodeName+".stepIncrementRampB");	
 	AEaddRampControl ($nodeName+".slideProfileRampB");	
+	AEaddRampControl ($nodeName+".liftProfileRampB");	
 	editorTemplate -endLayout;
 	
-	editorTemplate -cl 0 -beginLayout "Rank C";	
+	editorTemplate -cl 1 -beginLayout "Rank C";	
 	editorTemplate -addControl "homeC";
 	editorTemplate -addControl "radiusC";
 	AEaddRampControl ($nodeName+".stepIncrementRampC");	
 	AEaddRampControl ($nodeName+".slideProfileRampC");	
+	AEaddRampControl ($nodeName+".liftProfileRampC");	
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 0 -beginLayout "Body";	
 	editorTemplate -addControl "bodyOffset";
+
+	editorTemplate -callCustom "AEActuatorNew"  "AEActuatorReplace"  "bodyActuator";
+
+
 	editorTemplate -endLayout;
 
 
-	editorTemplate -cl 0 -beginLayout "Diagnostics";	
+
+
+	editorTemplate -cl 1 -beginLayout "Diagnostics";	
 	editorTemplate -beginNoOptimize;	
 	editorTemplate -addControl "displayPlants";
 	editorTemplate -addControl "displayHome";
@@ -67,10 +345,10 @@ global proc AEhexapodTemplate(string $nodeName)
 	
 	editorTemplate -endLayout;
 
-	editorTemplate -cl 0 -beginLayout "Time";		
+	editorTemplate -cl 1 -beginLayout "Time";		
 	editorTemplate -addControl "startTime";		
 	editorTemplate -addControl "currentTime";
-  editorTemplate -addControl "defaultWhenDormant";
+	editorTemplate -addControl "defaultWhenDormant";
 	editorTemplate -endLayout;
 	
 	editorTemplate -suppress "rankA";

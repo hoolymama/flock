@@ -16,6 +16,8 @@
 
 #include <maya/MRampAttribute.h>
 #include <maya/MFnUnitAttribute.h>
+#include <maya/MFnEnumAttribute.h>
+
 #include <maya/MItMeshPolygon.h>
 #include <maya/MVector.h>
 #include <maya/MPoint.h>
@@ -37,6 +39,7 @@
 
 #include "mayaMath.h"
 #include "attrUtils.h"
+
 MObject hexapod::aParticleId;
 MObject hexapod::aSortedId;
 MObject hexapod::aIdIndex;
@@ -68,6 +71,7 @@ MObject hexapod::aRadiusMaxA;
 MObject hexapod::aRadiusA; 
 MObject hexapod::aStepIncrementRampA; 
 MObject hexapod::aSlideProfileRampA;
+MObject hexapod::aLiftProfileRampA;
 
 MObject hexapod::aRankB;
 MObject hexapod::aHomeBX;
@@ -78,6 +82,7 @@ MObject hexapod::aRadiusMaxB;
 MObject hexapod::aRadiusB; 
 MObject hexapod::aStepIncrementRampB; 
 MObject hexapod::aSlideProfileRampB;
+MObject hexapod::aLiftProfileRampB;
 
 
 MObject hexapod::aRankC;
@@ -89,10 +94,24 @@ MObject hexapod::aRadiusMaxC;
 MObject hexapod::aRadiusC; 
 MObject hexapod::aStepIncrementRampC; 
 MObject hexapod::aSlideProfileRampC;
+MObject hexapod::aLiftProfileRampC;
 
 
 MObject hexapod::aBodyOffset;
 
+MObject hexapod::aActuatorRank;
+MObject hexapod::aActuatorInputMin;
+MObject hexapod::aActuatorInputMax;
+MObject hexapod::aActuatorInputRange;
+MObject hexapod::aActuatorInputAxis;  
+MObject hexapod::aActuatorRamp;
+MObject hexapod::aActuatorOutputMin;
+MObject hexapod::aActuatorOutputMax;
+MObject hexapod::aActuatorOutputRange;
+MObject hexapod::aActuatorInputMirror;
+MObject hexapod::aActuatorOutputChannel;  
+MObject hexapod::aActuatorActive;
+MObject hexapod::aBodyActuator;
 
 MObject hexapod::aDisplayPlants;
 MObject hexapod::aDisplayHome;
@@ -237,17 +256,12 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 
 	MVectorArray phiIn = MFnVectorArrayData(data.inputValue(aPhi).data()).array();
 
+ 
 
-
-	// cerr << "================: "<< dt << endl;
-	// cerr << "oT: "<< oT << endl;
-	// cerr << "dt: "<< dt << endl;
-	// cerr << "sortedId.length(): "<< sortedId.length() << endl;
-	// cerr << "showDefault: "<< showDefault << endl;
-
+ 	/*
+ 	Time going backwards or we are before the start frame
+ 	*/
 	if (dt < 0 ||  oT < MTime(0.0)) {
-				// cerr << "BACKWARDS: "<< endl;
-
 		m_colony->clear();
 		data.setClean(hexapod::aOutIdIndex);
 		data.setClean(hexapod::aOutSortedId);
@@ -263,11 +277,10 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 		return( MS::kSuccess );
 	}
 
-
+	/*
+	We want to show the default pose when no particles exist
+	*/
 	if( (sortedId.length() == 0) && showDefault) {
-
-			cerr << "DEFAULT: "<<  endl;
-
 		m_colony->clear();
 		m_colony->getDefaultOutputData(
 			thisNode, data,
@@ -288,26 +301,22 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 		return( MS::kSuccess );
 	}
 
-
+	/*
+	If time is moving forward, do a sim step
+	*/
 	if (dt >  0.0 ) {
-					// cerr << "UPDATE AND OUTPUT COLONY: "<<   endl;
  		m_colony->update(dt, thisNode, data);
 	}
-	 // else {
-		// 	cerr << "OUTPUT COLONY: (NO UPDATE)"<<   endl;
- 	// }
-
+ 
+ /*
+	output whatever is stored
+ */
 	m_colony->getOutputData(idIndex, outLeftA,outLeftB,outLeftC,outRightA,
 		outRightB,outRightC,outPosition,outPhi, outScale
 		);
-
-	// cerr << "PHI IN: " << phiIn << endl; 	
-	// cerr << "PHI OUT: " << outPhi << endl; 
-
-
+ 
 	st = outputData(hexapod::aOutIdIndex, data, idIndex);
 	st = outputData(hexapod::aOutSortedId, data, sortedId);
-
 	st = outputData(hexapod::aOutLeftA, data, outLeftA);
 	st = outputData(hexapod::aOutLeftB, data, outLeftB);
 	st = outputData(hexapod::aOutLeftC, data, outLeftC);
@@ -332,6 +341,7 @@ MStatus hexapod::initialize()
 	MRampAttribute rAttr;
 	MFnUnitAttribute	uAttr;
 	MFnCompoundAttribute cAttr;
+	MFnEnumAttribute eAttr;
 
 	aParticleId = tAttr.create("particleId","pid", MFnData::kDoubleArray, &st ); er;
 	tAttr.setStorable(false);
@@ -430,11 +440,16 @@ MStatus hexapod::initialize()
 	aSlideProfileRampA = rAttr.createCurveRamp("slideProfileRampA","slpa",&st);er;
 	st = addAttribute(aSlideProfileRampA );er;
 
+	aLiftProfileRampA = rAttr.createCurveRamp("liftProfileRampA","lfpa",&st);er;
+	st = addAttribute(aLiftProfileRampA );er;
+
+
 	aRankA = cAttr.create("rankA","rka");
 	cAttr.addChild(aHomeA);
 	cAttr.addChild(aRadiusA);
 	cAttr.addChild(aStepIncrementRampA);
 	cAttr.addChild(aSlideProfileRampA);
+	cAttr.addChild(aLiftProfileRampA);
 	st = addAttribute(aRankA);er;
 
 
@@ -459,11 +474,15 @@ MStatus hexapod::initialize()
 	aSlideProfileRampB = rAttr.createCurveRamp("slideProfileRampB","slpb",&st);er;
 	st = addAttribute(aSlideProfileRampB );er;
 
+	aLiftProfileRampB = rAttr.createCurveRamp("liftProfileRampB","lfpb",&st);er;
+	st = addAttribute(aLiftProfileRampB );er;
+
 	aRankB = cAttr.create("rankB","rkb");
 	cAttr.addChild(aHomeB);
 	cAttr.addChild(aRadiusB);
 	cAttr.addChild(aStepIncrementRampB);
 	cAttr.addChild(aSlideProfileRampB);
+	cAttr.addChild(aLiftProfileRampB);
 	st = addAttribute(aRankB);er;
 
 
@@ -486,12 +505,16 @@ MStatus hexapod::initialize()
 
 	aSlideProfileRampC = rAttr.createCurveRamp("slideProfileRampC","slpc",&st);er;
 	st = addAttribute(aSlideProfileRampC );er;
+	
+	aLiftProfileRampC = rAttr.createCurveRamp("liftProfileRampC","lfpc",&st);er;
+	st = addAttribute(aLiftProfileRampC );er;
 
 	aRankC = cAttr.create("rankC","rkc");
 	cAttr.addChild(aHomeC);
 	cAttr.addChild(aRadiusC);
 	cAttr.addChild(aStepIncrementRampC);
 	cAttr.addChild(aSlideProfileRampC);
+	cAttr.addChild(aLiftProfileRampC);
 	st = addAttribute(aRankC);er;
 
 	aBodyOffset= nAttr.createPoint( "bodyOffset", "bof" );
@@ -502,6 +525,86 @@ MStatus hexapod::initialize()
 	nAttr.setHidden(false);
 	nAttr.setWritable(true);
 	st = addAttribute( aBodyOffset );er;
+
+
+ 
+	aActuatorRank= eAttr.create("actuatorRank","acrk");
+	eAttr.addField( "A"	,  hexapod::kAnterior     );
+	eAttr.addField( "B"	,  hexapod::kMedial     );
+	eAttr.addField( "C"	,  hexapod::kPosterior     );
+	eAttr.setDefault( hexapod::kAnterior );
+	eAttr.setHidden( false );
+	eAttr.setKeyable( true );
+ 
+	aActuatorActive= nAttr.create( "actuatorActive", "acac",MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+
+	aActuatorInputMin = nAttr.create( "actuatorInputMin", "aimn", MFnNumericData::kDouble);
+	aActuatorInputMax = nAttr.create( "actuatorInputMax", "aimx", MFnNumericData::kDouble, 1.0);
+	aActuatorInputRange  = nAttr.create( "actuatorInputRange",  "air", aActuatorInputMin, aActuatorInputMax);
+	nAttr.setStorable(true);
+	nAttr.setWritable(true);
+	nAttr.setKeyable(true);
+
+	aActuatorInputMirror= nAttr.create( "actuatorInputMirror", "acim",MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+
+	aActuatorOutputMin = nAttr.create( "actuatorOutputMin", "aomn", MFnNumericData::kDouble);
+	aActuatorOutputMax = nAttr.create( "actuatorOutputMax", "aomx", MFnNumericData::kDouble, 1.0);
+	aActuatorOutputRange  = nAttr.create( "actuatorOutputRange",  "aor", aActuatorOutputMin, aActuatorOutputMax);
+	nAttr.setStorable(true);
+	nAttr.setWritable(true);
+	nAttr.setKeyable(true);
+
+
+
+	aActuatorInputAxis= eAttr.create("actuatorInputAxis","aia");
+	eAttr.addField( "stepParam"	,  hexapod::kStepParam     );
+	eAttr.addField( "X"	,  hexapod::kX     );
+	eAttr.addField( "Y"	,  hexapod::kY     );
+	eAttr.addField( "Z"	,  hexapod::kZ     );
+	eAttr.setDefault( hexapod::kStepParam );
+	eAttr.setHidden( false );
+	eAttr.setKeyable( true );
+ 
+ 	aActuatorRamp = rAttr.createCurveRamp("actuatorRamp","acrm",&st);er;
+	st = addAttribute(aActuatorRamp );er;
+
+	// aActuatorOutputScale = nAttr.create("actuatorOutputScale", "aosc", MFnNumericData::kFloat);
+	// nAttr.setStorable (true);
+	// nAttr.setWritable(true);
+	// nAttr.setKeyable(true);
+	// nAttr.setDefault(1.0);
+ 
+	aActuatorOutputChannel= eAttr.create("actuatorOutputChannel","aoch");
+	eAttr.addField( "tx"	,  hexapod::kTX);
+	eAttr.addField( "ty"	,  hexapod::kTY);
+	eAttr.addField( "tz"	,  hexapod::kTZ);
+	eAttr.addField( "rx"	,  hexapod::kRX);
+	eAttr.addField( "ry"	,  hexapod::kRY);
+	eAttr.addField( "rz"	,  hexapod::kRZ);	
+	eAttr.setDefault( hexapod::kTY );
+	eAttr.setHidden( false );
+	eAttr.setKeyable( true );
+ 
+	aBodyActuator = cAttr.create("bodyActuator","bact");
+	cAttr.addChild(aActuatorRank);
+	cAttr.addChild(aActuatorInputRange);
+	cAttr.addChild(aActuatorInputAxis);
+	cAttr.addChild(aActuatorInputMirror);
+	cAttr.addChild(aActuatorRamp);
+	cAttr.addChild(aActuatorOutputRange);
+	cAttr.addChild(aActuatorOutputChannel);
+	cAttr.addChild(aActuatorActive);
+	cAttr.setArray(true);
+	st = addAttribute(aBodyActuator);er;
+
+
+
 
 	aDisplayPlants = nAttr.create( "displayPlants", "dpl",MFnNumericData::kBoolean);
 	nAttr.setStorable(true);

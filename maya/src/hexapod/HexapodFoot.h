@@ -7,6 +7,8 @@
 
 #include <maya/MVector.h>
 #include "displayMask.h"
+#include "rankData.h"
+
 
 // #include "HexapodAgent.h"
 
@@ -41,23 +43,30 @@ public:
 
 
 void  updateHomeCircles(	
-	double homeX, 
-	double homeZ, 
-	double radiusMin, 
-	double radiusMax,
+ 	const rankData & rank,
 	float anteriorStepParam,
 	float lateralStepParam,
 	float posteriorStepParam,
 	MRampAttribute &anteriorRadiusRamp,
 	MRampAttribute &lateralRadiusRamp,
-	MRampAttribute &posteriorRadiusRamp
+	MRampAttribute &posteriorRadiusRamp,
+	bool negateRank=false
 	);
 
+ 
+
+	// void update(
+	// 	double dt, double maxSpeed,
+	// 	MRampAttribute &incRamp,
+	// 	MRampAttribute &plantSpeedBiasRamp);
+
+MPoint calcFootPosition(rankData& rank) const;
 
 	void update(
 		double dt, double maxSpeed,
-		MRampAttribute &incRamp,
+	  rankData & rank,
 		MRampAttribute &plantSpeedBiasRamp);
+
 
 	void draw(M3dView & view, MFloatMatrix & matrix,  const DisplayMask & mask) const;
 

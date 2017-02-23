@@ -5,6 +5,8 @@
 #include <sstream>
 
 #include <list>
+#include <vector>
+
 #include <maya/MObject.h>
 #include <maya/MFnDoubleArrayData.h>
 #include <maya/MFnVectorArrayData.h>
@@ -171,7 +173,6 @@ MStatus HexapodColony::update(
 
 	MIntArray sortedId =  getIntArray("sortedId",node,data, len, &st);er;
 	MIntArray idIndex =		getIntArray("idIndex",node,data, len, &st);er;
-
 	MVectorArray pos = 		getVectorArray("position",node,data, len, &st);er;
 	MVectorArray phi = 		getVectorArray("phi",node,data, len, &st);er;
 	MVectorArray vel = 		getVectorArray("velocity",node,data, len, &st);er;
@@ -182,6 +183,7 @@ MStatus HexapodColony::update(
 	rankData rankB(data,  node, "B");
 	rankData rankC(data,  node, "C");
 
+	actuatorStack actuators(data);
 
 	att = dn.attribute	( "maxSpeed", &st);er;
 	double	maxSpeed	= data.inputValue(att).asDouble();

@@ -23,7 +23,8 @@ public:
 	double	radiusMax;
 
 	MRampAttribute stepIncrementRamp;
-
+	MRampAttribute slideProfileRamp;
+	MRampAttribute liftProfileRamp;
 
 } ;
 
