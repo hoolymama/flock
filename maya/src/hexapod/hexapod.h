@@ -190,7 +190,7 @@ public:
 
 	/*
 	outputs
-	should be in the same order as input particles.
+	should be in the same order as input partjicles.
 	*/
 	static MObject	aOutIdIndex;
 	static MObject	aOutSortedId;
@@ -205,11 +205,13 @@ public:
 	static MObject	aOutPhi;
 	static MObject	aOutScale;
 
+	// enum Rank { kAnterior, kMedial, kPosterior };
+	// enum ActuatorAxis { kStepParam, kX, kY, kZ};
+	// enum ActuatorChannel { kTX, kTY, kTZ, kRX, kRY, kRZ };
+	
+
 
 private:
-enum Rank { kAnterior, kMedial, kPosterior };
-enum ActuatorAxis { kStepParam, kX, kY, kZ};
-enum ActuatorChannel { kTX, kTY, kTZ, kRX, kRY, kRZ };
 
 	MTime m_lastTimeIEvaluated;
 

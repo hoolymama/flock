@@ -39,6 +39,8 @@
 
 #include "mayaMath.h"
 #include "attrUtils.h"
+#include "hexUtil.h"
+
 
 MObject hexapod::aParticleId;
 MObject hexapod::aSortedId;
@@ -358,8 +360,6 @@ MStatus hexapod::initialize()
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	st = addAttribute( aIdIndex );er;
 
-
-
 	aPosition = tAttr.create("position", "pos", MFnData::kVectorArray , &st ); er;
 	tAttr.setStorable(false);
 	st = addAttribute( aPosition ); er;
@@ -529,10 +529,10 @@ MStatus hexapod::initialize()
 
  
 	aActuatorRank= eAttr.create("actuatorRank","acrk");
-	eAttr.addField( "A"	,  hexapod::kAnterior     );
-	eAttr.addField( "B"	,  hexapod::kMedial     );
-	eAttr.addField( "C"	,  hexapod::kPosterior     );
-	eAttr.setDefault( hexapod::kAnterior );
+	eAttr.addField( "A"	,  hexUtil::kAnterior     );
+	eAttr.addField( "B"	,  hexUtil::kMedial     );
+	eAttr.addField( "C"	,  hexUtil::kPosterior     );
+	eAttr.setDefault( hexUtil::kAnterior );
 	eAttr.setHidden( false );
 	eAttr.setKeyable( true );
  
@@ -563,11 +563,11 @@ MStatus hexapod::initialize()
 
 
 	aActuatorInputAxis= eAttr.create("actuatorInputAxis","aia");
-	eAttr.addField( "stepParam"	,  hexapod::kStepParam     );
-	eAttr.addField( "X"	,  hexapod::kX     );
-	eAttr.addField( "Y"	,  hexapod::kY     );
-	eAttr.addField( "Z"	,  hexapod::kZ     );
-	eAttr.setDefault( hexapod::kStepParam );
+	eAttr.addField( "stepParam"	,  hexUtil::kStepParam     );
+	eAttr.addField( "X"	,  hexUtil::kX     );
+	eAttr.addField( "Y"	,  hexUtil::kY     );
+	eAttr.addField( "Z"	,  hexUtil::kZ     );
+	eAttr.setDefault( hexUtil::kStepParam );
 	eAttr.setHidden( false );
 	eAttr.setKeyable( true );
  
@@ -581,13 +581,13 @@ MStatus hexapod::initialize()
 	// nAttr.setDefault(1.0);
  
 	aActuatorOutputChannel= eAttr.create("actuatorOutputChannel","aoch");
-	eAttr.addField( "tx"	,  hexapod::kTX);
-	eAttr.addField( "ty"	,  hexapod::kTY);
-	eAttr.addField( "tz"	,  hexapod::kTZ);
-	eAttr.addField( "rx"	,  hexapod::kRX);
-	eAttr.addField( "ry"	,  hexapod::kRY);
-	eAttr.addField( "rz"	,  hexapod::kRZ);	
-	eAttr.setDefault( hexapod::kTY );
+	eAttr.addField( "tx"	,  hexUtil::kTX);
+	eAttr.addField( "ty"	,  hexUtil::kTY);
+	eAttr.addField( "tz"	,  hexUtil::kTZ);
+	eAttr.addField( "rx"	,  hexUtil::kRX);
+	eAttr.addField( "ry"	,  hexUtil::kRY);
+	eAttr.addField( "rz"	,  hexUtil::kRZ);	
+	eAttr.setDefault( hexUtil::kTY );
 	eAttr.setHidden( false );
 	eAttr.setKeyable( true );
  

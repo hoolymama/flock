@@ -6,34 +6,31 @@
 
 #include <maya/MRampAttribute.h>
 #include <maya/MDataBlock.h>
-
+#include "hexUtil.h"
+#include <iostream>  
 class actuator {
 public:
 
-enum Rank { kAnterior, kMedial, kPosterior };
-enum ActuatorAxis { kStepParam, kX, kY, kZ};
-enum ActuatorChannel { kTX, kTY, kTZ, kRX, kRY, kRZ };
-
-
-
 	actuator();
-	actuator(MDataBlock &data, 	const MObject &node, MString rank);
-	
+ 	actuator(MDataHandle &handle, const MObject &node);
+ 
 	~actuator();
-
-	Rank rank;
-	ActuatorAxis axis;
-	ActuatorChannel channel;
 	
-	double	homeX;
-	double	homeZ;
+	friend ostream& operator<<(ostream& os, const actuator& actuator);  
 
-	double	radiusMin;
-	double	radiusMax;
+private:
 
-	MRampAttribute stepIncrementRamp;
-	MRampAttribute slideProfileRamp;
-	MRampAttribute liftProfileRamp;
+	hexUtil::Rank m_rank;
+	hexUtil::ActuatorAxis m_axis;
+	hexUtil::ActuatorChannel m_channel;
+
+	bool m_mirror;
+ 
+	MRampAttribute m_ramp;
+	double	m_inputMin;
+	double	m_inputMax;
+	double	m_outputMin;
+	double	m_outputMax;
 
 } ;
 

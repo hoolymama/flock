@@ -28,6 +28,7 @@
 
 #include "rankData.h"
 #include "HexapodColony.h"
+#include  "actuator.h"
 
 #if defined(OSMac_MachO_)
 #include <OpenGL/gl.h>
@@ -147,12 +148,11 @@ void HexapodColony::getDefaultOutputData(
 
 	outPosition.append(bodyOffset);
 	outPhi.append(MVector::zero);
-  outScale.append(1.0);
+	outScale.append(1.0);
 
 }
 
-
-
+ 
 
 MStatus HexapodColony::update(
 	double dt ,
@@ -183,8 +183,6 @@ MStatus HexapodColony::update(
 	rankData rankB(data,  node, "B");
 	rankData rankC(data,  node, "C");
 
-	actuatorStack actuators(data);
-
 	att = dn.attribute	( "maxSpeed", &st);er;
 	double	maxSpeed	= data.inputValue(att).asDouble();
 	if (maxSpeed < 0.00001) {
@@ -203,6 +201,22 @@ MStatus HexapodColony::update(
 	MRampAttribute anteriorRadiusRamp( node,  dn.attribute( "anteriorRadiusRamp" ), &st);er;
 	MRampAttribute lateralRadiusRamp(  node,  dn.attribute( "lateralRadiusRamp" ), &st);er;
 	MRampAttribute posteriorRadiusRamp(node,  dn.attribute( "posteriorRadiusRamp" ), &st);er;
+
+ 	/////////////////////////////////////
+	std::vector<actuator*> actuatorStack;
+	MObject actuatorAtt =  dn.attribute( "bodyActuator" );
+	MArrayDataHandle  hActuator = data.inputArrayValue(actuatorAtt);
+	unsigned nf = hActuator.elementCount();
+	for(unsigned i = 0;i < nf; i++, hActuator.next()) {
+		MDataHandle hData = hActuator.inputValue();
+		MObject activeAtt =  dn.attribute	( "actuatorActive", &st);er;
+		bool active = hData.child(activeAtt).asBool();
+		if (active) {
+			actuatorStack.push_back(new actuator(hData, node));
+		}
+	}
+  // for (int i = 0; i < actuatorStack.size(); i++){ cerr << (*actuatorStack[i]) << endl ; }
+	/////////////////////////////////////
 
 
 	int rPeg = 0;
@@ -253,6 +267,8 @@ MStatus HexapodColony::update(
 				scale[index], rankA, rankB, rankC,bodyOffset,
 				plantSpeedBiasRamp, anteriorRadiusRamp, lateralRadiusRamp,  posteriorRadiusRamp
 				);
+			
+				
 
 			rPeg++;
 			agent++;
@@ -266,6 +282,11 @@ MStatus HexapodColony::update(
 			m_agents.erase(shadow);
 		}
 	}
+
+	for (int i = 0; i < actuatorStack.size(); i++){
+		delete actuatorStack[i];
+	}
+
 	return MS::kSuccess;
 }
 
