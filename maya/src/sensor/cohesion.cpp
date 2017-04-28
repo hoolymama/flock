@@ -182,17 +182,17 @@
 						);
 				}
 
-				if (atten > 1000000) {
-					cerr << "points[i]" << points[i] << endl;
-					cerr << "viewVectorN" << viewVectorN << endl;
-					cerr << "fov" << fov << endl;
-					cerr << "drp" << drp << endl;
-					cerr << "dec" << dec << endl;
-					cerr << "points[c]" << points[c] << endl;
-					cerr << "resultDists[iter]" << resultDists[iter] << endl;
-					cerr << "radius" << radius << endl;
-					cerr << "atten" << atten << endl;
-				}
+				// if (atten > 1000000) {
+				// 	cerr << "points[i]" << points[i] << endl;
+				// 	cerr << "viewVectorN" << viewVectorN << endl;
+				// 	cerr << "fov" << fov << endl;
+				// 	cerr << "drp" << drp << endl;
+				// 	cerr << "dec" << dec << endl;
+				// 	cerr << "points[c]" << points[c] << endl;
+				// 	cerr << "resultDists[iter]" << resultDists[iter] << endl;
+				// 	cerr << "radius" << radius << endl;
+				// 	cerr << "atten" << atten << endl;
+				// }
 
 
 				double goalToMaxDist =  radius - dist;

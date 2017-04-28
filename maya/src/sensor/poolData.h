@@ -66,6 +66,8 @@ public:
 					
 	int size();
 	void closestNPoints(const agent * searchAgent, double radius, int num, AGENT_VECTOR * neighbors, MDoubleArray &dists )  const	;
+	void closestNPoints(const MVector &searchPoint, double radius, int num, AGENT_VECTOR * neighbors, MDoubleArray &dists )  const ;
+
 	//void closestNPoints(const MVector &searchPoint, double radius, int num, AGENT_VECTOR * neighbors, MDoubleArray &dists )  const;
 private:
 		

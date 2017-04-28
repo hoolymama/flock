@@ -11,6 +11,8 @@ global proc sensor.init(string $moduleName) {
 		"cohesion",
 		"exposure",
 		"separation",
+		"ellipsoidSensor",
+	  "slotSensor",
 		"splineSensor",
 		"geometrySensor",
 		"jerkSensor"

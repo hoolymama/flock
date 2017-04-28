@@ -23,6 +23,8 @@ rigParticle::rigParticle(
 	m_future(0)
 {
 	// turn the trs stuff into a matrix
+
+
 	MMatrix mat =  mayaMath::matFromAim(t,a,u,s,aimFrontAxis,aimUpAxis);
 	m_transform = MFloatMatrix( mat.matrix );
 }
@@ -39,9 +41,10 @@ rigParticle::rigParticle(
 	m_vector_values(fva),
 	m_future(0)
 {
-
+	// cerr << "CTOR t: " << t << " phi: " <<phi<< " s: " << s << endl;
 	// TODO  mat from phi is buggy - so refactor this or fix matFromPhi(t,p,s)
 	MMatrix mat =  mayaMath::matFromPhi(t,phi,s);
+		// cerr << "mat: " << mat << endl;
 	m_transform = MFloatMatrix(mat.matrix);
 
 }
@@ -93,11 +96,11 @@ MString rigParticle::info() const {
 }
 */
 
-const MFloatMatrix & rigParticle::transform() const {return m_transform;}
+const MFloatMatrix rigParticle::transform() const {return m_transform;}
+const MFloatArray rigParticle::values() const {return m_values;}
+const MFloatVectorArray rigParticle::vectorValues() const {return m_vector_values;}
 
-const MFloatArray & rigParticle::values() const {return m_values;}
-const MFloatVectorArray & rigParticle::vectorValues() const {return m_vector_values;}
-
+ 
 /**
 Set ouput plug values according to the values stored on this particle
 	If there are more output plugs than values available, then we set the extras to 0

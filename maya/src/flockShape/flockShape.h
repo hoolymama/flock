@@ -113,11 +113,11 @@ public:
 	static MObject  aScaleTargetZ;
 	static MObject  aScaleTarget;
 	
-	
+
 	// If aDetailTarget is connected to an attribute on the rig, 
 	// the detail will be set for this attribute in the render
 	// The rig TD may do whatever he wants with this value
-	static MObject  aDetailTarget;
+	// static MObject  aDetailTarget;
 //	static MObject  aLodStrategy;
 	static MObject  aTargetId;
 
@@ -136,6 +136,30 @@ public:
 	static MObject  aUserVectorTargetZ;
 	static MObject  aUserVectorTarget;
 	static MObject  aUserVectorLabel;
+
+
+	/* Multi target stuff */
+ 	static MObject  aDoFlatTargets;
+	static MObject  aFlatTranslateTargetX;
+	static MObject  aFlatTranslateTargetY;
+	static MObject  aFlatTranslateTargetZ;
+	static MObject  aFlatTranslateTarget;
+	static MObject  aFlatRotateTargetX;
+	static MObject  aFlatRotateTargetY;
+	static MObject  aFlatRotateTargetZ;
+	static MObject  aFlatRotateTarget;
+	static MObject  aFlatScaleTargetX;
+	static MObject  aFlatScaleTargetY;
+	static MObject  aFlatScaleTargetZ;
+	static MObject  aFlatScaleTarget;
+	static MObject  aFlatUserDoubleTarget;
+	static MObject  aFlatUserVectorTargetX;
+	static MObject  aFlatUserVectorTargetY;
+	static MObject  aFlatUserVectorTargetZ;
+	static MObject  aFlatUserVectorTarget;
+	static MObject  aFlatTargets;
+
+
 
 	// static MObject  aLodGeometry;
 	// static MObject  aLodGeometrySet;
@@ -210,7 +234,10 @@ public:
 	
 private:
 	
-	
+	MStatus computeTarget(MDataBlock& data);
+
+	MStatus computeFlatTargets(MDataBlock& data);
+
 	void drawABox(const MVector &bbmin, const MVector &bbmax) ;
 	// void drawBoxCorners(const MVector &bmin, const MVector &bmax ) ;
 

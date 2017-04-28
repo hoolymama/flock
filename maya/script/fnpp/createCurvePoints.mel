@@ -1,0 +1,11 @@
+// global proc createCurvePoints(){
+
+
+// 	string $selCurves[] = `ls -sl -dag -leaf -type "nurbsCurve"`;
+
+	
+	
+
+
+
+// }

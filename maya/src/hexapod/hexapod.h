@@ -75,8 +75,12 @@ public:
 	static MObject	aScale;
 
 	/*ground detection*/
-	static MObject	aMesh;
-
+	static MObject aFloorMesh;
+	static MObject aAnimatedFloor;
+	static MObject aFloorThickness;
+	static MObject aUseMeshFloor;
+	// static MObject aSnapWhenPlanted;
+	
 /* time attribs for the simulation*/
 	static MObject	aCurrentTime; 
 	static MObject	aStartTime;
@@ -156,11 +160,26 @@ public:
 	static MObject	aLiftProfileRangeC;
 
 
+
 	static MObject	aBodyOffset;
+
+	/* before applying offset, move the 
+	body towards the average of the feet
+	*/
+	static MObject	aBodyFootAverageBias;
+	
+	static MObject	aLeftFootFeed;
+	static MObject	aRightFootFeed;
+	static MObject	aFeedBlend;
+	// static MObject	aFeedCenter;
+ //  static MObject	aFeedLateralOffset;
+		
+
+
 	static MObject	aActuatorActive;
 	static MObject	aActuatorRank;
 	static MObject	aActuatorInputAxis; 
- 
+	
 	static MObject	aActuatorInputMin;
 	static MObject	aActuatorInputMax;
 	static MObject	aActuatorInputRange;
@@ -177,7 +196,7 @@ public:
 	static MObject	aActuatorOutputChannel; 
 	static MObject	aBodyActuator;
 
-
+	static MObject	aActuatorDummyRamp;
 	/*
 		specify what components and info to draw with 
 		openGL
@@ -186,7 +205,12 @@ public:
 	static MObject	aDisplayHome;
 	static MObject	aDisplayFootPosition;
 	static MObject	aDisplayId;
+
+
 	static MObject	aDisplaySpeed;
+	static MObject	aDisplayFootLocal;
+	static MObject	aDisplayAgentMatrix;
+
 
 	/*
 	outputs

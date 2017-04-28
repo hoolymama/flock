@@ -14,11 +14,11 @@ global proc string  flock.connectedReferenceNode(string $flockNode){
 
 global proc flock.extractHeroes.doit(string $flock, int $ids[], int $start, int $end){
 	string $currRefNode = flock.connectedReferenceNode($flock);
- 	string $fn = `referenceQuery -filename $currRefNode`;  
+	string $fn = `referenceQuery -filename $currRefNode`;  
 	string $origNamespace = string.rstrip($currRefNode,2) ;
 	$origNamespace += ":";
 	
-	string $conns[] = `listConnections -s 0 -d 1 -p 1 -c 1  ($flock + ".translateTarget") ($flock + ".rotateTarget") ($flock + ".scaleTarget")  ($flock + ".userMap")`;
+	string $conns[] = `listConnections -s 0 -d 1 -p 1 -c 1 -scn 1 ($flock + ".translateTarget") ($flock + ".rotateTarget") ($flock + ".scaleTarget")  ($flock + ".userMap")  ($flock + ".userVectorMap")`;
 	
 	//string $edits[] = `referenceQuery -editStrings $currRefNode` ;	
 	//$edits = string.grep( $edits , "setAttr*");
@@ -35,8 +35,9 @@ global proc flock.extractHeroes.doit(string $flock, int $ids[], int $start, int 
 		while (`namespace -exists (":"+$namespace)`) {
 			$namespace = string.increment($namespace);
 		}
-		
-		file -r -shd "shadingNetworks" -namespace $namespace  $fn;
+		string $visAttr = ($namespace+":beetle.v");
+
+		file -r -shd "shadingNetworks" -namespace $namespace $fn;
 		// find attributes that have been changed in the original reference, and apply them to the new reference
 		//for ($edit in $edits) {
 		//	$edit = substituteAllString($edit, $origNamespace , ($namespace+":"));
@@ -48,7 +49,7 @@ global proc flock.extractHeroes.doit(string $flock, int $ids[], int $start, int 
 		string $filterCmd = "filterCurve ";
 		string $disableSrc[];
 		string $disableDest[];
-		
+
 		for ($i=0;$i<$n;$i+=2) {
 			string $destConn = `substitute $origNamespace  $conns[$i+1] ($namespace+":")`;
 			connectAttr -f $conns[$i] $destConn; 
@@ -58,8 +59,9 @@ global proc flock.extractHeroes.doit(string $flock, int $ids[], int $start, int 
 			$bakeCmd += (" "+$destConn+" ");
 			string $attr = attr.attrFromNodeAttr($conns[$i]);
 			if ($attr == "rotateTarget") $filterCmd += ($destConn + " ");
+
 		}	
-	
+
 		evalEcho $bakeCmd ;
 		
 		for ($i=0;$i<($n/2);$i++) {
@@ -67,6 +69,7 @@ global proc flock.extractHeroes.doit(string $flock, int $ids[], int $start, int 
 		}
 		
 		evalEcho $filterCmd ;
+		setAttr $visAttr 0;
 	}
 }
 
@@ -77,12 +80,94 @@ global proc flock.extractHeroes(){
 	if (! `size $ids`) error("No IDs");
 	string $particle = attr.nodeFromNodeAttr($sel[0]);
 	
-	string $flocks[] = `listHistory -f 1  $particle`;
-	$flocks = `ls -type "flockShape" $flocks`;
+	string $flocks[] = `ls -sl -dag -leaf -type  "flockShape"`;
 	if (! `size $flocks`) error("No Flocks");
 	int $startFrame = `playbackOptions -q -min`;
 	int $endFrame = `playbackOptions -q -max`;
 	
 	flock.extractHeroes.doit( $flocks[0] ,  $ids,  $startFrame,  $endFrame);
 }
+
+
+
+global proc doFlockConnectFlatTargets(string $flock, int $ids[], int $dryRun) {
+
+	if ($dryRun) {
+		print("setAttr  "+$flock + ".doFlatTargets 1\n");
+	} else {
+		setAttr ( $flock + ".doFlatTargets") 1;
+	}
+
+
+	string $currRefNode = flock.connectedReferenceNode($flock);
+	string $fn = `referenceQuery -filename $currRefNode`;  
+	string $origNamespace = string.rstrip($currRefNode,2) ;
+	$origNamespace += ":";
+
+	string $conns[] = `listConnections -s 0 -d 1 -p 1 -c 1 -scn 1 
+	($flock + ".translateTarget") 
+	($flock + ".rotateTarget") 
+	($flock + ".scaleTarget") 
+	($flock + ".userMap")  
+	($flock + ".userVectorMap")`;
+
+
+	for ($id in $ids) {
+
+		string $namespace = ("agent_"+$id+"_0") ;
+		while (`namespace -exists (":"+$namespace)`) {
+			$namespace = string.increment($namespace);
+		}
+
+		if ($dryRun) {
+			print("file -r -shd \"shadingNetworks\" -namespace $namespace "+$fn+";\n");
+		} else {
+			file -r -shd "shadingNetworks" -namespace $namespace $fn;
+		}
+
+		int $n = size($conns) ;
+		for ($i=0;$i<$n;$i+=2) {
+			string $destConn = `substitute $origNamespace  $conns[$i+1] ($namespace+":")`;
+
+			string $srcConn = `substitute ($flock + ".")  $conns[$i]  ($flock + ".flatTargets["+$id+"].")`;
+			$srcConn = `substitute "translateTarget"  $srcConn "flatTranslateTarget"`;
+			$srcConn = `substitute "rotateTarget"  $srcConn "flatRotateTarget"`;
+			$srcConn = `substitute "scaleTarget"  $srcConn "flatScaleTarget"`;
+
+			$srcConn = `substitute "userMap"  $srcConn "flatUserDoubleTarget"`;
+			$srcConn = `substitute ".userTarget"  $srcConn ""`;
+
+			$srcConn = `substitute "userVectorMap"  $srcConn "flatUserVectorTarget"`;
+			$srcConn = `substitute ".userVectorTarget"  $srcConn ""`;
+
+			if ($dryRun) {
+				print ("connectAttr -f " +$srcConn +" -> "+ $destConn + ";\n"); 
+			} else {
+				connectAttr -f $srcConn $destConn; 
+			}
+		}	
+	}		
+}
+
+
+
+global proc flockConnectFlatTargets(int $dryRun){
+
+	string $flocks[] = `ls -sl -dag -leaf -type  "flockShape"`;
+	if (! `size $flocks`) error("No Flocks");
+	int $startFrame = `playbackOptions -q -min`;
+	int $endFrame = `playbackOptions -q -max`;
+	string $flock = $flocks[0];
+	int $ids[] = `getAttr ($flock+".outIds")`;
+	doFlockConnectFlatTargets($flock ,  $ids,  $dryRun);
+
+}
+
+
+
+
+
+
+
+
 

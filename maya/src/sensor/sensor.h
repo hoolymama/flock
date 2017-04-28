@@ -98,14 +98,15 @@ protected:
 };
 
 
-inline MStatus getRequiredSensorData(MDataBlock &data,  MVectorArray & points, MVectorArray & velocities, MVectorArray & viewVectors)  {
+inline MStatus getRequiredSensorData(
+	MDataBlock &data,  MVectorArray & points, 
+	MVectorArray & velocities, 
+	MVectorArray & viewVectors)  {
 	unsigned plen = (MFnVectorArrayData(data.inputValue(sensor::aPositionPP).data()).length());
 	unsigned vlen = (MFnVectorArrayData(data.inputValue(sensor::aVelocityPP).data()).length());
-	
-	//cerr << "plen = " << plen << ", vlen = " << vlen <<endl;
-	if ((!plen) || (plen != vlen)) return MS::kUnknownParameter; 
-	
-	// handles to points and velocities
+	if (!plen)  return MS::kSuccess; 
+	if (plen != vlen) return MS::kUnknownParameter; 
+
 	points = MFnVectorArrayData(data.inputValue(sensor::aPositionPP).data()).array();
 	velocities = MFnVectorArrayData(data.inputValue(sensor::aVelocityPP).data()).array();
 	
@@ -181,11 +182,14 @@ inline double attenuateSense(
 	fovRamp.getValueAtPosition( float(angle), lookupFov, &st ); er;
 
 	double closeness = (dist / maxDist);
+	if (closeness > 1.0) closeness =  1.0;
 	float lookupDec;
 	decRamp.getValueAtPosition( float(closeness), lookupDec, &st ); er;
 	return double(lookupDec * lookupFov);
 
 }
+ 
+
 
 /*
 inline double attenuate(const double &distance,const  double &maxDistance,const  double &decay) {

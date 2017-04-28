@@ -1,0 +1,11 @@
+global proc AEellipsoidSensorTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+	
+	
+	AEsensorInclude($nodeName);
+
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}

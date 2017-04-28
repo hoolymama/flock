@@ -9,6 +9,12 @@ global proc flock.init(string $moduleName) {
 		
 	menuItem -l "Create" -annotation ("Pick Some Particles") -c "flock.create();";
 	menuItem -l "Add Meshes" -annotation ("Pick meshes and a flock") -c "flock.addMeshes();";
+	menuItem -l "Set LOD Meshes" -annotation ("Pick LOD sets and a flock") -c "flock.setLODMeshes();";
+
+
+
+	menuItem -l "Add Mesh Choices" -annotation ("Pick choice nodes and a flock") -c "flock.addMeshChoices();";
+	
 	menuItem -l "Add Attribute" -annotation ("Pick a flock") -c "flock.addAttribute();";
 
 	 

@@ -51,10 +51,16 @@ MObject hexapod::aPhi;
 MObject hexapod::aVelocity;	
 MObject hexapod::aOmega;	
 MObject hexapod::aScale;
-MObject hexapod::aMesh;
 MObject hexapod::aCurrentTime; 
 MObject hexapod::aStartTime;
 MObject hexapod::aDefaultWhenDormant;
+
+
+MObject hexapod::aFloorMesh;
+MObject hexapod::aAnimatedFloor;
+MObject hexapod::aFloorThickness;
+MObject hexapod::aUseMeshFloor;
+
 
 MObject hexapod::aMaxSpeed;
 MObject hexapod::aPlantSpeedBiasRamp;
@@ -100,7 +106,13 @@ MObject hexapod::aLiftProfileRampC;
 
 
 MObject hexapod::aBodyOffset;
+MObject hexapod::aBodyFootAverageBias;
 
+
+MObject hexapod::aLeftFootFeed;
+MObject hexapod::aRightFootFeed;
+MObject hexapod::aFeedBlend;
+ 
 MObject hexapod::aActuatorRank;
 MObject hexapod::aActuatorInputMin;
 MObject hexapod::aActuatorInputMax;
@@ -115,12 +127,17 @@ MObject hexapod::aActuatorOutputChannel;
 MObject hexapod::aActuatorActive;
 MObject hexapod::aBodyActuator;
 
+
+MObject hexapod::aActuatorDummyRamp;
+
+
 MObject hexapod::aDisplayPlants;
 MObject hexapod::aDisplayHome;
 MObject hexapod::aDisplayFootPosition;
 MObject hexapod::aDisplayId;
 MObject hexapod::aDisplaySpeed;
-
+MObject hexapod::aDisplayFootLocal;
+MObject hexapod::aDisplayAgentMatrix;
 
 MObject hexapod::aOutLeftA;
 MObject hexapod::aOutLeftB;
@@ -190,6 +207,14 @@ void hexapod::draw(
 	plug.setAttribute( aDisplaySpeed);
 	plug.getValue(mask.displaySpeed);
 
+	plug.setAttribute( aDisplayFootLocal);
+	plug.getValue(mask.displayFootLocal);
+
+	plug.setAttribute( aDisplayAgentMatrix);
+	plug.getValue(mask.displayAgentMatrix);
+
+
+
 	m_colony->draw(view, mask);
 	// cerr << "After draw" << endl;
 	
@@ -222,6 +247,7 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 
 	MObject thisNode = thisMObject();
 
+ 
 	MTime cT = timeValue( data, aCurrentTime );
 	MTime sT = timeValue( data, aStartTime );
 	MTime dT = cT - m_lastTimeIEvaluated;
@@ -230,19 +256,9 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 
 	double dt = dT.as( MTime::kSeconds );
 
- 	//////////////////////////// MESH ////////////////////////////
-	MObject dMesh =  data.inputValue(aMesh).asMeshTransformed();
-	MFnMesh meshFn(dMesh, &st) ;
-	if (st.error()) {MGlobal::displayError("hexapod Needs a mesh") ; return MS::kUnknownParameter;}
-	MMeshIsectAccelParams ap = meshFn.autoUniformGridParams();
-	MItMeshPolygon polyIter(dMesh, &st);
-	if (st.error()) {MGlobal::displayError("hexapod Needs a mesh") ; return MS::kUnknownParameter;}
-	////////////////////////////////////////////////////////////////////////////////////
-
 	bool showDefault = data.inputValue(aDefaultWhenDormant).asBool();
 
-
-		/////// PREP OUTPUTS
+	/////// PREP OUTPUTS
 	MVectorArray outLeftA;
 	MVectorArray outLeftB;
 	MVectorArray outLeftC;
@@ -256,9 +272,22 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 	MIntArray idIndex = MFnIntArrayData(data.inputValue(aIdIndex).data()).array();
 	MIntArray sortedId = MFnIntArrayData(data.inputValue(aSortedId).data()).array();
 
-	MVectorArray phiIn = MFnVectorArrayData(data.inputValue(aPhi).data()).array();
 
- 
+	// if (data.inputValue(aAnimatedFloor).asBool() ||  
+	// 	(! m_colony->hasMesh()) ||  oT == MTime(0.0)) 
+	// {
+ // 		m_colony->setMesh(thisNode, data);
+	// }
+
+
+	if (data.inputValue(aAnimatedFloor).asBool() || 
+		(! m_colony->hasMesh()) ||  oT == MTime(0.0)) 
+	{
+		// cerr << "Setting Floor Mesh" << endl;
+		m_colony->setMesh(thisNode, data);
+	}
+
+
 
  	/*
  	Time going backwards or we are before the start frame
@@ -278,6 +307,7 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 		data.setClean(hexapod::aOutScale);
 		return( MS::kSuccess );
 	}
+
 
 	/*
 	We want to show the default pose when no particles exist
@@ -307,16 +337,18 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 	If time is moving forward, do a sim step
 	*/
 	if (dt >  0.0 ) {
- 		m_colony->update(dt, thisNode, data);
+		// cerr << "Moving forwards - updating....." << endl;
+		m_colony->update(dt, thisNode, data);
+		m_colony->applyActuators(thisNode, data);
 	}
- 
+
  /*
 	output whatever is stored
  */
 	m_colony->getOutputData(idIndex, outLeftA,outLeftB,outLeftC,outRightA,
 		outRightB,outRightC,outPosition,outPhi, outScale
 		);
- 
+
 	st = outputData(hexapod::aOutIdIndex, data, idIndex);
 	st = outputData(hexapod::aOutSortedId, data, sortedId);
 	st = outputData(hexapod::aOutLeftA, data, outLeftA);
@@ -380,9 +412,30 @@ MStatus hexapod::initialize()
 	tAttr.setStorable(false);
 	st = addAttribute( aScale ); er;
 
-	aMesh = tAttr.create("mesh", "msh", MFnData::kMesh, &st );er
+	aFloorMesh = tAttr.create("floorMesh", "fmsh", MFnData::kMesh, &st );er
 	tAttr.setReadable(false);
-	st = addAttribute(aMesh);	er;
+	st = addAttribute(aFloorMesh);	er;
+
+	aAnimatedFloor = nAttr.create( "animatedFloor", "anfl",MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	addAttribute( aAnimatedFloor ); 
+
+	aFloorThickness = nAttr.create( "floorThickness", "fthk", MFnNumericData::kDouble);
+	nAttr.setStorable(true);
+	nAttr.setWritable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute( aFloorThickness );er;
+
+
+	aUseMeshFloor = nAttr.create( "snapFeetToMesh", "sftm",MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	addAttribute( aUseMeshFloor ); 
+
+
 
 	aCurrentTime = uAttr.create( "currentTime", "ct", MFnUnitAttribute::kTime );
 	uAttr.setStorable(true);
@@ -416,6 +469,9 @@ MStatus hexapod::initialize()
 	st = addAttribute( aLateralRadiusRamp );er;
 	aPosteriorRadiusRamp= rAttr.createCurveRamp("posteriorRadiusRamp","prr",&st);er;
 	st = addAttribute( aPosteriorRadiusRamp );er;
+
+	aActuatorDummyRamp= rAttr.createCurveRamp("actuatorDummyRamp","acdr",&st);er;
+	st = addAttribute( aActuatorDummyRamp );er;
 
 
 
@@ -519,15 +575,31 @@ MStatus hexapod::initialize()
 
 	aBodyOffset= nAttr.createPoint( "bodyOffset", "bof" );
 	nAttr.setStorable(true);
-
 	nAttr.setKeyable(true);
 	nAttr.setReadable(true);
 	nAttr.setHidden(false);
 	nAttr.setWritable(true);
 	st = addAttribute( aBodyOffset );er;
 
+	aBodyFootAverageBias = nAttr.create( "bodyFootAverageBias", "bfab", MFnNumericData::kDouble);
+	nAttr.setStorable(true);
+	nAttr.setWritable(true);
+	nAttr.setKeyable(true);
+	st = addAttribute( aBodyFootAverageBias );er;
 
+	aLeftFootFeed = tAttr.create("leftFootFeed","lff", MFnData::kVectorArray, &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aLeftFootFeed);er;
+
+	aRightFootFeed = tAttr.create("rightFootFeed","rff", MFnData::kVectorArray, &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aRightFootFeed);er;
+
+	aFeedBlend = tAttr.create("feedBlend","fdbl", MFnData::kDoubleArray, &st ); er;
+	tAttr.setStorable(false);
+	st = addAttribute( aFeedBlend);er;
  
+
 	aActuatorRank= eAttr.create("actuatorRank","acrk");
 	eAttr.addField( "A"	,  hexUtil::kAnterior     );
 	eAttr.addField( "B"	,  hexUtil::kMedial     );
@@ -535,7 +607,7 @@ MStatus hexapod::initialize()
 	eAttr.setDefault( hexUtil::kAnterior );
 	eAttr.setHidden( false );
 	eAttr.setKeyable( true );
- 
+
 	aActuatorActive= nAttr.create( "actuatorActive", "acac",MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
@@ -570,8 +642,8 @@ MStatus hexapod::initialize()
 	eAttr.setDefault( hexUtil::kStepParam );
 	eAttr.setHidden( false );
 	eAttr.setKeyable( true );
- 
- 	aActuatorRamp = rAttr.createCurveRamp("actuatorRamp","acrm",&st);er;
+
+	aActuatorRamp = rAttr.createCurveRamp("actuatorRamp","acrm",&st);er;
 	st = addAttribute(aActuatorRamp );er;
 
 	// aActuatorOutputScale = nAttr.create("actuatorOutputScale", "aosc", MFnNumericData::kFloat);
@@ -579,7 +651,7 @@ MStatus hexapod::initialize()
 	// nAttr.setWritable(true);
 	// nAttr.setKeyable(true);
 	// nAttr.setDefault(1.0);
- 
+
 	aActuatorOutputChannel= eAttr.create("actuatorOutputChannel","aoch");
 	eAttr.addField( "tx"	,  hexUtil::kTX);
 	eAttr.addField( "ty"	,  hexUtil::kTY);
@@ -590,7 +662,7 @@ MStatus hexapod::initialize()
 	eAttr.setDefault( hexUtil::kTY );
 	eAttr.setHidden( false );
 	eAttr.setKeyable( true );
- 
+
 	aBodyActuator = cAttr.create("bodyActuator","bact");
 	cAttr.addChild(aActuatorRank);
 	cAttr.addChild(aActuatorInputRange);
@@ -633,7 +705,17 @@ MStatus hexapod::initialize()
 	nAttr.setDefault(true);
 	addAttribute( aDisplaySpeed ); 
 
+	aDisplayFootLocal = nAttr.create( "displayFootLocal", "dfl",MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	addAttribute( aDisplayFootLocal ); 
 
+	aDisplayAgentMatrix = nAttr.create( "displayAgentMatrix", "damx",MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+	addAttribute( aDisplayAgentMatrix ); 
 
 	/////// OUTPUTS
 	aOutLeftA = tAttr.create("outLeftA", "ola", MFnData::kVectorArray , &st ); er;

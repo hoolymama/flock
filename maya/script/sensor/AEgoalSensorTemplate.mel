@@ -1,0 +1,25 @@
+
+global proc AEgoalSensorTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+	
+	
+	AEsensorInclude($nodeName);
+	
+	
+	editorTemplate -cl 0  -beginLayout "Decay Ramp Remap";		
+		editorTemplate -addControl "decayRampMax";
+	
+	editorTemplate -endLayout;
+	
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+
+
+	editorTemplate -suppress "goalPositions";
+	editorTemplate -suppress "goalWeights";
+
+}
+
+ 

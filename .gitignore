@@ -12,3 +12,4 @@ tmp/
 .mayaSwatches
 movies/
 maya_plugin_reload.*.ma
+examples/

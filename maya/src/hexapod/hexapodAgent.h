@@ -1,6 +1,9 @@
 #ifndef HexapodAgent_H
 #define HexapodAgent_H
 
+
+#include <vector>
+
 #include <maya/MVector.h>
 #include <maya/MMatrix.h>
 #include <maya/M3dView.h>
@@ -11,6 +14,9 @@
 #include "mayaMath.h"
 #include "displayMask.h"
 #include "rankData.h"
+
+#include  "actuator.h"
+#include  "Ground.h"
 
 class HexapodFoot;
 
@@ -38,12 +44,14 @@ public:
 		const MVector &vel,
 		const MVector &omega,
 		double scale,
- 		rankData &rankA,
+		rankData &rankA,
 
- 		rankData &rankB,
+		rankData &rankB,
 
- 		rankData &rankC,
- 		const MVector &bodyOffset
+		rankData &rankC,
+		const MVector &bodyOffset,
+		double floorThickness,
+		double bodyFootAverageBias
 
 		);
 
@@ -55,7 +63,16 @@ public:
 		const MVector &vel,
 		const MVector &omega,
 		double scale,
-		double dt);
+		double dt, 	double floorThickness);
+
+	void  applyActuator(	
+		const HexapodFoot &leftFoot, 
+		const HexapodFoot &rightFoot, 
+		actuator &actuator);
+
+	void  applyActuator( actuator &actuator);
+
+	// void applyActuators( std::vector<actuator*> & actuatorStack ) ;
 
 	void update(	
 		double dt, double maxSpeed,
@@ -64,17 +81,20 @@ public:
 		const MVector &vel,
 		const MVector &omega,
 		double scale,
- 		rankData &rankA,
-
- 		rankData &rankB,
-
- 		rankData &rankC,
- 		const MVector &bodyOffset,
-
+		rankData &rankA,
+		rankData &rankB,
+		rankData &rankC,
+		const MVector &bodyOffset,
+		double floorThickness,
+		double bodyFootAverageBias,
 		MRampAttribute &plantSpeedBiasRamp,
 		MRampAttribute &anteriorRadiusRamp,
 		MRampAttribute &lateralRadiusRamp,
-		MRampAttribute &posteriorRadiusRamp
+		MRampAttribute &posteriorRadiusRamp,
+		const MVector &leftFootFeed, 
+		const MVector &rightFootFeed,
+		double feedBlend,
+		Ground & ground
 		);
 
 	void draw( M3dView & view, const DisplayMask & mask) const;
@@ -91,22 +111,30 @@ public:
 
 	const MMatrix & matrixNext() const;
 
-	MVector worldBodyPosition() const;
+	// MVector worldBodyPosition() const;
 
 private:
 
+	/* input particle data */
 	int m_particleId;
 	MVector m_position;
 	MVector m_phi;
 	MVector m_velocity;
 	MVector m_omega;
 	double m_scale;
-	MVector m_bodyOffset;
+
+	/* calc matrices of input data*/
 	MMatrix m_matrix;
 	MMatrix m_matrixInverse;
 
+	/* 
+	Position of rig body transform in relation to particle
+	*/
+	MVector m_bodyOffset;
+	double m_bodyFootAverageBias;
 	/* m_matrixNext is where the agent is likely to be in one frame */
 	MMatrix m_matrixNext;
+
 
 	HexapodFoot m_footLA;
 	HexapodFoot m_footLB;
@@ -115,7 +143,14 @@ private:
 	HexapodFoot m_footRB;
 	HexapodFoot m_footRC;
 
- 
+
+	/* local position and rotation (phi) of body, calculated by actuators*/
+	MVector m_body_position;
+	MVector m_body_rotation;
+
+	MVector m_leftFeed;
+	MVector m_rightFeed;
+	double m_feedBlend;
 
 };
 

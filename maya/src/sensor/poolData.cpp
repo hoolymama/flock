@@ -93,7 +93,8 @@ int poolData::size(){
 		return 0;
 }
 
-void poolData::closestNPoints(const agent * searchAgent, double radius, int num, AGENT_VECTOR * neighbors, MDoubleArray &dists )  const {
+void poolData::closestNPoints(
+	const agent * searchAgent, double radius, int num, AGENT_VECTOR * neighbors, MDoubleArray &dists )  const {
     if (num > 0 ) {
 		AGENT_QUEUE * q = new AGENT_QUEUE;
 		for (int p = 0;p<num;p++) {
@@ -115,6 +116,40 @@ void poolData::closestNPoints(const agent * searchAgent, double radius, int num,
 		delete q;
     } 
 }
+
+void poolData::closestNPoints(
+	const MVector &searchPoint, 
+	double radius, 
+	int num, 
+	AGENT_VECTOR * neighbors, 
+	MDoubleArray &dists 
+	)  const {
+    if (num > 0 ) {
+		AGENT_QUEUE * q = new AGENT_QUEUE;
+		for (int p = 0;p<num;p++) {
+			agentDist k;
+			k.dist = radius;
+			k.pAgent=0;
+			q->push(k);
+		}
+		
+		m_pTree->closestNPts( m_pTree->root(),searchPoint, q);
+		
+		while (!q->empty()) {
+			if (q->top().pAgent) {
+				neighbors->push_back(q->top().pAgent);
+				dists.append(q->top().dist);
+			}
+			q->pop();
+		}
+		delete q;
+    } 
+}
+
+
+ 
+
+
 /*
 
 void poolData::closestNPoints(const MVector &searchPoint, double radius, int num, AGENT_VECTOR * neighbors, MDoubleArray &dists )  const {

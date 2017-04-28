@@ -105,6 +105,15 @@ void  closestNPts(
 				  AGENT_QUEUE *q
 				  )  const;
 
+void  closestPtsInRadius(
+				  const agentKdNode * p,
+				  const MVector & searchPoint,
+				   AGENT_QUEUE *q
+				  )  const;
+
+
+
+
 void  closestNPts(
 							   const agentKdNode * p,
 							   const agent * searchAgent,

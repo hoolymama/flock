@@ -8,8 +8,9 @@
 #include <maya/MVector.h>
 #include "displayMask.h"
 #include "rankData.h"
-
-
+#include "hexUtil.h"
+#include "actuator.h"
+#include  "Ground.h"
 // #include "HexapodAgent.h"
 
 class HexapodAgent;
@@ -24,7 +25,15 @@ public:
 		double homeZ, 
 		double minRadius, 
 		double maxRadius,
-		const HexapodAgent* pAgent
+		const HexapodAgent* pAgent,
+		hexUtil::Rank rank,
+		hexUtil::Side side
+		);
+	HexapodFoot(	
+		const rankData &rankData,
+		const HexapodAgent * pAgent,
+		hexUtil::Rank rank,
+		hexUtil::Side side
 		);
 
 
@@ -39,33 +48,37 @@ public:
 		double dt, 
 		float increment, 
 		const MVector localVelocity,
-		float plantBias) const ;
+		float plantBias,
+		 Ground & ground) const ;
 
 
-void  updateHomeCircles(	
- 	const rankData & rank,
-	float anteriorStepParam,
-	float lateralStepParam,
-	float posteriorStepParam,
-	MRampAttribute &anteriorRadiusRamp,
-	MRampAttribute &lateralRadiusRamp,
-	MRampAttribute &posteriorRadiusRamp,
-	bool negateRank=false
-	);
+	void  updateHomeCircles(	
+		const rankData & rank,
+		float anteriorStepParam,
+		float lateralStepParam,
+		float posteriorStepParam,
+		MRampAttribute &anteriorRadiusRamp,
+		MRampAttribute &lateralRadiusRamp,
+		MRampAttribute &posteriorRadiusRamp,
+		bool negateRank=false
+		);
 
- 
+	MVector actuatorValue(actuator& actuator) const;
 
 	// void update(
 	// 	double dt, double maxSpeed,
 	// 	MRampAttribute &incRamp,
 	// 	MRampAttribute &plantSpeedBiasRamp);
 
-MPoint calcFootPosition(rankData& rank) const;
+	void  cacheLocalFootPosition();
+
+	MPoint calcFootPosition(rankData& rank) const;
 
 	void update(
 		double dt, double maxSpeed,
-	  rankData & rank,
-		MRampAttribute &plantSpeedBiasRamp);
+		rankData & rank,
+		MRampAttribute &plantSpeedBiasRamp,
+		 Ground & ground);
 
 
 	void draw(M3dView & view, MFloatMatrix & matrix,  const DisplayMask & mask) const;
@@ -79,10 +92,11 @@ MPoint calcFootPosition(rankData& rank) const;
 	void  drawFootAndPlants( M3dView & view,  const DisplayMask & mask ) const ;
 
 	void  drawDoubleValue(M3dView & view, double value) const;
+	void  drawFootLocal(M3dView & view) const ;
 
 	float stepParam() const;
 
-	MVector position() const;
+	MVector position(hexUtil::Space space = hexUtil::kWorld) const;
 private:
 	
 	double m_stepParam;
@@ -94,6 +108,8 @@ private:
 	MPoint m_lastPlant;
 	MPoint m_nextPlant;
 
+	/* and we cache this for actuator calculations*/
+	MPoint m_footPositionLocal;
 	/*
 	home is in local space
 	*/
@@ -104,6 +120,10 @@ private:
 	double m_radius;
 	double m_speed;
 	const HexapodAgent* m_pAgent;
+
+	hexUtil::Rank m_rank;
+	hexUtil::Side m_side;
+
 
 };
 

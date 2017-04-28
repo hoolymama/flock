@@ -84,7 +84,7 @@ MStatus prioritize::compute( const MPlug& plug, MDataBlock& data )
 { 
 
 
-
+// cerr << "prioritiz::compute" << endl;
 
 
 	MStatus st;
@@ -100,8 +100,21 @@ MStatus prioritize::compute( const MPlug& plug, MDataBlock& data )
 	MTime cT =  data.inputValue( aCurrentTime).asTime();
 	MTime dT = cT - m_lastTimeIEvaluated;
 	m_lastTimeIEvaluated = cT;
+
+	MVectorArray outForce;
+
 	double dt = dT.as( MTime::kSeconds );
-	if (dt <= 0.0) return( MS::kUnknownParameter);
+	if (dt <= 0.0) {
+		// cerr << "priority clean" << endl;
+		MDataHandle hOut =  data.outputValue( aOutForce, &st); er;
+		MFnVectorArrayData fnOutput;
+		MObject dOutput = fnOutput.create( outForce, &st );er;
+		hOut.set( dOutput);
+		data.setClean( plug );
+		return( MS::kSuccess );
+
+ 
+	}
 
 
 
@@ -109,7 +122,7 @@ MStatus prioritize::compute( const MPlug& plug, MDataBlock& data )
 	if (doDraw ) m_drawCache = new VEC_LIST;
 	m_colorArray.clear();
 
-	MVectorArray outForce;
+	
 	double maxContrib = data.inputValue( aMaxForce).asDouble();
 	if (maxContrib < 0.0) maxContrib = 0.0;
 

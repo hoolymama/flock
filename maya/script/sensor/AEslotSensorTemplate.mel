@@ -1,0 +1,28 @@
+
+global proc AEslotSensorTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+	
+	
+	AEsensorInclude($nodeName);
+	
+	
+	editorTemplate -cl 0  -beginLayout "Axis Components";		
+	editorTemplate -addControl "slotRadius";
+	// editorTemplate -addControl "importanceMargin";
+		editorTemplate -addControl "maxFreeSlots";
+	
+	editorTemplate -endLayout;
+	
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+
+
+	editorTemplate -suppress "importanceMargin";
+	editorTemplate -suppress "slotImportancePP";
+
+}
+
+
+	

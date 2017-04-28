@@ -6,7 +6,7 @@ agent.cpp  -  description
     email                : julian.mann@gmail.com
 
 	This is just a position and id to be stored
-	id isn't really used at the moment - so it's effectively just a MVector
+	id isn't really used at the moment - 
 	however it will be useful in the future to have it qrapped up in our own data type
 	because then we can store say RGB values or other data
 

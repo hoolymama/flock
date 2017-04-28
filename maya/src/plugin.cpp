@@ -33,6 +33,9 @@
 #include <geometrySensor.h>
 #include <axisSensor.h>
 #include <jerkSensor.h>
+#include <ellipsoidSensor.h>
+#include <slotSensor.h>
+#include <goalSensor.h>
 
 #include "multPP.h"
 #include "addPP.h"
@@ -66,8 +69,8 @@
 #include "subVectorVectorPP.h" 
 #include "speedRampLookup.h"
 
+#include "curvePoints.h"
 #include "hexapod.h"
-// #include "hexapodLocator.h"
 
 #include "hungerState.h"
 
@@ -103,6 +106,10 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "approach", approach::id, approach::creator, approach::initialize );er;
 	st = plugin.registerNode( "cohesion", cohesion::id, cohesion::creator, cohesion::initialize );er;
 	st = plugin.registerNode( "exposure", exposure::id, exposure::creator, exposure::initialize );er;
+	st = plugin.registerNode( "ellipsoidSensor", ellipsoidSensor::id, ellipsoidSensor::creator, ellipsoidSensor::initialize );er;
+		st = plugin.registerNode( "slotSensor", slotSensor::id, slotSensor::creator, slotSensor::initialize );er;
+			st = plugin.registerNode( "goalSensor", goalSensor::id, goalSensor::creator, goalSensor::initialize );er;
+	
 	st = plugin.registerData( "splinePoolData", splinePoolData::id, splinePoolData::creator );er;
 	st = plugin.registerNode( "splinePool", splinePool::id, splinePool::creator, splinePool::initialize );er;
 	st = plugin.registerNode( "splineSensor", splineSensor::id, splineSensor::creator, splineSensor::initialize );er;
@@ -140,6 +147,7 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "meshProximityPP", meshProximityPP::id, meshProximityPP::creator, meshProximityPP::initialize); er;
 	st = plugin.registerNode( "subVectorVectorPP", subVectorVectorPP::id, subVectorVectorPP::creator, subVectorVectorPP::initialize); er;
 	st = plugin.registerNode( "speedRampLookupPP", speedRampLookupPP::id, speedRampLookupPP::creator, speedRampLookupPP::initialize); er;
+ 	st = plugin.registerNode( "curvePoints", curvePoints::id, curvePoints::creator, curvePoints::initialize); er;
  
 	st = plugin.registerNode( "hexapod", hexapod::id, hexapod::creator, hexapod::initialize, MPxNode::kLocatorNode); er;
  	// st = plugin.registerNode( "hexapodLocatorShape", hexapodLocator::id, hexapodLocator::creator,hexapodLocator::initialize, MPxNode::kLocatorNode  );er;
@@ -165,7 +173,8 @@ MStatus uninitializePlugin( MObject obj)
 
 	// st = plugin.deregisterNode( hexapodLocator::id );er;	
 	st = plugin.deregisterNode( hexapod::id );er;
-	st = plugin.deregisterNode( speedRampLookupPP::id );er;
+	st = plugin.deregisterNode( curvePoints::id );er;
+ 	st = plugin.deregisterNode( speedRampLookupPP::id );er;
  
  
 	st = plugin.deregisterNode( subVectorVectorPP::id );er;
@@ -205,6 +214,10 @@ MStatus uninitializePlugin( MObject obj)
 	st = plugin.deregisterNode( splineSensor::id );er;
 	st = plugin.deregisterNode( splinePool::id );er;
 	st = plugin.deregisterData( splinePoolData::id );er;
+
+	st = plugin.deregisterNode( goalSensor::id );er;
+	st = plugin.deregisterNode( slotSensor::id );er;
+	st = plugin.deregisterNode( ellipsoidSensor::id );er;
 	st = plugin.deregisterNode( exposure::id );er;
 	st = plugin.deregisterNode( cohesion::id );er;
 	st = plugin.deregisterNode( approach::id );er;

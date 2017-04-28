@@ -30,37 +30,141 @@ global proc string flock.create(){
 	if (`attributeQuery -exists -n $p "phi"`){
 		setAttr  ($flock+".rotateType") 1;
 		connectAttr ($p+".phi") ($flock+".rotatePP");
-	} else if (`attributeQuery -exists -n $p "view"`) {
-		setAttr  ($flock+".rotateType") 0;
-		connectAttr ($p+".view") ($flock+".rotatePP");
-		if (`attributeQuery -exists -n $p "up"`) {
-			connectAttr ($p+".up") ($flock+".rotateUpPP");
+		} else if (`attributeQuery -exists -n $p "view"`) {
+			setAttr  ($flock+".rotateType") 0;
+			connectAttr ($p+".view") ($flock+".rotatePP");
+			if (`attributeQuery -exists -n $p "up"`) {
+				connectAttr ($p+".up") ($flock+".rotateUpPP");
+			}
 		}
+
+		if (`attributeQuery -exists -n $p "scalePP"`){
+			connectAttr ($p+".scalePP") ($flock+".scalePP") ;
+			} else {
+				addAttr -ln "scalePP"  -dt vectorArray   $p;
+				setAttr -e-keyable true ( $p+".scalePP");
+				connectAttr ($p+".scalePP") ($flock+".scalePP") ;
+				string $expr;
+				if (`attributeQuery -exists -n $p "radiusPP"`) {
+					$expr = "scalePP = <<radiusPP, radiusPP, radiusPP>>;";
+					} else {
+						$expr = "scalePP = <<1,1,1>>;";
+					}
+					dynamics.appendToDynExpression( $p, $expr, "FLOCK SCALEPP", 1);
+				}
+
+				string $particleParent = firstParentOf($p);
+				connectAttr ($particleParent+".boundingBox") ($flock+".pointsBB") ;
+				return $flock;
+			}
+
+			global proc string[] flock.addMeshes(){
+				string $flockShape = selection.firstOfType("flockShape");
+				string $meshes[] = `ls -sl -leaf -ni -ut -v -dag -type "mesh"`;
+				string $results[];
+				if (! size($meshes)) error("No Meshes");
+				if (! size($flockShape)) error("No Flock");
+				for ($mesh in $meshes) {
+
+					int $fInId = attr.findNextUnconnectedIndex($flockShape+".inMeshes");
+					int $fOutId = attr.findNextUnconnectedIndex($flockShape+".outMeshes");
+					int $fid =  max($fInId, $fOutId);
+					connectAttr -f ($mesh+".worldMesh") ($flockShape+".inMeshes["+$fid+"].mesh");
+
+					string $newMesh = `createNode "mesh"`;
+					connectAttr -f   ($flockShape+".outMeshes["+$fid+"]") ($newMesh + ".inMesh");
+					string $parent = firstParentOf($newMesh);
+					connectAttr -f   ($parent+".v") ($flockShape+".inMeshes["+$fid+"].meshActive");
+					sets -e -forceElement initialShadingGroup $newMesh;
+					$results[`size $results`] = $newMesh;
+
+				}
+				return $results;
+			}
+
+
+/*
+Use the names of sets as suffixes
+
+*/
+
+global proc string[] flock.setLODMeshes(){
+	string $flockShape = selection.firstOfType("flockShape");
+	if (! size($flockShape))
+	{
+		error("No Flock");
+	}
+	string $results[];
+
+	int $mi[] = `listAttr -m ($flockShape+".inMeshes")` ;
+	for ($index in $mi) {
+		removeMultiInstance -b 1  ($flockShape+".inMeshes["+$index+"]");
 	}
 
-	if (`attributeQuery -exists -n $p "scalePP"`){
-		connectAttr ($p+".scalePP") ($flock+".scalePP") ;
-	} else {
-		addAttr -ln "scalePP"  -dt vectorArray   $p;
-		setAttr -e-keyable true ( $p+".scalePP");
-		connectAttr ($p+".scalePP") ($flock+".scalePP") ;
-		string $expr;
-		if (`attributeQuery -exists -n $p "radiusPP"`) {
-			$expr = "scalePP = <<radiusPP, radiusPP, radiusPP>>;";
+	string $lodSets[] = `ls -sl -type "objectSet"`;
+	int $numLodSets = size($lodSets);
+	if (! $numLodSets) error("No Lod Sets");
+
+	string $lodSuffixes[];
+	int $numMembers = -1;
+	string $prefixes[];
+	for ($set in $lodSets) {
+		string $part[] = string.tokenize($set, ":");
+		int $last = (`size $part` -1);
+		string $lodSuffix = ("_" + $part[$last]);
+		$lodSuffixes[`size $lodSuffixes`] =  $lodSuffix;
+		int $thisNum = `sets -q -size $set`;
+
+		if ($numMembers < 0) {
+			$numMembers = $thisNum;
+			string $members[] = `sets -q $set`;
+			print ( $lodSuffix +"\n");
+			for ($member in $members) {
+				$prefixes[`size $prefixes`] = `substitute $lodSuffix $member ""`;
+			}
 		} else {
-				$expr = "scalePP = <<1,1,1>>;";
+			if ($thisNum != $numMembers) {
+				error("Sets must have the same member count: " + $thisNum + " !=" + $numMembers);
+			}
 		}
-		dynamics.appendToDynExpression( $p, $expr, "FLOCK SCALEPP", 1);
 	}
 
-	string $particleParent = firstParentOf($p);
-	connectAttr ($particleParent+".boundingBox") ($flock+".pointsBB") ;
-	return $flock;
+	print $prefixes;
+
+	int $plugId = 0;
+
+	for ($prefix in $prefixes) {
+		string $parts[] = string.tokenize($prefix, ":");
+		int $last = (`size $parts` -1);
+		string $unqualifiedName = $parts[$last];
+
+		string $choice = `createNode -n ( $unqualifiedName +"_choice") choice`;
+		string $newMesh = `createNode "mesh"`;
+		connectAttr -f ($choice+".output") ($flockShape+".inMeshes["+$plugId+"].mesh");
+		connectAttr -f   ($flockShape+".outMeshes["+$plugId+"]") ($newMesh + ".inMesh");
+		string $parent = firstParentOf($newMesh);
+		connectAttr -f   ($parent+".v") ($flockShape+".inMeshes["+$plugId+"].meshActive");
+		sets -e -forceElement initialShadingGroup $newMesh;
+
+		int $choiceInputId = 0;
+		for ($suffix in $lodSuffixes) {
+			string $tf = ($prefix + $suffix);
+			string $shapes[] = `listRelatives -s $tf`;
+			string $mesh =  $shapes[0];
+			connectAttr -f ($mesh+".worldMesh") ($choice+".input["+$choiceInputId+"]");
+			$choiceInputId ++;
+		}
+		$plugId++;
+		$results[`size $results`] = $newMesh;
+	}
+	return $results;
 }
 
-global proc string[] flock.addMeshes(){
+
+
+global proc string[] flock.addMeshChoices(){
 	string $flockShape = selection.firstOfType("flockShape");
-	string $meshes[] = `ls -sl -leaf -ni -ut -v -dag -type "mesh"`;
+	string $meshes[] = `ls -sl -type "choice"`;
 	string $results[];
 	if (! size($meshes)) error("No Meshes");
 	if (! size($flockShape)) error("No Flock");
@@ -69,7 +173,7 @@ global proc string[] flock.addMeshes(){
 		int $fInId = attr.findNextUnconnectedIndex($flockShape+".inMeshes");
 		int $fOutId = attr.findNextUnconnectedIndex($flockShape+".outMeshes");
 		int $fid =  max($fInId, $fOutId);
-		connectAttr -f ($mesh+".worldMesh") ($flockShape+".inMeshes["+$fid+"].mesh");
+		connectAttr -f ($mesh+".output") ($flockShape+".inMeshes["+$fid+"].mesh");
 
 		string $newMesh = `createNode "mesh"`;
 		connectAttr -f   ($flockShape+".outMeshes["+$fid+"]") ($newMesh + ".inMesh");
@@ -81,11 +185,6 @@ global proc string[] flock.addMeshes(){
 	}
 	return $results;
 }
-
-
-
-
-
 
 
 

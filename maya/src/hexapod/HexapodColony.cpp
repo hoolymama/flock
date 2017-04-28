@@ -25,7 +25,7 @@
 #include <maya/MRampAttribute.h>
 #include "mayaMath.h"
 
-
+#include "Ground.h"
 #include "rankData.h"
 #include "HexapodColony.h"
 #include  "actuator.h"
@@ -45,8 +45,10 @@ It uses a kind of zipping up algorithm to add new agents, delete dead
 agents, and update existing agents
 */
 HexapodColony::HexapodColony( ) 
-:m_agents()
+:m_agents(),
+m_ground()
 {}
+
 
 
 void HexapodColony::clear(){
@@ -57,6 +59,57 @@ void HexapodColony::clear(){
 		iter++;
 	}
 	m_agents.clear();
+}
+
+bool HexapodColony::hasMesh() const
+{
+	return m_ground.valid();
+}
+
+const Ground & HexapodColony::ground() const {return m_ground;} 
+
+
+MStatus HexapodColony::setMesh(const  MObject& node,  MDataBlock& data) {
+	return m_ground.setMesh(node, data);
+}
+
+void HexapodColony::getDefaultOutputData(
+	const  MObject& node, 
+	MDataBlock& data,
+	MVectorArray & outLA,
+	MVectorArray & outLB,
+	MVectorArray & outLC,
+	MVectorArray & outRA,
+	MVectorArray & outRB,
+	MVectorArray & outRC,
+	MVectorArray & outPosition,
+	MVectorArray & outPhi,
+	MDoubleArray & outScale
+	) const
+{
+
+	MStatus st;
+	MFnDependencyNode dn(node, &st);er;
+
+	rankData rankA(node, "A");
+	rankData rankB(node, "B");
+	rankData rankC(node, "C");
+
+	MObject att = dn.attribute	( "bodyOffset", &st);er;
+	const MVector bodyOffset = MVector(data.inputValue( att ).asFloatVector());
+
+	outLA.append(MVector(rankA.homeX, 0, rankA.homeZ));
+	outLB.append(MVector(rankB.homeX, 0, rankB.homeZ));
+	outLC.append(MVector(rankC.homeX, 0, rankC.homeZ));
+
+	outRA.append(MVector(rankA.homeX, 0, -rankA.homeZ));
+	outRB.append(MVector(rankB.homeX, 0, -rankB.homeZ));
+	outRC.append(MVector(rankC.homeX, 0, -rankC.homeZ));
+
+	outPosition.append(bodyOffset);
+	outPhi.append(MVector::zero);
+	outScale.append(1.0);
+
 }
 
 void HexapodColony::getOutputData(
@@ -111,54 +164,63 @@ void HexapodColony::getOutputData(
 	}
 }
 
+/*
+ bug in ramp attribute class when the attribute
+ is a child of a compound in an array.
 
+ so we need to build actuators one at a time using a dummy
 
-void HexapodColony::getDefaultOutputData(
-	const  MObject& node, 
-	MDataBlock& data,
-	MVectorArray & outLA,
-	MVectorArray & outLB,
-	MVectorArray & outLC,
-	MVectorArray & outRA,
-	MVectorArray & outRB,
-	MVectorArray & outRC,
-	MVectorArray & outPosition,
-	MVectorArray & outPhi,
-	MDoubleArray & outScale
-	) const
+*/
+void HexapodColony::applyActuators(	const  MObject& node,	MDataBlock& data)
 {
-
 	MStatus st;
 	MFnDependencyNode dn(node, &st);er;
 
-	rankData rankA(data,  node, "A");
-	rankData rankB(data,  node, "B");
-	rankData rankC(data,  node, "C");
+	// std::vector<actuator*> actuatorStack;
+	MObject actuatorAtt =  dn.attribute( "bodyActuator" );
+	MArrayDataHandle  hActuator = data.inputArrayValue(actuatorAtt);
+	MPlug actuatorPlug(node,actuatorAtt);
+	// we need the plug as well as data handle to build the ramp attribute 
+	unsigned nf = hActuator.elementCount();
 
-	MObject att = dn.attribute	( "bodyOffset", &st);er;
-	const MVector bodyOffset = MVector(data.inputValue( att ).asFloatVector());
+	MObject utilityRampAtt =  dn.attribute( "actuatorDummyRamp" );
+	MRampAttribute utilityRamp( node ,utilityRampAtt , &st ); er; 
 
-	outLA.append(MVector(rankA.homeX, 0, rankA.homeZ));
-	outLB.append(MVector(rankB.homeX, 0, rankB.homeZ));
-	outLC.append(MVector(rankC.homeX, 0, rankC.homeZ));
+	actuator *pActuator = new actuator(utilityRamp);
 
-	outRA.append(MVector(rankA.homeX, 0, -rankA.homeZ));
-	outRB.append(MVector(rankB.homeX, 0, -rankB.homeZ));
-	outRC.append(MVector(rankC.homeX, 0, -rankC.homeZ));
 
-	outPosition.append(bodyOffset);
-	outPhi.append(MVector::zero);
-	outScale.append(1.0);
+	for(unsigned i = 0;i < nf; i++, hActuator.next()) {
+		MDataHandle hData = hActuator.inputValue();
+		MObject activeAtt =  dn.attribute	( "actuatorActive", &st);er;
 
+		bool active = hData.child(activeAtt).asBool();
+		if (active) {
+			unsigned elIdx = hActuator.elementIndex();
+			MPlug dataPlug = actuatorPlug.elementByLogicalIndex(elIdx, &st);er;
+			MObject rampAtt =  dn.attribute	( "actuatorRamp", &st);er;
+			MPlug rampPlug = dataPlug.child(rampAtt, &st);er;
+			pActuator->set(hData, node, rampPlug);
+
+			std::list<HexapodAgent*>::iterator agent = m_agents.begin();
+			while (agent != m_agents.end() ) 
+			{
+				(*agent)->applyActuator(*pActuator);
+				agent++;
+			}
+		}
+	}
+  // for (int i = 0; i < actuatorStack.size(); i++){ cerr << (*actuatorStack[i]) << endl ; }
+	/////////////////////////////////////
+	delete pActuator;
 }
 
- 
 
 MStatus HexapodColony::update(
 	double dt ,
 	const  MObject& node, 
 	MDataBlock& data 
 	){
+	// cerr << "HexapodColony::update....." << endl;
 
 	MStatus st;
 	MFnDependencyNode dn(node, &st);er;
@@ -179,9 +241,16 @@ MStatus HexapodColony::update(
 	MVectorArray omega =  getVectorArray("omega",node,data, len, &st);er;
 	MDoubleArray scale =  getDoubleArray("scale",node,data, len, &st);er;
 
-	rankData rankA(data,  node, "A");
-	rankData rankB(data,  node, "B");
-	rankData rankC(data,  node, "C");
+	MVectorArray leftFootFeed =  getVectorArray("leftFootFeed",node,data, len, &st);er;
+	MVectorArray rightFootFeed =  getVectorArray("rightFootFeed",node,data, len, &st);er;
+	MDoubleArray feedBlend =  getDoubleArray("feedBlend",node,data, len, &st);er;
+
+		// cerr << "create rankDatas" << endl;
+
+	rankData rankA(node, "A");
+	rankData rankB(node, "B");
+	rankData rankC(node, "C");
+		// cerr << "done createing rankData" << endl;
 
 	att = dn.attribute	( "maxSpeed", &st);er;
 	double	maxSpeed	= data.inputValue(att).asDouble();
@@ -194,8 +263,12 @@ MStatus HexapodColony::update(
 	}
 
 	att = dn.attribute	( "bodyOffset", &st);er;
-
 	const MVector bodyOffset = MVector(data.inputValue( att ).asFloatVector());
+	att = dn.attribute	( "bodyFootAverageBias", &st);er;
+	double bodyFootAverageBias = data.inputValue( att ).asDouble();
+
+	att = dn.attribute	( "floorThickness", &st);er;
+	double floorThickness = data.inputValue( att ).asDouble();
 
 	MRampAttribute plantSpeedBiasRamp( node , dn.attribute( "plantSpeedBiasRamp" ), &st ); er; 
 	MRampAttribute anteriorRadiusRamp( node,  dn.attribute( "anteriorRadiusRamp" ), &st);er;
@@ -203,26 +276,16 @@ MStatus HexapodColony::update(
 	MRampAttribute posteriorRadiusRamp(node,  dn.attribute( "posteriorRadiusRamp" ), &st);er;
 
  	/////////////////////////////////////
-	std::vector<actuator*> actuatorStack;
-	MObject actuatorAtt =  dn.attribute( "bodyActuator" );
-	MArrayDataHandle  hActuator = data.inputArrayValue(actuatorAtt);
-	unsigned nf = hActuator.elementCount();
-	for(unsigned i = 0;i < nf; i++, hActuator.next()) {
-		MDataHandle hData = hActuator.inputValue();
-		MObject activeAtt =  dn.attribute	( "actuatorActive", &st);er;
-		bool active = hData.child(activeAtt).asBool();
-		if (active) {
-			actuatorStack.push_back(new actuator(hData, node));
-		}
-	}
-  // for (int i = 0; i < actuatorStack.size(); i++){ cerr << (*actuatorStack[i]) << endl ; }
-	/////////////////////////////////////
 
+
+	
 
 	int rPeg = 0;
 
 	std::list<HexapodAgent*>::iterator shadow;
 	std::list<HexapodAgent*>::iterator agent = m_agents.begin();
+
+
 
 	while (! (agent == m_agents.end() && rPeg == sortedId.length())) 
 	{
@@ -243,7 +306,7 @@ MStatus HexapodColony::update(
 			m_agents.push_back(new HexapodAgent( 
 				dt, particleId[index], pos[index], phi[index],  vel[index], omega[index],
 				scale[index], rankA, rankB, rankC,
-				bodyOffset
+				bodyOffset, floorThickness, bodyFootAverageBias
 				));
 			rPeg++;
 		} else if (sortedId[rPeg] < (*agent)->id()) {
@@ -253,7 +316,7 @@ MStatus HexapodColony::update(
 
 			m_agents.insert(agent, new HexapodAgent(   			
 				dt,  particleId[index], pos[index], phi[index],  vel[index], omega[index],
-				scale[index], rankA, rankB, rankC, bodyOffset
+				scale[index], rankA, rankB, rankC, bodyOffset, floorThickness, bodyFootAverageBias
 				));
 
 			rPeg++;
@@ -263,18 +326,21 @@ MStatus HexapodColony::update(
 			// so update with sortedId:  idIndex[rPeg] 
 
 			(*agent)->update( 
-				dt, maxSpeed, pos[index], phi[index],  vel[index], omega[index],
-				scale[index], rankA, rankB, rankC,bodyOffset,
-				plantSpeedBiasRamp, anteriorRadiusRamp, lateralRadiusRamp,  posteriorRadiusRamp
+				dt, maxSpeed, pos[index], phi[index],  vel[index], omega[index], scale[index], 
+				rankA, rankB, rankC, bodyOffset, floorThickness, bodyFootAverageBias,
+				plantSpeedBiasRamp, anteriorRadiusRamp, 
+				lateralRadiusRamp,  posteriorRadiusRamp,
+				leftFootFeed[index], rightFootFeed[index], feedBlend[index],
+				m_ground
+
+
 				);
-			
-				
 
 			rPeg++;
 			agent++;
 		} else { 
 
-			// sortedId position greater than current agent so removecurrent agent
+			// sortedId position greater than current agent so remove current agent
 			shadow = agent; 
 			agent++;
 			delete *shadow;
@@ -283,9 +349,9 @@ MStatus HexapodColony::update(
 		}
 	}
 
-	for (int i = 0; i < actuatorStack.size(); i++){
-		delete actuatorStack[i];
-	}
+	// for (int i = 0; i < actuatorStack.size(); i++){
+	// 	delete actuatorStack[i];
+	// }
 
 	return MS::kSuccess;
 }

@@ -1,0 +1,32 @@
+
+
+
+
+
+
+global proc AEcurvePointsTemplate(string $nodeName)
+{
+	
+	
+	//source "AEfeatherUtils.mel";
+	//AEfeatherRegisterNodeDoc($nodeName);
+	
+	
+	editorTemplate -beginScrollLayout;
+	
+	editorTemplate -cl 0 -beginLayout "General Attributes";			
+	// editorTemplate -addControl "numPoints";
+	editorTemplate -addControl "spacing";
+	editorTemplate -addControl "curves";
+	editorTemplate -as ;
+	// editorTemplate -callCustom "AEfeatherVisualizePointsNew" "AEfeatherVisualizePointsReplace" "outPoints";
+	editorTemplate -endLayout;
+		  
+	// editorTemplate -suppress "curves";
+	editorTemplate -suppress "outPoints";
+	
+
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}

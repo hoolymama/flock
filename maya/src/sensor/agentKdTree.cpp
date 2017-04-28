@@ -328,6 +328,11 @@ void  agentKdTree::closestNPts(
 	}
  }
 
+
+
+
+
+
 void  agentKdTree::closestNPts(
 							const agentKdNode * p,
 							const MVector & searchPoint,
@@ -365,3 +370,7 @@ void  agentKdTree::closestNPts(
 		}
 	}
 }
+
+
+
+

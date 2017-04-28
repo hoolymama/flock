@@ -3,7 +3,7 @@
 
 
 #include <maya/MDataBlock.h>
-
+#include <maya/MPlug.h>
 #include <maya/MDataHandle.h>
 #include <maya/MFnDependencyNode.h>
 
@@ -12,43 +12,55 @@
 
 rankData::rankData() {}
 
-rankData::rankData(MDataBlock &data, 	const MObject &node, MString rank)
+rankData::rankData(const MObject &node, MString rank)
 {
 	MStatus st;
 	MFnDependencyNode dn(node, &st);er;
 
+	MObject att;
+
 	MString rankN("rank");
 	MString homeN("home");
 	MString radiusN("radius");
- 
+
 	rankN+=rank;
 	homeN+=rank;
 	radiusN+=rank;
- 
-	MObject att = dn.attribute(rankN); 
-	MDataHandle hRank = data.inputValue(att);
- 
-	att = dn.attribute(homeN, &st);er;
- 
-	MString childstr = (homeN+"X");
+
+	MString homeNX(homeN+"X");
+	MString homeNZ(homeN+"Z");
+	MString radiusNMin("radiusMin"+rank);
+	MString radiusNMax("radiusMax"+rank);
+
+
+	MObject aRank = dn.attribute(rankN); 
+	MObject aHome = dn.attribute(homeN); 
+	MObject aHomeX = dn.attribute(homeNX); 
+	MObject aHomeZ = dn.attribute(homeNZ); 
+	MObject aRadius  = dn.attribute(radiusN); 
+	MObject aRadiusMin = dn.attribute(radiusNMin); 
+	MObject aRadiusMax = dn.attribute(radiusNMax); 
+
+
+
+	MPlug rankPlug = dn.findPlug(aRank);
+	MPlug homeXPlug = rankPlug.child(aHome).child(aHomeX);
+	MPlug homeZPlug = rankPlug.child(aHome).child(aHomeZ);
+	MPlug radiusMinPlug = rankPlug.child(aRadius).child(aRadiusMin);
+	MPlug radiusMaxPlug = rankPlug.child(aRadius).child(aRadiusMax);
+
+
+	MString childstr = MString(homeN+"X");
 	MObject childatt = dn.attribute(childstr);
-	homeX	= hRank.child(att).child(childatt).asDouble();
+	st	= homeXPlug.getValue(homeX);er;
+	st	= homeZPlug.getValue(homeZ);er;
+	st	= radiusMinPlug.getValue(radiusMin);er;
+	st	= radiusMaxPlug.getValue(radiusMax);er;
 
-	childstr = (homeN+"Z");
-	childatt = dn.attribute(childstr);
-	homeZ	= hRank.child(att).child(childatt).asDouble();
+ // 	cerr << "radiusMin: " << radiusMin << endl;
+	// cerr << "radiusMax: " << radiusMax <<  endl;
 
-	att = dn.attribute(radiusN, &st);er;
- 
-	childstr = ("radiusMin"+rank);
-	childatt = dn.attribute(childstr);
-	radiusMin	= hRank.child(att).child(childatt).asDouble();
- 
-	childstr = ("radiusMax"+rank);
-	childatt = dn.attribute(childstr);
 
-	radiusMax	= hRank.child(att).child(childatt).asDouble();
- 
 	childstr = ("stepIncrementRamp"+rank);
 	att = dn.attribute(childstr);
 	stepIncrementRamp = MRampAttribute( node , att  ); 
@@ -60,7 +72,7 @@ rankData::rankData(MDataBlock &data, 	const MObject &node, MString rank)
 	childstr = ("liftProfileRamp"+rank);
 	att = dn.attribute(childstr);
 	liftProfileRamp = MRampAttribute( node , att  ); 
- 
+
 }
 
 rankData::~rankData(){}

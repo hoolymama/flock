@@ -200,7 +200,7 @@ global proc updateActuatorFrameLabel(
 	print($nodeAttr+"["+$index+"].actuatorRank");
 
 	string $activeStr = $active ? " (Active)" : " (Inactive)";
-	string $label = ($rank+":"+$axis+"-->"+$channel+ $activeStr);
+	string $label = ($rank+":"+$axis+"-->"+$channel+ " ["+$index+"] " +$activeStr);
 	frameLayout -e -l  $label $frame;
 }
 
@@ -221,9 +221,17 @@ global proc AEActuatorReplace(string $nodeAttr){
 	}
 	print("AEActuatorReplace: "+ $nodeAttr +"\n");
 
+	int $size = `getAttr  -size $nodeAttr`;
+	print("$size: "+ $size +"\n");
 	int $indices[] = `getAttr -mi $nodeAttr`;
+
+	print("$indices:\n ");
 	print($indices);
+	
 	int $numAtts = `size $indices`;
+
+
+
 	for ($index in $indices) {
 		print("adding plug "+$index+"\n");
 		setParent $controlName;
@@ -235,7 +243,7 @@ global proc AEActuatorReplace(string $nodeAttr){
 
  	  setParent $c;
 
- 	  string $row = `rowLayout -numberOfColumns 2   `;
+ 	  rowLayout -numberOfColumns 2 ;
  	  string $rankCtl = `attrEnumOptionMenuGrp -cw 1 60 -cw 2 80 -l "Rank"   -at ( $nodeAttr+"["+$index+"].actuatorRank")`;
  	  string $axisCtl = `attrEnumOptionMenuGrp -cw 1 60 -cw 2 80 -l "Axis"   -at ( $nodeAttr+"["+$index+"].actuatorInputAxis")`;
  	  setParent $c;
@@ -250,7 +258,7 @@ global proc AEActuatorReplace(string $nodeAttr){
 		setParent $c;
 
 
-		$row = `rowLayout -numberOfColumns 2  -cw 1 160 `;
+		rowLayout -numberOfColumns 2  -cw 1 160;
 		string $channelCtl = `attrEnumOptionMenuGrp -cw 1 80 -cw 2 80  -l "Channel"   
 		-at ( $nodeAttr+"["+$index+"].actuatorOutputChannel")`;
 		setParent $c;
@@ -260,14 +268,14 @@ global proc AEActuatorReplace(string $nodeAttr){
 		// attrControlGrp    -l "Multiplier"  -attribute ( $nodeAttr+"["+$index+"].actuatorOutputScale");
 		// setParent $c;
 		separator -height 30 -style "in";
-		string $row = `rowLayout -numberOfColumns 2    `;
+		rowLayout -numberOfColumns 2;
 		string $deleteBtn = `symbolButton  -h 20 -image "smallTrash.xpm" -ann "Delete"` ;
 		string $labelBtn = `symbolButton  -h 20 -image "out_floatLogic.png" -ann "Sync"` ;
 		setParent $c;
 
 		string $updateFrameLabelCmd = ("updateActuatorFrameLabel(\""+$nodeAttr+"\", "+$index+", \""+$frame+"\")");
 		string $delIndexCmd = ("removeMultiInstance \""+$nodeAttr+"["+$index+"]\"");
-
+		print($delIndexCmd+"\n");
 		symbolButton -e -c  $updateFrameLabelCmd $labelBtn;
 		symbolButton -e -c  $delIndexCmd $deleteBtn;
 
@@ -297,7 +305,9 @@ global proc AEhexapodTemplate(string $nodeName)
 	AEaddRampControl ($nodeName+".lateralRadiusRamp");	
 	AEaddRampControl ($nodeName+".posteriorRadiusRamp");	
 	editorTemplate -endLayout;
-	
+
+
+
 
 	editorTemplate -cl 1 -beginLayout "Rank A";	
 	editorTemplate -addControl "homeA";
@@ -323,8 +333,20 @@ global proc AEhexapodTemplate(string $nodeName)
 	AEaddRampControl ($nodeName+".liftProfileRampC");	
 	editorTemplate -endLayout;
 
+	
+		editorTemplate -cl 0 -beginLayout "Floor";	
+
+	editorTemplate -addControl "animatedFloor";
+	editorTemplate -addControl "floorThickness";
+	editorTemplate -addControl "snapFeetToMesh";
+	
+	editorTemplate -endLayout;
+
+
 	editorTemplate -cl 0 -beginLayout "Body";	
 	editorTemplate -addControl "bodyOffset";
+	editorTemplate -addControl "bodyFootAverageBias";
+
 
 	editorTemplate -callCustom "AEActuatorNew"  "AEActuatorReplace"  "bodyActuator";
 
@@ -340,9 +362,11 @@ global proc AEhexapodTemplate(string $nodeName)
 	editorTemplate -addControl "displayHome";
 	editorTemplate -addControl "displayFootPosition";
 	editorTemplate -addControl "displayId";
-	editorTemplate -endNoOptimize;
 	editorTemplate -addControl "displaySpeed";
+	editorTemplate -addControl "displayFootLocal";
+	editorTemplate -addControl "displayAgentMatrix";
 	
+	editorTemplate -endNoOptimize;
 	editorTemplate -endLayout;
 
 	editorTemplate -cl 1 -beginLayout "Time";		

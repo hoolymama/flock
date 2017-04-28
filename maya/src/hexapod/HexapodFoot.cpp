@@ -26,7 +26,9 @@
 #include "mayaMath.h"
 #include "errorMacros.h"
 #include "HexapodFoot.h"
-#include "HexapodAgent.h"
+#include "hexapodAgent.h"
+#include "actuator.h"
+
 
 
 const double  PI  = 3.141592653;
@@ -62,14 +64,19 @@ HexapodFoot::HexapodFoot(
 	double homeZ, 
 	double minRadius, 
 	double maxRadius,
-	const HexapodAgent * pAgent
+	const HexapodAgent * pAgent,
+	hexUtil::Rank rank,
+	hexUtil::Side side
+
 	):  
-	m_homeX(homeX),
-	m_homeZ(homeZ),
-	m_minRadius(minRadius),
-	m_maxRadius(maxRadius),
-	m_speed(0),
-	m_pAgent(pAgent)
+m_homeX(homeX),
+m_homeZ(homeZ),
+m_minRadius(minRadius),
+m_maxRadius(maxRadius),
+m_speed(0),
+m_pAgent(pAgent),
+m_rank(rank),
+m_side(side)
 {
 
 	/*
@@ -79,20 +86,89 @@ HexapodFoot::HexapodFoot(
 		Radius halfway between min and max.
 	*/
 
+
 	m_footPosition = MPoint(homeX, 0, homeZ) * pAgent->matrix();
 	m_lastPlant = m_footPosition;
 	m_nextPlant = m_footPosition;
 	m_stepParam = 1.0;
 	m_radius = (maxRadius+minRadius)/2.0; 
 
+	m_footPositionLocal = MPoint::origin;
 }
+
+
+HexapodFoot::HexapodFoot(	
+	const rankData &rankData,
+	const HexapodAgent * pAgent,
+	hexUtil::Rank rank,
+	hexUtil::Side side
+	):  
+m_speed(0),
+m_pAgent(pAgent),
+m_rank(rank),
+m_side(side)
+{
+
+	/*
+	We arbitrarily start with: 
+		Both plants and the foot together
+		StepParam of 1.0 which means planted.
+		Radius halfway between min and max.
+	*/
+	m_homeX = rankData.homeX;
+	m_homeZ = (m_side == hexUtil::kLeft) ? rankData.homeZ : -rankData.homeZ;
+	m_minRadius = rankData.radiusMin;
+	m_maxRadius = rankData.radiusMax;
+
+	m_footPosition = MPoint(m_homeX, 0, m_homeZ) * pAgent->matrix();
+	m_lastPlant = m_footPosition;
+	m_nextPlant = m_footPosition;
+	m_stepParam = 1.0;
+	m_radius = (m_maxRadius+m_minRadius)/2.0; 
+
+	m_footPositionLocal = MPoint::origin;
+}
+
+
 
 HexapodFoot::~HexapodFoot(){}
 
+MVector HexapodFoot::actuatorValue(actuator& actuator) const 
+{
+	float inputValue;
+	hexUtil::ActuatorAxis axis = actuator.axis();
+	switch( axis ) {
+		case  hexUtil::kX:
+		inputValue = float(m_footPositionLocal.x);
+	  break;
+
+		case  hexUtil::kY:
+		inputValue = float(m_footPositionLocal.y);
+		break;
+
+		case  hexUtil::kZ:
+		inputValue = float(m_footPositionLocal.z);
+		break;
+
+		default: //hexUtil::kStepParam:
+		inputValue = float(m_stepParam);
+		break;
+	}
+
+	return actuator.lookup(inputValue, m_side);
+ 
+}
 
 float HexapodFoot::stepParam() const { return float(m_stepParam);}
 
-MVector HexapodFoot::position() const {return MVector(m_footPosition);}
+MVector HexapodFoot::position(hexUtil::Space space) const 
+{
+	if (space == hexUtil::kLocal) {
+		return MVector(m_footPositionLocal);
+	}
+
+	return MVector(m_footPosition);
+}
 
 /*
 Determine whether the foot needs to find a new plant.
@@ -153,15 +229,23 @@ MPoint HexapodFoot::planNextPlant(
 	double dt, 
 	float increment, 
 	const MVector localVelocity,
-	float plantBias) const 
+	float plantBias,
+	Ground & ground) const 
 {
+
+	// cerr << "planning plant" << endl;
 	double timeToPlant = dt / increment; /* time-to-plant in seconds */
  	MPoint result =  MPoint(m_homeX,0,m_homeZ) +  (localVelocity * timeToPlant); /* local home at plant time*/
 	if (plantBias > 0.0) {
 		result += localVelocity.normal() * (m_radius*plantBias); /* put plant on other side of radius*/
 	}
 
-	result = result *  m_pAgent->matrix(); /* put plant position in world space*/
+	MMatrix agentMatrix =  m_pAgent->matrix();
+	result = result * agentMatrix; /* put plant position in world space*/
+	result = ground.project(result, agentMatrix);
+
+
+
 	return result;
 }
 
@@ -182,7 +266,7 @@ step, this foot will almost definitely stay on the ground.
 
 
 void HexapodFoot::updateHomeCircles(	
- 	const rankData & rank,
+	const rankData & rank,
 	float anteriorStepParam,
 	float lateralStepParam,
 	float posteriorStepParam,
@@ -268,14 +352,32 @@ MPoint HexapodFoot::calcFootPosition(rankData& rank) const {
 
 	MVector yOffset = MVector(0, height, 0) * m_pAgent->matrix();
 
-
 	return MPoint((m_lastPlant*(1.0 - slide)) + (m_nextPlant * slide)) + yOffset;
+}
+
+
+
+
+void HexapodFoot::cacheLocalFootPosition(){
+
+	double homeMat[4][4] = {
+		{1,0.0,0.0,0.0},
+		{0.0,1,0.0,0.0},
+		{0.0,0.0,1,0.0},
+		{ m_homeX,0.0,m_homeZ,1.0}
+	};
+
+	MMatrix home = MMatrix(homeMat) * m_pAgent->matrix();
+
+	m_footPositionLocal = m_footPosition * home.inverse();
+
 }
 
 void HexapodFoot::update(
 	double dt, double maxSpeed,
-  rankData & rank,
-	MRampAttribute &plantSpeedBiasRamp
+	rankData & rank,
+	MRampAttribute &plantSpeedBiasRamp,
+	 Ground & ground
 	) 
 {
 
@@ -299,18 +401,43 @@ void HexapodFoot::update(
 		/* advance the foot a bit*/
 		m_stepParam = std::min((m_stepParam + increment), 1.0);
 		m_footPosition = calcFootPosition(rank);
-		// m_footPosition = (m_lastPlant*(1.0 - m_stepParam)) +(m_nextPlant * m_stepParam);
 	} else {
 		/* not in a step - so check if a plant is needed */
 		if (needsNewPlant(localVelocity)) {
 			float  plantBias;
 			plantSpeedBiasRamp.getValueAtPosition( normalizedSpeed, plantBias, &st ); er;
 			m_lastPlant = m_footPosition;
-			m_nextPlant = planNextPlant(dt, increment, localVelocity, plantBias);
+			// m_lastPlant = m_nextPlant;
+			m_nextPlant = planNextPlant(dt, increment, localVelocity, plantBias, ground);
 			m_stepParam = 0;
 		} 
+
+
+
+		/* Note - this will not give desired
+		results when there is a mesh.
+
+		It is only here for snapping the feet to the home plane.
+		 */
+		
+
+		if (ground.isAnimated()) {			
+			MPoint localPos = m_footPosition * m_pAgent->matrixInverse();
+			localPos.y=0;
+			m_footPosition = localPos * m_pAgent->matrix();
+		}
+		// snap to home rig
 		// else nothing - leave it where it is
+	
 	}
+
+	cacheLocalFootPosition();
+	/* need to set the position of the foot in the space of its own home */
+
+
+
+
+
 }
 
 // draw functions
@@ -382,6 +509,26 @@ void HexapodFoot::drawDoubleValue(M3dView & view, double value) const {
 
 }
 
+void HexapodFoot::drawFootLocal(M3dView & view) const {
+	MPoint dpos = MPoint(m_homeX, 0, m_homeZ) * m_pAgent->matrix();
+	MFloatVector pos(float(dpos.x), float(dpos.y) , float(dpos.z));
+
+	MString result("X:");
+	
+	MString val;
+	val.set (m_footPositionLocal.x, 4); result += val;	result += "\nY:";
+	val.set (m_footPositionLocal.y, 4); result += val;	result += "\nZ:";
+	val.set (m_footPositionLocal.z, 4); result += val;	result += "\nP:";
+	val.set (m_stepParam, 4); result += val;
+
+	view.setDrawColor( MColor( MColor::kRGB, 1.0,1.0,1.0 ) );
+	view.drawText(result, pos, M3dView::kLeft);		
+
+}
+
+
+
+
 void HexapodFoot::draw(M3dView & view, 
 	MFloatMatrix & agentMatrix, 
 	const DisplayMask & mask) const {
@@ -413,6 +560,9 @@ void HexapodFoot::draw(M3dView & view,
 		HexapodFoot::drawDoubleValue(view, m_speed);
 	}
 
+	if (mask.displayFootLocal) {
+		HexapodFoot::drawFootLocal(view);
+	}
 
 
 };

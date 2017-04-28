@@ -47,11 +47,12 @@ class rigParticle{
 
 		const int & id() const;
 
-		const MFloatMatrix & transform() const;
+		const MFloatMatrix transform() const;
 
-		const MFloatArray & values() const;
-		const MFloatVectorArray & vectorValues() const;
-		
+		const MFloatArray values() const;
+		const MFloatVectorArray vectorValues() const;
+ 
+
 		const rigParticle * future() const;
 		
 		MStatus setFuture(rigParticle *) ;

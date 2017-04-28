@@ -11,7 +11,7 @@ class rankData {
 public:
 
 	rankData();
-	rankData(MDataBlock &data, 	const MObject &node, MString rank);
+	rankData(const MObject &node, MString rank);
 	
 	~rankData();
 
