@@ -555,84 +555,84 @@ MStatus flockShape::initialize(){
 
 	st =attributeAffects(aCurrentTime ,aOutMeshes );er;	
 	st =attributeAffects(aCurrentTime ,aOutIds );er;	
-	st =attributeAffects(aCullList ,aOutMeshes );er;	
-	st =attributeAffects(aCullList ,aOutIds );er;	
-	st =attributeAffects(aActivePP ,aOutMeshes );er;	
-	st =attributeAffects(aActivePP ,aOutIds );er;	
+	// st =attributeAffects(aCullList ,aOutMeshes );er;	
+	// st =attributeAffects(aCullList ,aOutIds );er;	
+	// st =attributeAffects(aActivePP ,aOutMeshes );er;	
+	// st =attributeAffects(aActivePP ,aOutIds );er;	
 
 
 
-	st =attributeAffects(aCurrentTime ,aFlatTargets );er;	 
-	st =attributeAffects(aCullList ,aFlatTargets );er;	 
-	st =attributeAffects(aActivePP ,aFlatTargets );er;	
+	// st =attributeAffects(aCurrentTime ,aFlatTargets );er;	 
+	// st =attributeAffects(aCullList ,aFlatTargets );er;	 
+	// st =attributeAffects(aActivePP ,aFlatTargets );er;	
 
 	st =attributeAffects(aCurrentTime ,aFlatTranslateTargetX );er;	 
-	st =attributeAffects(aCullList ,aFlatTranslateTargetX );er;	 
-	st =attributeAffects(aActivePP ,aFlatTranslateTargetX );er;	
+	// st =attributeAffects(aCullList ,aFlatTranslateTargetX );er;	 
+	// st =attributeAffects(aActivePP ,aFlatTranslateTargetX );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatTranslateTargetY );er;	 
-	st =attributeAffects(aCullList ,aFlatTranslateTargetY );er;	 
-	st =attributeAffects(aActivePP ,aFlatTranslateTargetY );er;	
+	// st =attributeAffects(aCullList ,aFlatTranslateTargetY );er;	 
+	// st =attributeAffects(aActivePP ,aFlatTranslateTargetY );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatTranslateTargetZ );er;	 
-	st =attributeAffects(aCullList ,aFlatTranslateTargetZ );er;	 
-	st =attributeAffects(aActivePP ,aFlatTranslateTargetZ );er;	
+	// st =attributeAffects(aCullList ,aFlatTranslateTargetZ );er;	 
+	// st =attributeAffects(aActivePP ,aFlatTranslateTargetZ );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatTranslateTarget );er;	 
-	st =attributeAffects(aCullList ,aFlatTranslateTarget );er;	 
-	st =attributeAffects(aActivePP ,aFlatTranslateTarget );er;	
+	// st =attributeAffects(aCullList ,aFlatTranslateTarget );er;	 
+	// st =attributeAffects(aActivePP ,aFlatTranslateTarget );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatRotateTargetX );er;	 
-	st =attributeAffects(aCullList ,aFlatRotateTargetX );er;	 
-	st =attributeAffects(aActivePP ,aFlatRotateTargetX );er;	
+	// st =attributeAffects(aCullList ,aFlatRotateTargetX );er;	 
+	// st =attributeAffects(aActivePP ,aFlatRotateTargetX );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatRotateTargetY );er;	 
-	st =attributeAffects(aCullList ,aFlatRotateTargetY );er;	 
-	st =attributeAffects(aActivePP ,aFlatRotateTargetY );er;	
+	// st =attributeAffects(aCullList ,aFlatRotateTargetY );er;	 
+	// st =attributeAffects(aActivePP ,aFlatRotateTargetY );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatRotateTargetZ );er;	 
-	st =attributeAffects(aCullList ,aFlatRotateTargetZ );er;	 
-	st =attributeAffects(aActivePP ,aFlatRotateTargetZ );er;	
+	// st =attributeAffects(aCullList ,aFlatRotateTargetZ );er;	 
+	// st =attributeAffects(aActivePP ,aFlatRotateTargetZ );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatRotateTarget );er;	 
-	st =attributeAffects(aCullList ,aFlatRotateTarget );er;	 
-	st =attributeAffects(aActivePP ,aFlatRotateTarget );er;	
+	// st =attributeAffects(aCullList ,aFlatRotateTarget );er;	 
+	// st =attributeAffects(aActivePP ,aFlatRotateTarget );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatScaleTargetX );er;	 
-	st =attributeAffects(aCullList ,aFlatScaleTargetX );er;	 
-	st =attributeAffects(aActivePP ,aFlatScaleTargetX );er;	
+	// st =attributeAffects(aCullList ,aFlatScaleTargetX );er;	 
+	// st =attributeAffects(aActivePP ,aFlatScaleTargetX );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatScaleTargetY );er;	 
-	st =attributeAffects(aCullList ,aFlatScaleTargetY );er;	 
-	st =attributeAffects(aActivePP ,aFlatScaleTargetY );er;	
+	// st =attributeAffects(aCullList ,aFlatScaleTargetY );er;	 
+	// st =attributeAffects(aActivePP ,aFlatScaleTargetY );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatScaleTargetZ );er;	 
-	st =attributeAffects(aCullList ,aFlatScaleTargetZ );er;	 
-	st =attributeAffects(aActivePP ,aFlatScaleTargetZ );er;	
+	// st =attributeAffects(aCullList ,aFlatScaleTargetZ );er;	 
+	// st =attributeAffects(aActivePP ,aFlatScaleTargetZ );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatScaleTarget );er;	 
-	st =attributeAffects(aCullList ,aFlatScaleTarget );er;	 
-	st =attributeAffects(aActivePP ,aFlatScaleTarget );er;	
+	// st =attributeAffects(aCullList ,aFlatScaleTarget );er;	 
+	// st =attributeAffects(aActivePP ,aFlatScaleTarget );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatUserDoubleTarget );er;	 
-	st =attributeAffects(aCullList ,aFlatUserDoubleTarget );er;	 
-	st =attributeAffects(aActivePP ,aFlatUserDoubleTarget );er;	
+	// st =attributeAffects(aCullList ,aFlatUserDoubleTarget );er;	 
+	// st =attributeAffects(aActivePP ,aFlatUserDoubleTarget );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatUserVectorTargetX );er;	 
-	st =attributeAffects(aCullList ,aFlatUserVectorTargetX );er;	 
-	st =attributeAffects(aActivePP ,aFlatUserVectorTargetX );er;	
+	// st =attributeAffects(aCullList ,aFlatUserVectorTargetX );er;	 
+	// st =attributeAffects(aActivePP ,aFlatUserVectorTargetX );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatUserVectorTargetY );er;	 
-	st =attributeAffects(aCullList ,aFlatUserVectorTargetY );er;	 
-	st =attributeAffects(aActivePP ,aFlatUserVectorTargetY );er;	
+	// st =attributeAffects(aCullList ,aFlatUserVectorTargetY );er;	 
+	// st =attributeAffects(aActivePP ,aFlatUserVectorTargetY );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatUserVectorTargetZ );er;	 
-	st =attributeAffects(aCullList ,aFlatUserVectorTargetZ );er;	 
-	st =attributeAffects(aActivePP ,aFlatUserVectorTargetZ );er;	
+	// st =attributeAffects(aCullList ,aFlatUserVectorTargetZ );er;	 
+	// st =attributeAffects(aActivePP ,aFlatUserVectorTargetZ );er;	
 	
 	st =attributeAffects(aCurrentTime ,aFlatUserVectorTarget );er;	 
-	st =attributeAffects(aCullList ,aFlatUserVectorTarget );er;	 
-	st =attributeAffects(aActivePP ,aFlatUserVectorTarget );er;	
+	// st =attributeAffects(aCullList ,aFlatUserVectorTarget );er;	 
+	// st =attributeAffects(aActivePP ,aFlatUserVectorTarget );er;	
 
 
 
@@ -781,6 +781,9 @@ MStatus flockShape::computeTarget(MDataBlock& data){
 	MObject thisNode = thisMObject();
 	MTime cT =  data.inputValue( aCurrentTime).asTime();
 
+	// cerr << "cT: " << cT << endl;
+	bool doFlatTargets = data.inputValue(aDoFlatTargets).asBool();
+
 
 	MPlug txp(thisNode, aTranslateTargetX);
 	MPlug typ(thisNode, aTranslateTargetY);
@@ -814,8 +817,13 @@ MStatus flockShape::computeTarget(MDataBlock& data){
 	}
 
 
-	short rotateOrder = data.inputValue(aRotateOrder).asShort();
-	MTransformationMatrix::RotationOrder ord = mayaMath::mtmRotOrder(rotateOrder);	
+
+	short rotateOrder = data.inputValue(aRotateOrder).asShort()+1;
+	MTransformationMatrix::RotationOrder order = MTransformationMatrix::RotationOrder(rotateOrder);
+
+
+	// short rotateOrder = data.inputValue(aRotateOrder).asShort();
+	// MTransformationMatrix::RotationOrder ord = mayaMath::mtmRotOrder(rotateOrder);	
 	unsigned targetId = data.inputValue(aTargetId).asLong();
 
 	//	tracer;
@@ -824,6 +832,9 @@ MStatus flockShape::computeTarget(MDataBlock& data){
 	rigSlice theSlice(thisNode, data);
 	const particleStack stack =  theSlice.stack();	
 	unsigned stackSize = unsigned(theSlice.stack().size());
+
+	//cerr << "stack size "<< stack.size() << endl;
+
 	// this is the pointer to the particle whose values we want to set 
 	// on the output plugs ;
 	particleStack::const_iterator stack_iter_ultimate_target = stack.end();
@@ -837,23 +848,82 @@ MStatus flockShape::computeTarget(MDataBlock& data){
 
 	MIntArray stackIds;
 
+	MPlug flatTargetsPlug(thisNode, aFlatTargets);
+
 
 	// loop over each particle in the stack	and push meshes in the clonerStack
 	while (stack_iter != stack.end()) {
-		stackIds.append((*stack_iter)->id());
+		int stackId = (*stack_iter)->id();
+		stackIds.append(stackId);
 		
-
 		// remember this particle if it is the id we want to track on the output plug
+
+
 		if (targetId == (*stack_iter)->id()) {
 			stack_iter_ultimate_target = stack_iter;
 		}
 
-		st =  (*stack_iter)->setPlugValues(
-			txp,typ,tzp,rxp,ryp,rzp,sxp,syp,szp,
-			userTargetPlugs,userVectorTargetPlugs,ord
-			);er;
+	 
+			st =  (*stack_iter)->setPlugValues(
+				txp,typ,tzp,rxp,ryp,rzp,sxp,syp,szp,
+				userTargetPlugs,userVectorTargetPlugs,order
+				);er;
 
-		m_pClonerStack->pushPoints();
+			m_pClonerStack->pushPoints();
+
+	 
+
+
+
+		/////////////////////////////////////
+		// Set the flat plugs
+		// MPlug flatTargetsPlug(thisNode, aFlatTargets);
+	 
+			MPlug flatElementPlug = flatTargetsPlug.elementByLogicalIndex(stackId, &st); er;
+
+			MPlug flatTranslatePlug = flatElementPlug.child(aFlatTranslateTarget, &st); er;
+			MPlug flatTranslatePlugX = flatTranslatePlug.child(aFlatTranslateTargetX, &st); er;
+			MPlug flatTranslatePlugY = flatTranslatePlug.child(aFlatTranslateTargetY, &st); er;
+			MPlug flatTranslatePlugZ = flatTranslatePlug.child(aFlatTranslateTargetZ, &st); er;
+			
+			MPlug flatRotatePlug = flatElementPlug.child(aFlatRotateTarget, &st); er;
+			MPlug flatRotatePlugX = flatRotatePlug.child(aFlatRotateTargetX, &st); er;
+			MPlug flatRotatePlugY = flatRotatePlug.child(aFlatRotateTargetY, &st); er;
+			MPlug flatRotatePlugZ = flatRotatePlug.child(aFlatRotateTargetZ, &st); er;
+			
+			MPlug flatScalePlug = flatElementPlug.child(aFlatScaleTarget, &st); er;
+			MPlug flatScalePlugX = flatScalePlug.child(aFlatScaleTargetX, &st); er;
+			MPlug flatScalePlugY = flatScalePlug.child(aFlatScaleTargetY, &st); er;
+			MPlug flatScalePlugZ = flatScalePlug.child(aFlatScaleTargetZ, &st); er;
+			
+
+			MPlug flatUserDoublePlug = flatElementPlug.child(aFlatUserDoubleTarget, &st); er;
+			MPlug flatUserVectorPlug = flatElementPlug.child(aFlatUserVectorTarget, &st); er;
+
+			// all the user target plugs whether connected or not
+
+			MPlugArray flatUserDoublePlugs;
+			for(unsigned i = 0;i < nUserPlugs; i++) {
+				MPlug flatDoublePlug = flatUserDoublePlug.elementByPhysicalIndex(i, &st);er;
+				flatUserDoublePlugs.append(flatDoublePlug);
+			}
+
+			MPlugArray flatUserVectorPlugs;
+			for(unsigned i = 0;i < nUserVectorPlugs; i++) {
+				MPlug flatVectorPlug = flatUserVectorPlug.elementByPhysicalIndex(i, &st);er;
+				flatUserVectorPlugs.append(flatVectorPlug);
+			}
+
+			st =  (*stack_iter)->setPlugValues(
+				flatTranslatePlugX,flatTranslatePlugY,flatTranslatePlugZ,
+				flatRotatePlugX,flatRotatePlugY,flatRotatePlugZ,
+				flatScalePlugX,flatScalePlugY,flatScalePlugZ,
+				flatUserDoublePlugs,flatUserVectorPlugs,order
+				);er;
+
+		/////////////////////////////////////
+
+		 
 
 		stack_iter++;
 	}		
@@ -862,24 +932,23 @@ MStatus flockShape::computeTarget(MDataBlock& data){
 	if (stack_iter_ultimate_target != stack.end()) {
 		st =  (*stack_iter_ultimate_target)->setPlugValues(
 			txp,typ,tzp,rxp,ryp,rzp,sxp,syp,szp,
-			userTargetPlugs,userVectorTargetPlugs,ord
+			userTargetPlugs,userVectorTargetPlugs,order
 			);er;
 	} else {
 		rigParticle p(nUserPlugs, nUserVectorPlugs);
 		p.setPlugValues(
 			txp,typ,tzp,rxp,ryp,rzp,sxp,syp,szp,
-			userTargetPlugs,userVectorTargetPlugs,ord
+			userTargetPlugs,userVectorTargetPlugs,order
 			);er;
 	}	
+	// cerr << "stackIds " << stackIds << endl;
 	
-	
-	m_pClonerStack->prepareOutGeometry();
-	
-	
-	MArrayDataHandle     hOutput = data.outputArrayValue( aOutMeshes, &st ); er;
-	MArrayDataBuilder    bOutput = hOutput.builder();
-	
-	m_pClonerStack->doOutput(bOutput);
+	MArrayDataHandle  hOutput = data.outputArrayValue( aOutMeshes, &st ); er;
+ 
+		m_pClonerStack->prepareOutGeometry();
+		MArrayDataBuilder bOutput = hOutput.builder();
+		m_pClonerStack->doOutput(bOutput);
+ 
 	hOutput.setAllClean();
 
 
@@ -895,174 +964,203 @@ MStatus flockShape::computeTarget(MDataBlock& data){
 }
 
 
-MStatus flockShape::computeFlatTargets(MDataBlock& data){
-	MStatus st;
+// MStatus flockShape::computeFlatTargets(MDataBlock& data){
+// 	MStatus st;
 
 
 
-	// cerr << "flockShape::computeFlatTargets" << endl;
+// 	// cerr << "flockShape::computeFlatTargets" << endl;
 
-	MObject thisNode = thisMObject();
-	MTime cT =  data.inputValue( aCurrentTime).asTime();
+// 	MObject thisNode = thisMObject();
+// 	MTime cT =  data.inputValue( aCurrentTime).asTime();
 
-	short rotateOrder = data.inputValue(aRotateOrder).asShort()+1;
-	MTransformationMatrix::RotationOrder order = 
-	MTransformationMatrix::RotationOrder(rotateOrder);
-
-
-
-	rigSlice theSlice(thisNode, data);
-	const particleStack stack =  theSlice.stack();	
-	unsigned stackSize = unsigned(theSlice.stack().size());
-
-	particleStack::const_iterator stack_iter = stack.begin();	
+// 	short rotateOrder = data.inputValue(aRotateOrder).asShort()+1;
+// 	MTransformationMatrix::RotationOrder order = 
+// 	MTransformationMatrix::RotationOrder(rotateOrder);
 
 
 
-	// set up builder stuff
-	MArrayDataHandle  haFlatTargets = data.outputArrayValue( aFlatTargets, &st ); er;
-	MArrayDataBuilder   bFlatTargets = haFlatTargets.builder();
+// 	rigSlice theSlice(thisNode, data);
+// 	const particleStack stack =  theSlice.stack();	
+// 	unsigned stackSize = unsigned(theSlice.stack().size());
 
-	MIntArray stackIds;
-
-
-
-	// cerr << "stack_iter: " << endl;
-
-	while (stack_iter != stack.end()) {
-		int id = (*stack_iter)->id();
-		
-		// cerr << "(*stack_iter)->id(): " << id << endl;
-
-		MDataHandle hFlatTarget = bFlatTargets.addElement(id);
-
-		const MFloatMatrix & fMat =  (*stack_iter)->transform();
-
-		MMatrix mmat(fMat.matrix);
-
-		MTransformationMatrix mtmat(mmat);
-		// cerr << "ID: " << id << "  " << fMat << endl;
- 		 // cerr << "ID: " << id << "  " << mmat << endl;
-
-
-		double rotateValue[3];
-		double scaleValue[3];
-		MVector translateValue;
-		mtmat.getRotation( rotateValue, order );
-		translateValue = mtmat.getTranslation(MSpace::kTransform);
-		mtmat.getScale(scaleValue, MSpace::kTransform);
-
-
-		MDataHandle hTranslateTarget =  hFlatTarget.child(aFlatTranslateTarget);
-		double3 &outTranslate = hTranslateTarget.asDouble3();
-		outTranslate[0] = translateValue.x;
-		outTranslate[1] = translateValue.y;
-		outTranslate[2] = translateValue.z;
-
-		MDataHandle hRotateTarget =  hFlatTarget.child(aFlatRotateTarget);
-		double3 &outRotate = hRotateTarget.asDouble3();
-		outRotate[0] = rotateValue[0];
-		outRotate[1] = rotateValue[1];
-		outRotate[2] = rotateValue[2];
-
-		MDataHandle hScaleTarget =  hFlatTarget.child(aFlatScaleTarget);
-		double3 &outScale = hScaleTarget.asDouble3();
-		outScale[0] = scaleValue[0];
-		outScale[1] = scaleValue[1];
-		outScale[2] = scaleValue[2];
-
-
-		const MFloatArray & floatValues =  (*stack_iter)->values()  ;
-		MDataHandle hFlatUserDoubleArray =  hFlatTarget.child(aFlatUserDoubleTarget);
-		MArrayDataHandle	haFlatUserDoubleTarget(hFlatUserDoubleArray, &st);er;	
-		MArrayDataBuilder  bFlatUserDoubleTarget = haFlatUserDoubleTarget.builder();
-		for(unsigned i = 0;i < floatValues.length(); i++) {
-			MDataHandle hFlatUserDoubleTarget =  bFlatUserDoubleTarget.addElement(i);
-			double &flatUserDoubleTarget = hFlatUserDoubleTarget.asDouble();
-			flatUserDoubleTarget = double(floatValues[i]);
-		}
+// 	particleStack::const_iterator stack_iter = stack.begin();	
 
 
 
-		const MFloatVectorArray & vectorValues = (*stack_iter)->vectorValues();
-		MDataHandle hFlatUserVectorArray =  hFlatTarget.child(aFlatUserVectorTarget);
-		MArrayDataHandle	haFlatUserVectorTarget(hFlatUserVectorArray, &st);er;	
-		MArrayDataBuilder  bFlatUserVectorTarget = haFlatUserVectorTarget.builder();
-		for(unsigned i = 0;i < vectorValues.length(); i++) {
-			MDataHandle hFlatUserVectorTarget =  bFlatUserVectorTarget.addElement(i);
-			double3 &flatUserVectorTarget = hFlatUserVectorTarget.asDouble3();
-			flatUserVectorTarget[0] = vectorValues[i].x;
-			flatUserVectorTarget[1] = vectorValues[i].y;
-			flatUserVectorTarget[2] = vectorValues[i].z;
-		}
+// 	// set up builder stuff
+// 	MArrayDataHandle  haFlatTargets = data.outputArrayValue( aFlatTargets, &st ); er;
+// 	MArrayDataBuilder   bFlatTargets = haFlatTargets.builder();
 
-		stackIds.append(id);
-		stack_iter++;
-	}
-  // cerr << "Done stack_iterartion " << endl;
-
-	haFlatTargets.setAllClean();
-  // cerr << "haFlatTargets.setAllClean()" << endl;
+// 	MIntArray stackIds;
 
 
-	/////////////////////////////////////////////////////////////// 
-	MDataHandle hOutIds = data.outputValue(aOutIds, &st);
-	MFnIntArrayData fnOutIds;
-	MObject dOutIds = fnOutIds.create( stackIds, &st ); er;
-	hOutIds.set(dOutIds);
-	data.setClean(aOutIds);	
-	/////////////////////////////////////////////////////////////// 
 
-	// cerr << "data.setClean(aOutIds)" << endl;
+// 	// cerr << "stack_iter: " << endl;
 
-	return MS::kSuccess;
-}
+// 	while (stack_iter != stack.end()) {
+// 		int id = (*stack_iter)->id();
+
+// 		// cerr << "(*stack_iter)->id(): " << id << endl;
+
+// 		MDataHandle hFlatTarget = bFlatTargets.addElement(id);
+
+// 		const MFloatMatrix & fMat =  (*stack_iter)->transform();
+
+// 		MMatrix mmat(fMat.matrix);
+// 		cerr << "mmat" << mmat << endl;
+// 		MTransformationMatrix mtmat(mmat);
+// 		// cerr << "ID: " << id << "  " << fMat << endl;
+//  		 // cerr << "ID: " << id << "  " << mmat << endl;
+
+
+// 		double rotateValue[3];
+// 		double scaleValue[3];
+// 		MVector translateValue;
+// 		mtmat.getRotation( rotateValue, order );
+// 		translateValue = mtmat.getTranslation(MSpace::kTransform);
+// 		mtmat.getScale(scaleValue, MSpace::kTransform);
+
+
+// 		MDataHandle hTranslateTarget =  hFlatTarget.child(aFlatTranslateTarget);
+// 		double3 &outTranslate = hTranslateTarget.asDouble3();
+// 		outTranslate[0] = translateValue.x;
+// 		outTranslate[1] = translateValue.y;
+// 		outTranslate[2] = translateValue.z;
+
+// 		MDataHandle hRotateTarget =  hFlatTarget.child(aFlatRotateTarget);
+// 		double3 &outRotate = hRotateTarget.asDouble3();
+// 		outRotate[0] = rotateValue[0];
+// 		outRotate[1] = rotateValue[1];
+// 		outRotate[2] = rotateValue[2];
+
+// 		MDataHandle hScaleTarget =  hFlatTarget.child(aFlatScaleTarget);
+// 		double3 &outScale = hScaleTarget.asDouble3();
+// 		outScale[0] = scaleValue[0];
+// 		outScale[1] = scaleValue[1];
+// 		outScale[2] = scaleValue[2];
+
+
+// 		const MFloatArray & floatValues =  (*stack_iter)->values()  ;
+// 		MDataHandle hFlatUserDoubleArray =  hFlatTarget.child(aFlatUserDoubleTarget);
+// 		MArrayDataHandle	haFlatUserDoubleTarget(hFlatUserDoubleArray, &st);er;	
+// 		MArrayDataBuilder  bFlatUserDoubleTarget = haFlatUserDoubleTarget.builder();
+// 		for(unsigned i = 0;i < floatValues.length(); i++) {
+// 			MDataHandle hFlatUserDoubleTarget =  bFlatUserDoubleTarget.addElement(i);
+// 			double &flatUserDoubleTarget = hFlatUserDoubleTarget.asDouble();
+// 			flatUserDoubleTarget = double(floatValues[i]);
+// 		}
+
+
+
+// 		const MFloatVectorArray & vectorValues = (*stack_iter)->vectorValues();
+// 		MDataHandle hFlatUserVectorArray =  hFlatTarget.child(aFlatUserVectorTarget);
+// 		MArrayDataHandle	haFlatUserVectorTarget(hFlatUserVectorArray, &st);er;	
+// 		MArrayDataBuilder  bFlatUserVectorTarget = haFlatUserVectorTarget.builder();
+// 		for(unsigned i = 0;i < vectorValues.length(); i++) {
+// 			MDataHandle hFlatUserVectorTarget =  bFlatUserVectorTarget.addElement(i);
+// 			double3 &flatUserVectorTarget = hFlatUserVectorTarget.asDouble3();
+// 			flatUserVectorTarget[0] = vectorValues[i].x;
+// 			flatUserVectorTarget[1] = vectorValues[i].y;
+// 			flatUserVectorTarget[2] = vectorValues[i].z;
+// 		}
+
+// 		stackIds.append(id);
+// 		stack_iter++;
+// 	}
+//   // cerr << "Done stack_iterartion " << endl;
+
+// 	haFlatTargets.setAllClean();
+//   // cerr << "haFlatTargets.setAllClean()" << endl;
+
+
+// 	// /////////////////////////////////////////////////////////////// 
+// 	// MDataHandle hOutIds = data.outputValue(aOutIds, &st);
+// 	// MFnIntArrayData fnOutIds;
+// 	// MObject dOutIds = fnOutIds.create( stackIds, &st ); er;
+// 	// hOutIds.set(dOutIds);
+// 	// data.setClean(aOutIds);	
+// 	// /////////////////////////////////////////////////////////////// 
+
+// 	// cerr << "data.setClean(aOutIds)" << endl;
+
+// 	return MS::kSuccess;
+// }
 
 MStatus flockShape::compute(const MPlug& plug, MDataBlock& data){
 //	tracer;
 	MStatus st;
 
-	bool isFlatTargetPlug = (
-		(plug == aFlatTranslateTargetX)
-		||  (plug == aFlatTranslateTargetY)
-		||  (plug == aFlatTranslateTargetZ)
-		||  (plug == aFlatTranslateTarget)
-		||  (plug == aFlatRotateTargetX)
-		||  (plug == aFlatRotateTargetY)
-		||  (plug == aFlatRotateTargetZ)
-		||  (plug == aFlatRotateTarget)
-		||  (plug == aFlatScaleTargetX)
-		||  (plug == aFlatScaleTargetY)
-		||  (plug == aFlatScaleTargetZ)
-		||  (plug == aFlatScaleTarget)
-		||  (plug == aFlatUserDoubleTarget)
-		||  (plug == aFlatUserVectorTargetX)
-		||  (plug == aFlatUserVectorTargetY)
-		||  (plug == aFlatUserVectorTargetZ)
-		||  (plug == aFlatUserVectorTarget)
-		||  (plug == aFlatTargets)
-		);
 
-	bool isMeshesPug = ( (plug == aOutMeshes)   ||  (plug.parent() == aOutMeshes) );
+	if (! ( (plug == aOutMeshes)  
+		||  (plug.isElement() && plug.array() == aOutMeshes) 
+		||  (plug == aOutIds)  
+		) ) return MS::kUnknownParameter;
 
-
-	// cerr << "PLUG: " << plug.name() << endl;
-	
-	bool doFlatTargets = data.inputValue(aDoFlatTargets).asBool();
- 
- 
-		
-
-	if (doFlatTargets && isFlatTargetPlug) {
-		st = computeFlatTargets(data);
-	}  
-
-	if ( (!doFlatTargets) && isMeshesPug) {
-		st =computeTarget(data);
-	}
-
-	data.setClean(plug);
+		st = computeTarget(data);
 	return MS::kSuccess;
+
+
+	// bool isFlatTargetPlug = (
+	// 	(plug == aFlatTranslateTargetX)
+	// 	||  (plug == aFlatTranslateTargetY)
+	// 	||  (plug == aFlatTranslateTargetZ)
+	// 	||  (plug == aFlatTranslateTarget)
+	// 	||  (plug == aFlatRotateTargetX)
+	// 	||  (plug == aFlatRotateTargetY)
+	// 	||  (plug == aFlatRotateTargetZ)
+	// 	||  (plug == aFlatRotateTarget)
+	// 	||  (plug == aFlatScaleTargetX)
+	// 	||  (plug == aFlatScaleTargetY)
+	// 	||  (plug == aFlatScaleTargetZ)
+	// 	||  (plug == aFlatScaleTarget)
+	// 	||  (plug == aFlatUserDoubleTarget)
+	// 	||  (plug == aFlatUserVectorTargetX)
+	// 	||  (plug == aFlatUserVectorTargetY)
+	// 	||  (plug == aFlatUserVectorTargetZ)
+	// 	||  (plug == aFlatUserVectorTarget)
+	// 	||  (plug == aFlatTargets)
+	// 	);
+
+	// 	bool isValidPlug = (
+
+
+
+	// 	)
+
+
+	// bool isMeshesPug = (((plug.isElement()) && (plug.array() == aOutMeshes))  || (plug == aOutMeshes) );
+
+	// cerr << "------------------------------------------------- " << endl;
+	// cerr << "PLUG: " << plug.name() << endl;
+ // 	cerr << "plug.isElement(): " << plug.isElement() << endl;
+	// cerr << "(plug.array() == aOutMeshes): " << (plug.array() == aOutMeshes) << endl;
+	// cerr << "isMeshesPug: " << isMeshesPug<< endl;
+	
+	// bool doFlatTargets = data.inputValue(aDoFlatTargets).asBool();
+
+
+
+
+	// if (doFlatTargets && isFlatTargetPlug) {
+	// 	cerr << "computeFlatTargets(data)"  << endl;
+	// 	st = computeFlatTargets(data);
+	//   data.setClean(plug);
+	// 	return MS::kSuccess;
+	// }  
+
+	// if ( (!doFlatTargets) && isMeshesPug) {
+	// 	cerr << "computeTarget(data)" << endl;
+	// 	st = computeTarget(data);
+	// 	data.setClean(plug);
+	// 	return MS::kSuccess;
+	// }
+
+
+
+
+
+	// return MS::kUnknownParameter;
 }
 
 

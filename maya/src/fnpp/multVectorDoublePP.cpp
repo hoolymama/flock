@@ -15,6 +15,7 @@
 MTypeId multVectorDoublePP::id(k_multVectorDoublePP);
 MObject multVectorDoublePP::aInput1;
 MObject multVectorDoublePP::aInput2;
+MObject multVectorDoublePP::aScalarInput;
 MObject multVectorDoublePP::aNormalizeVector;
 MObject multVectorDoublePP::aOutput;
 
@@ -26,7 +27,7 @@ void * multVectorDoublePP::creator () {
 
 /// Post constructor
 void
-	multVectorDoublePP::postConstructor()
+multVectorDoublePP::postConstructor()
 {
 	MPxNode::postConstructor();
 
@@ -44,25 +45,30 @@ MStatus multVectorDoublePP::initialize () {
 
 
 
-	aInput1 = tAttr.create("input1", "in1",MFnData::kVectorArray);
+	aInput1 = tAttr.create("inputVector", "inv",MFnData::kVectorArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-	tAttr.setCached(false);
+	// tAttr.setCached(false);
 
-	aInput2 = tAttr.create("input2", "in2",MFnData::kDoubleArray);
+	aInput2 = tAttr.create("inputDouble", "ind",MFnData::kDoubleArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-	tAttr.setCached(false);
+	// tAttr.setCached(false);
 
 	aNormalizeVector = nAttr.create( "normalizeVector", "nv",MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(false);
-	addAttribute( aNormalizeVector ); 
+
+	aScalarInput = nAttr.create("scalarInput", "sin",MFnNumericData::k3Double);
+	nAttr.setWritable(true);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(1.0, 1.0, 1.0);
 
 
 	aOutput = tAttr.create ("output", "out",MFnData::kVectorArray);
@@ -73,6 +79,8 @@ MStatus multVectorDoublePP::initialize () {
 
 
 	// add attributes and setup dependencies
+	addAttribute( aNormalizeVector ); 
+	addAttribute (aScalarInput);
 	addAttribute(aInput1);
 	addAttribute(aInput2);
 	addAttribute (aOutput);
@@ -80,6 +88,7 @@ MStatus multVectorDoublePP::initialize () {
 	attributeAffects (aInput1, aOutput);
 	attributeAffects (aInput2, aOutput);
 	attributeAffects (aNormalizeVector, aOutput);
+	attributeAffects (aScalarInput, aOutput);
 
 
 
@@ -95,7 +104,9 @@ MStatus multVectorDoublePP::compute(const MPlug& plug, MDataBlock& data) {
 	if (!(plug == aOutput)) 	return MS::kUnknownParameter;			
 
 	MStatus st;
-	MFn::Type type = MFn::kInvalid;
+	// MFn::Type type = MFn::kInvalid;
+
+	const double3 &scalarValue = data.inputValue(aScalarInput).asDouble3();
 
 		// Get inputs
 	MDataHandle hIn1 = data.inputValue(aInput1);
@@ -109,18 +120,29 @@ MStatus multVectorDoublePP::compute(const MPlug& plug, MDataBlock& data) {
 	bool norm = data.inputValue(aNormalizeVector).asBool();
 	
 	int len = in1.length();
-	if (len != in2.length())	return MS::kUnknownParameter; 
+ 
+	MVectorArray out;
+	out.copy(in1);
 
-	MVectorArray out(len);	
+	// cerr << "out1: " << out << endl;
+
 	if (norm){
 		for (int i = 0;i<len;i++) {
-			out[i] = in1[i].normal() * in2[i];
+			out[i] = out[i].normal() ;
 		}
-	} else {
+	}
+	if (in2.length() == len){
 		for (int i = 0;i<len;i++) {
-			out[i] = in1[i] * in2[i];
+			out[i] = out[i] * in2[i] ;
 		}
-	} 
+	}
+
+	MVector sv = MVector(scalarValue[0], scalarValue[1], scalarValue[2]);
+	for (int i = 0;i<len;i++) {
+		out[i] = MVector(out[i].x*scalarValue[0] , out[i].y*scalarValue[1] , out[i].z*scalarValue[2] );
+	}
+  // cerr << "out2: " << out << endl;
+	 
 
 	MDataHandle hOut = data.outputValue(aOutput);
 	MFnVectorArrayData fnOut;

@@ -157,6 +157,9 @@ MStatus rigParticle::setPlugValues(
 	sz.setValue(scaleValue[2]);
 
 
+	// cerr << "TX Value: " << translateValue.x << endl;
+
+
 
 	for(unsigned i = 0;i < numPlugs; i++) {
 		MPlug::FreeToChangeState plugState = userPlugs[i].isFreeToChange(true,false);
@@ -170,6 +173,7 @@ MStatus rigParticle::setPlugValues(
 			MPlug xPlug = userVectorPlugs[i].child(0);
 			MPlug yPlug = userVectorPlugs[i].child(1);
 			MPlug zPlug = userVectorPlugs[i].child(2);
+			
 			st = xPlug.setValue(m_vector_values[i].x);er;
 			st = yPlug.setValue(m_vector_values[i].y);er;
 			st = zPlug.setValue(m_vector_values[i].z);er;

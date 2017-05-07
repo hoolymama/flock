@@ -40,7 +40,7 @@
 #include "multPP.h"
 #include "addPP.h"
 #include "aimPP.h"
-#include "arrayToMulti.h"
+
 #include "lookupPP.h"
 #include "rampLookupPP.h"
 #include "vectorRampLookupPP.h"
@@ -73,6 +73,11 @@
 #include "hexapod.h"
 
 #include "hungerState.h"
+#include "addDoublePP.h"
+#include "addVectorPP.h"
+#include "vectorArrayToMulti.h"
+#include "phiArrayToMulti.h"
+#include "arrayToMulti.h"
 
 
 MStatus initializePlugin( MObject obj)
@@ -90,8 +95,8 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "roller", rollerPP::id, rollerPP::creator, rollerPP::initialize); ert;
 	st = plugin.registerNode( "tumbler", tumbler::id, tumbler::creator, tumbler::initialize );er;
 
-  st = plugin.registerNode( "fishDeform", fishDeform::id, fishDeform::creator, fishDeform::initialize); er;
- 
+	st = plugin.registerNode( "fishDeform", fishDeform::id, fishDeform::creator, fishDeform::initialize); er;
+	
 	// st = plugin.registerNode( "legacySteerRemap", legacySteerRemap::id, legacySteerRemap::creator, legacySteerRemap::initialize );er;
 
 	// st = plugin.registerNode( "legacyTumbler", legacyTumbler::id, legacyTumbler::creator, legacyTumbler::initialize );er;
@@ -107,8 +112,8 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "cohesion", cohesion::id, cohesion::creator, cohesion::initialize );er;
 	st = plugin.registerNode( "exposure", exposure::id, exposure::creator, exposure::initialize );er;
 	st = plugin.registerNode( "ellipsoidSensor", ellipsoidSensor::id, ellipsoidSensor::creator, ellipsoidSensor::initialize );er;
-		st = plugin.registerNode( "slotSensor", slotSensor::id, slotSensor::creator, slotSensor::initialize );er;
-			st = plugin.registerNode( "goalSensor", goalSensor::id, goalSensor::creator, goalSensor::initialize );er;
+	st = plugin.registerNode( "slotSensor", slotSensor::id, slotSensor::creator, slotSensor::initialize );er;
+	st = plugin.registerNode( "goalSensor", goalSensor::id, goalSensor::creator, goalSensor::initialize );er;
 	
 	st = plugin.registerData( "splinePoolData", splinePoolData::id, splinePoolData::creator );er;
 	st = plugin.registerNode( "splinePool", splinePool::id, splinePool::creator, splinePool::initialize );er;
@@ -118,11 +123,13 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "jerkSensor", jerkSensor::id, jerkSensor::creator, jerkSensor::initialize );er;
 	st = plugin.registerNode( "multPP", multPP::id, multPP::creator, multPP::initialize); er;
 	st = plugin.registerNode( "aimPP", aimPP::id, aimPP::creator, aimPP::initialize); er;
-	st = plugin.registerNode( "arrayMulti", arrayToMulti::id, arrayToMulti::creator, arrayToMulti::initialize); er;
 	st = plugin.registerNode( "lookupPP", lookupPP::id, lookupPP::creator, lookupPP::initialize); er;
 	st = plugin.registerNode( "rampLookupPP", rampLookupPP::id, rampLookupPP::creator, rampLookupPP::initialize); er;
 	st = plugin.registerNode( "extractElements", extractElements::id, extractElements::creator, extractElements::initialize); er;
 	st = plugin.registerNode( "addPP", addPP::id, addPP::creator, addPP::initialize); er;
+	st = plugin.registerNode( "addDoublePP", addDoublePP::id, addDoublePP::creator, addDoublePP::initialize); er;	st = plugin.registerNode( "addDoublePP", addDoublePP::id, addDoublePP::creator, addDoublePP::initialize); er;
+	st = plugin.registerNode( "addVectorPP", addVectorPP::id, addVectorPP::creator, addVectorPP::initialize); er;
+	
 	st = plugin.registerNode( "vectorComponentPP", vectorComponentPP::id, vectorComponentPP::creator, vectorComponentPP::initialize); er;
 	st = plugin.registerNode( "binormalPP", binormalPP::id, binormalPP::creator, binormalPP::initialize); er;
 	st = plugin.registerNode( "reversePP", reversePP::id, reversePP::creator, reversePP::initialize); er;
@@ -147,13 +154,18 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "meshProximityPP", meshProximityPP::id, meshProximityPP::creator, meshProximityPP::initialize); er;
 	st = plugin.registerNode( "subVectorVectorPP", subVectorVectorPP::id, subVectorVectorPP::creator, subVectorVectorPP::initialize); er;
 	st = plugin.registerNode( "speedRampLookupPP", speedRampLookupPP::id, speedRampLookupPP::creator, speedRampLookupPP::initialize); er;
- 	st = plugin.registerNode( "curvePoints", curvePoints::id, curvePoints::creator, curvePoints::initialize); er;
- 
+	st = plugin.registerNode( "vectorArrayToMulti", vectorArrayToMulti::id, vectorArrayToMulti::creator, vectorArrayToMulti::initialize); er;
+	st = plugin.registerNode( "phiArrayToMulti", phiArrayToMulti::id, phiArrayToMulti::creator, phiArrayToMulti::initialize); er;
+	st = plugin.registerNode( "arrayToMulti", arrayToMulti::id, arrayToMulti::creator, arrayToMulti::initialize); er;
+
+
+	st = plugin.registerNode( "curvePoints", curvePoints::id, curvePoints::creator, curvePoints::initialize); er;
+	
 	st = plugin.registerNode( "hexapod", hexapod::id, hexapod::creator, hexapod::initialize, MPxNode::kLocatorNode); er;
  	// st = plugin.registerNode( "hexapodLocatorShape", hexapodLocator::id, hexapodLocator::creator,hexapodLocator::initialize, MPxNode::kLocatorNode  );er;
- 
+	
 	st = plugin.registerNode( "hungerState", hungerState::id, hungerState::creator, hungerState::initialize); er;
- 
+	
 	MGlobal::executePythonCommand("import flock;flock.load()");
 	return st;
 
@@ -166,17 +178,24 @@ MStatus uninitializePlugin( MObject obj)
 	MString method("uninitializePlugin");
 
 	MGlobal::executePythonCommand("import flock;flock.unload()");
- 
+	
 	MFnPlugin plugin( obj );
- 
+	
 	st = plugin.deregisterNode( hungerState::id );er;
 
 	// st = plugin.deregisterNode( hexapodLocator::id );er;	
 	st = plugin.deregisterNode( hexapod::id );er;
 	st = plugin.deregisterNode( curvePoints::id );er;
- 	st = plugin.deregisterNode( speedRampLookupPP::id );er;
- 
- 
+	
+		st = plugin.deregisterNode( arrayToMulti::id );er;
+	st = plugin.deregisterNode( phiArrayToMulti::id );er;
+
+	
+	st = plugin.deregisterNode( vectorArrayToMulti::id );er;
+
+	st = plugin.deregisterNode( speedRampLookupPP::id );er;
+	
+	
 	st = plugin.deregisterNode( subVectorVectorPP::id );er;
 	st = plugin.deregisterNode( meshProximityPP::id );er;
 	st = plugin.deregisterNode( sinePP::id );er;
@@ -200,11 +219,13 @@ MStatus uninitializePlugin( MObject obj)
 	st = plugin.deregisterNode( reversePP::id );er;
 	st = plugin.deregisterNode( binormalPP::id );er;
 	st = plugin.deregisterNode( vectorComponentPP::id );er;
+	st = plugin.deregisterNode( addVectorPP::id );er;
+	st = plugin.deregisterNode( addDoublePP::id );er;
 	st = plugin.deregisterNode( addPP::id );er;
 	st = plugin.deregisterNode( extractElements::id );er;
 	st = plugin.deregisterNode( rampLookupPP::id );er;
 	st = plugin.deregisterNode( lookupPP::id );er;
-	st = plugin.deregisterNode( arrayToMulti::id );er;
+
 	st = plugin.deregisterNode( aimPP::id );er;
 	st = plugin.deregisterNode( multPP::id );er;
 

@@ -1,0 +1,91 @@
+
+
+proc amDoConnect(
+	string $srcPlug,
+	string $destPlugs[],
+	string $type) 
+{
+	string $a2m = `createNode  $type`;
+	connectAttr -f $srcPlug ($a2m+".input");
+	int $nPlugs = `size $destPlugs`;
+
+	for ($i = 0; $i < $nPlugs; $i++) {
+		string $plug = $destPlugs[$i];
+		string $node =  plugNode($plug);
+		string $attr =  plugAttr($plug);
+		string $plugs[];
+
+		string $scalarAtts[] = `attributeQuery  -node $node -lc  $attr`;
+		if ($type == "arrayToMulti")   {
+			if (`size $scalarAtts` == 0) {
+				connectAttr -f  ($a2m+".output["+$i+"]")  $plug;
+			} else {
+				for ($sa in $scalarAtts) {
+					connectAttr -f  ($a2m+".output["+$i+"]")  ($node+"."+$sa);
+				}
+			}
+		} else {
+			/* is vectorArrayToMulti or phiArrayToMulti*/
+			 connectAttr -f  ($a2m+".output["+$i+"]")  $plug;
+		}
+	}
+}
+
+ proc string[]  getNamespaces(string $node){
+
+	string $paths[] = `listRelatives -f $node`;
+  string $root = string.firstToken($paths[0], "|");
+ 
+	string $ns[] = `listRelatives -c $root`;
+  int $num = `size $ns`;
+	for ($i = 0;$i< $num ; $i++) {
+		$ns[$i] = string.firstToken($ns[$i], ":");
+	}
+	return  $ns;
+}
+
+
+proc string[] allAgentDestPlugs(string $plug) {
+	string $node =  plugNode($plug);
+	string $attr =  plugAttr($plug);
+	string $namespaces[] = getNamespaces($node);
+	string $commonNodeName = string.lastToken($node, ":");
+
+	string $plugs[];
+ 	for ($ns in $namespaces) {
+ 		 $plugs[`size $plugs`] = ($ns+":"+$commonNodeName+"."+$attr);
+ 	}
+	return   $plugs;
+}
+// if ($type == "arrayToMulti" && )
+
+global proc connectArrayToMulti(
+	string $srcPlug,
+	string $destPlug,
+	int $isPhi
+	) {
+
+	string $destPlugs[] = allAgentDestPlugs( $destPlug);
+	// print  $destPlugs;
+
+	string $type = `getAttr -type $srcPlug`;
+
+	if ($type == "vectorArray") {
+		if ($isPhi) {
+			amDoConnect($srcPlug, $destPlugs, "phiArrayToMulti");		
+		} else {
+			amDoConnect($srcPlug, $destPlugs, "vectorArrayToMulti");		
+		}
+	} 
+	else if ($type == "doubleArray") {
+		amDoConnect($srcPlug, $destPlugs, "arrayToMulti");
+	} 
+	else
+	{
+		error("connectVectorArrayToMulti: src att type is "+$type+", needs vectorArray or doubleArray");
+	}
+}
+
+ 
+
+

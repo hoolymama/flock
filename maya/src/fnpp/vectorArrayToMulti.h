@@ -1,5 +1,5 @@
 /*
- *  arrayToMulti.h
+ *  vectorArrayToMulti.h
  *  animal
  *
  *  Created by Julian Mann on 01/08/2006.
@@ -7,13 +7,17 @@
  *
  */
 
+#ifndef vectorArrayToMulti_H
+#define vectorArrayToMulti_H
+
+
 #include <maya/MPxNode.h>
 
-class arrayToMulti: public MPxNode {
+class vectorArrayToMulti: public MPxNode {
 public:
 	virtual	void postConstructor();
-	arrayToMulti (); 
-	virtual ~arrayToMulti ();
+	vectorArrayToMulti (); 
+	virtual ~vectorArrayToMulti ();
 	virtual MStatus compute (const MPlug& plug, MDataBlock& data);
 	static void *creator (); 
 	static MStatus initialize (); 
@@ -22,5 +26,5 @@ private:
  
 	static MObject aInput;
 	static MObject aOutput;
-
 };
+#endif

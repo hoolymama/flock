@@ -1,5 +1,5 @@
 /*
- *  arrayToMulti.h
+ *  phiArrayToMulti.h
  *  animal
  *
  *  Created by Julian Mann on 01/08/2006.
@@ -7,20 +7,29 @@
  *
  */
 
+#ifndef phiArrayToMulti_H
+#define phiArrayToMulti_H
+
+
 #include <maya/MPxNode.h>
 
-class arrayToMulti: public MPxNode {
+class phiArrayToMulti: public MPxNode {
 public:
 	virtual	void postConstructor();
-	arrayToMulti (); 
-	virtual ~arrayToMulti ();
+	phiArrayToMulti (); 
+	virtual ~phiArrayToMulti ();
 	virtual MStatus compute (const MPlug& plug, MDataBlock& data);
 	static void *creator (); 
 	static MStatus initialize (); 
 	static MTypeId id;
 private:
  
+ 	static MObject aRotateOrder;
 	static MObject aInput;
 	static MObject aOutput;
+	static MObject aOutputX;
+	static MObject aOutputY;
+	static MObject aOutputZ;
 
 };
+#endif

@@ -10,6 +10,7 @@ global proc string  flock.connectedReferenceNode(string $flockNode){
 	return "";
 	
 }
+// AbcExport -verbose -j "-frameRange 0 1000 -uvWrite -eulerFilter -dataFormat ogawa -file /Users/julian/dev/w/flock/maya/examples/beetles/cache/alembic/beetles__dev__variLegs__008__006__start.abc";
 
 
 global proc flock.extractHeroes.doit(string $flock, int $ids[], int $start, int $end){
