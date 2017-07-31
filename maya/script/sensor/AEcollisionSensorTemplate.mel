@@ -1,0 +1,20 @@
+
+global proc AEcollisionSensorTemplate ( string $nodeName )
+{
+	editorTemplate -beginScrollLayout;
+	
+	
+	AEsensorInclude($nodeName);
+	
+	editorTemplate -cl 0  -beginLayout "Cohesion Attributes";		
+	editorTemplate -addControl "bounce";	
+	editorTemplate -addControl "friction";		
+	editorTemplate -addControl "pushOut";		
+		editorTemplate -addControl "bias";	
+	editorTemplate -addControl "deltaTime";		
+	
+	editorTemplate -endLayout;
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}

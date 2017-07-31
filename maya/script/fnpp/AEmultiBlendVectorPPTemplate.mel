@@ -1,0 +1,27 @@
+
+
+
+
+
+
+global proc AEmultiBlendVectorPPTemplate(string $nodeName)
+{
+	
+ 
+	
+	editorTemplate -beginScrollLayout;
+	
+	editorTemplate -cl 0 -beginLayout "General Attributes";		
+  editorTemplate -addControl "normalizeWeights";
+ 	
+	editorTemplate -addControl "input";
+ 
+	editorTemplate -as ;
+	editorTemplate -endLayout;
+	editorTemplate -suppress "output";
+	
+
+	
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+}

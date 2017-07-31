@@ -1,0 +1,89 @@
+
+proc  exportReference(string $sourceBeetle, string $refFilename){
+	string $dupBeetle[] = `duplicate -rr $sourceBeetle`; 
+	parent -w $dupBeetle[0];
+	rename  $dupBeetle[0] "beetle";
+	select "|beetle";
+	file -force -options "v=0;" -typ "mayaAscii" -es $refFilename;
+	delete "|beetle";
+}
+
+proc string equivalentNodeAttrInReference(string $nodeAttr, string $namespace) {
+	string $list[] =  `ls -long $nodeAttr`;
+	$nodeAttr = $list[0];
+	string $result=("|" + $namespace+":beetle");
+
+
+	string $tokens[] = string.tokenize($nodeAttr, "|");
+	int $nt = `size $tokens`;
+	for ($i=2;$i<$nt;$i++) 	 {
+		$result+= ( "|" + $namespace+":"+$tokens[$i]);
+
+
+		if ($i < ($nt-1)) {
+			$result+="|";
+		}
+	}
+	return $result;
+}
+
+
+proc replaceWithReference(string  $beetle, string $refFilename, int $id) {
+	string $namespace = string.lastToken( $beetle, "|");
+	$namespace = "ref_"+$namespace;
+	string $nodes[] = `listRelatives -f -allDescendents $beetle`;
+	string $conns[] = `listConnections -s 1 -d 0 -c 1 -p 1 $nodes`;
+	
+	file -r -shd "shadingNetworks" -namespace $namespace $refFilename;
+	int $n = size($conns) ;
+	for ($i=0;$i<$n;$i+=2) {
+		string $destConn =  equivalentNodeAttrInReference($conns[$i], $namespace);
+
+		string $srcConn = $conns[($i+1)];
+		connectAttr -f $srcConn $destConn; 
+	}	
+}
+
+
+global proc alembicColonyToReferences(){
+
+	string $colonies[] = `ls -sl`; 
+	string $colony = $colonies[0]; 
+
+	string $beetleRoots[] =  `listRelatives -fullPath -c $colonies[0]` ;
+
+
+	string $timestamp = `date -f DD_MM_YY_hhmm`;
+
+	string $ws = `workspace -q -rd`;
+	string $alembicDir = ($ws+"/export_"+$timestamp+"/cache/alembic");
+	string $scenesDir = ($ws+"/export_"+$timestamp+"/scenes");
+	string $moviesDir = ($ws+"/export_"+$timestamp+"/movies");
+
+	sysFile -md $alembicDir;
+	sysFile -md $scenesDir;
+	sysFile -md $moviesDir;
+
+	string $refFilename = ($scenesDir+"/beetleRef_"+$timestamp+".ma");
+
+	exportReference($beetleRoots[0], $refFilename);
+
+	int $i = 0;
+	for ($beetle in $beetleRoots) {
+		string $ref = replaceWithReference($beetle, $refFilename, $i);
+		$i++;
+	}
+	delete  $colony ;
+
+
+	string $sceneName = ($scenesDir +"/ beetleColony_"+$timestamp);
+	file -rename $sceneName;
+ 	file -f -save -type "mayaAscii";
+
+	string $abcNodes[] = `ls -type "AlembicNode"`;
+	string $cachePath = `getAttr ($abcNodes[0]+".abc_File")`;
+	string $cacheName = string.lastToken( $cachePath, "/");
+	string $newCachePath = ( $alembicDir+"/"+ $cacheName);
+	sysFile -copy $newCachePath $cachePath;      
+
+}

@@ -105,15 +105,11 @@ private:
 	static	MObject         aWidth;		
 	static	MObject         aXOffset;		
 	static	MObject         aYOffset;		
-	
+
+	static	MObject         aOutForces; 
 	static	MObject         aOutForce; 
-	static	MObject       	aCurrentTime;
-	
-	VEC_LIST * m_drawCache ;
-	MVectorArray m_positions;
-	MColorArray m_colorArray;
-	MTime m_lastTimeIEvaluated;	
-	bool drawState;
+ 
+ 
 	
 };
 

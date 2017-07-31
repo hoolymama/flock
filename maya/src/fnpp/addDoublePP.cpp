@@ -77,8 +77,7 @@ MStatus addDoublePP::compute (const MPlug& plug, MDataBlock& data)
 	unsigned num = hInArray.elementCount();
 	unsigned len;
 	for(unsigned i = 0;i < num; i++, hInArray.next()) {
-				cerr << "addDoublePP loop" << endl;
-
+ 
 		MDataHandle hIn = hInArray.inputValue(&st);
 		if(st.error()) continue;
 		MObject dIn = hIn.data();

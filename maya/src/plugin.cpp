@@ -37,6 +37,7 @@
 #include <slotSensor.h>
 #include <goalSensor.h>
 
+#include <collisionSensor.h>
 #include "multPP.h"
 #include "addPP.h"
 #include "aimPP.h"
@@ -78,7 +79,10 @@
 #include "vectorArrayToMulti.h"
 #include "phiArrayToMulti.h"
 #include "arrayToMulti.h"
+#include "multiBlendVectorPP.h"
 
+
+ 
 
 MStatus initializePlugin( MObject obj)
 {
@@ -97,9 +101,7 @@ MStatus initializePlugin( MObject obj)
 
 	st = plugin.registerNode( "fishDeform", fishDeform::id, fishDeform::creator, fishDeform::initialize); er;
 	
-	// st = plugin.registerNode( "legacySteerRemap", legacySteerRemap::id, legacySteerRemap::creator, legacySteerRemap::initialize );er;
-
-	// st = plugin.registerNode( "legacyTumbler", legacyTumbler::id, legacyTumbler::creator, legacyTumbler::initialize );er;
+ 
 	st = plugin.registerNode( "articulate", articulate::id, articulate::creator, articulate::initialize);er;
 
 	st = plugin.registerData( "poolData", poolData::id, poolData::creator );er;
@@ -114,6 +116,11 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "ellipsoidSensor", ellipsoidSensor::id, ellipsoidSensor::creator, ellipsoidSensor::initialize );er;
 	st = plugin.registerNode( "slotSensor", slotSensor::id, slotSensor::creator, slotSensor::initialize );er;
 	st = plugin.registerNode( "goalSensor", goalSensor::id, goalSensor::creator, goalSensor::initialize );er;
+	
+	st = plugin.registerNode( "collisionSensor", collisionSensor::id, collisionSensor::creator, collisionSensor::initialize );er;
+	
+	
+
 	
 	st = plugin.registerData( "splinePoolData", splinePoolData::id, splinePoolData::creator );er;
 	st = plugin.registerNode( "splinePool", splinePool::id, splinePool::creator, splinePool::initialize );er;
@@ -157,6 +164,7 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "vectorArrayToMulti", vectorArrayToMulti::id, vectorArrayToMulti::creator, vectorArrayToMulti::initialize); er;
 	st = plugin.registerNode( "phiArrayToMulti", phiArrayToMulti::id, phiArrayToMulti::creator, phiArrayToMulti::initialize); er;
 	st = plugin.registerNode( "arrayToMulti", arrayToMulti::id, arrayToMulti::creator, arrayToMulti::initialize); er;
+	st = plugin.registerNode( "multiBlendVectorPP", multiBlendVectorPP::id, multiBlendVectorPP::creator, multiBlendVectorPP::initialize); er;
 
 
 	st = plugin.registerNode( "curvePoints", curvePoints::id, curvePoints::creator, curvePoints::initialize); er;
@@ -186,7 +194,9 @@ MStatus uninitializePlugin( MObject obj)
 	// st = plugin.deregisterNode( hexapodLocator::id );er;	
 	st = plugin.deregisterNode( hexapod::id );er;
 	st = plugin.deregisterNode( curvePoints::id );er;
-	
+			
+  st = plugin.deregisterNode( multiBlendVectorPP::id );er;
+
 		st = plugin.deregisterNode( arrayToMulti::id );er;
 	st = plugin.deregisterNode( phiArrayToMulti::id );er;
 
@@ -235,6 +245,7 @@ MStatus uninitializePlugin( MObject obj)
 	st = plugin.deregisterNode( splineSensor::id );er;
 	st = plugin.deregisterNode( splinePool::id );er;
 	st = plugin.deregisterData( splinePoolData::id );er;
+	st = plugin.deregisterNode( collisionSensor::id );er;
 
 	st = plugin.deregisterNode( goalSensor::id );er;
 	st = plugin.deregisterNode( slotSensor::id );er;

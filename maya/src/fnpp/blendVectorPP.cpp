@@ -2,6 +2,8 @@
 #include <maya/MFnDoubleArrayData.h>
 #include <maya/MFnVectorArrayData.h>
 #include <maya/MFnTypedAttribute.h>
+
+#include <maya/MFnNumericAttribute.h>
 #include <maya/MVectorArray.h> 
 #include <maya/MDoubleArray.h> 
 
@@ -13,7 +15,8 @@
 MTypeId blendVectorPP::id(k_blendVectorPP);
 MObject blendVectorPP::aInput1;
 MObject blendVectorPP::aInput2;	   
-MObject blendVectorPP::aWeight;	   
+MObject blendVectorPP::aWeight;	
+MObject blendVectorPP::aDefaultWeight;
 MObject blendVectorPP::aOutput;
 
 
@@ -36,7 +39,7 @@ MStatus blendVectorPP::initialize () {
 	MStatus st;
 
 	MFnTypedAttribute tAttr;
-
+	MFnNumericAttribute nAttr;
 	aInput1 = tAttr.create("input1", "in1",MFnData::kVectorArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
@@ -52,7 +55,7 @@ MStatus blendVectorPP::initialize () {
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	tAttr.setCached(false);
 	addAttribute(aInput2);
-	
+ 
 	aWeight = tAttr.create("weight", "wt",MFnData::kDoubleArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
@@ -60,6 +63,14 @@ MStatus blendVectorPP::initialize () {
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	tAttr.setCached(false);
 	addAttribute(aWeight);
+
+ 
+	aDefaultWeight = nAttr.create("defaultWeight", "dwt",MFnNumericData::kDouble);
+	nAttr.setWritable(true);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(1.0);
+	addAttribute (aDefaultWeight);
 
 	aOutput = tAttr.create ("output", "out",MFnData::kVectorArray);
 	tAttr.setStorable (false);
@@ -71,6 +82,7 @@ MStatus blendVectorPP::initialize () {
 	attributeAffects (aInput1, aOutput);
 	attributeAffects (aInput2, aOutput);
 	attributeAffects (aWeight, aOutput);
+	attributeAffects (aDefaultWeight, aOutput);
 
 	return MS::kSuccess;
 }
@@ -98,12 +110,18 @@ MStatus blendVectorPP::compute(const MPlug& plug, MDataBlock& data) {
 	MObject objInWt = hWt.data();
 	MDoubleArray wt = MFnDoubleArrayData(objInWt).array();
 
-
+	double defaultWeight = data.inputValue(aDefaultWeight).asDouble(); 
 
 	int len = in1.length();
 
 	if (len != in2.length())	return MS::kUnknownParameter; 
-	if (len != wt.length())	return MS::kUnknownParameter; 
+	if (len != wt.length())	{
+		wt=MDoubleArray(len, defaultWeight);
+	} else {
+		for (unsigned i=0;i<len;i++) {
+			wt[i] = wt[i]* defaultWeight;
+		}
+	}
 
 	MVectorArray out(len);
 	

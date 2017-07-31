@@ -64,6 +64,7 @@ global proc int sensor.typeIsSensor(string $type){
 	if ($type == "exposure") return 1;
 	if ($type == "separation") return 1;
 	if ($type == "ellipsoidSensor") return 1;
+	if ($type == "collisionSensor") return 1;
 	if ($type == "slotSensor") return 1;
 	if ($type == "splineSensor") return 1;
 	if ($type == "geometrySensor") return 1;

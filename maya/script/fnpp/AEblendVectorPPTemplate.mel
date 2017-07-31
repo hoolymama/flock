@@ -1,0 +1,16 @@
+global proc AEblendVectorPPTemplate ( string $nodeName )
+{
+
+	editorTemplate -beginScrollLayout;
+	
+	
+	editorTemplate -cl 0  -beginLayout "Weight Attributes";		
+	
+	editorTemplate -addControl "defaultWeight"  ;
+ 
+	editorTemplate -endLayout;
+
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+}

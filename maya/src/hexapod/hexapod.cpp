@@ -188,8 +188,6 @@ void hexapod::draw(
 	M3dView::DisplayStatus status ) 
 {
 
-	cerr << "hexapod draw" << endl;
-
 	MObject thisNode = thisMObject();
 
 	DisplayMask mask;
@@ -218,9 +216,7 @@ void hexapod::draw(
 
 
 	m_colony->draw(view, mask);
-	// cerr << "After draw" << endl;
-		cerr << "hexapod draw end" << endl;
-
+ 
 }
 
 
@@ -230,9 +226,7 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 {
 	MStatus st;
 
-	cerr << "hexapod::compute" << endl;
-	cerr << "plug: " << plug.name() << endl;
-
+ 
 	if(!(
 		(plug == aOutLeftA) ||
 		(plug == aOutLeftB) ||
@@ -250,8 +244,7 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 		return( MS::kUnknownParameter);
 	}
 
-	cerr << "hexapod::compute" << endl;
-
+ 
 
 	MObject thisNode = thisMObject();
 
@@ -266,8 +259,7 @@ MStatus hexapod::compute(const MPlug& plug, MDataBlock& data)
 
 	bool showDefault = data.inputValue(aDefaultWhenDormant).asBool();
 
-cerr << "hexapod here 1" << endl;
-	
+ 
 	/////// PREP OUTPUTS
 	MVectorArray outLeftA;
 	MVectorArray outLeftB;
@@ -281,8 +273,7 @@ cerr << "hexapod here 1" << endl;
 
 	MIntArray idIndex = MFnIntArrayData(data.inputValue(aIdIndex).data()).array();
 	MIntArray sortedId = MFnIntArrayData(data.inputValue(aSortedId).data()).array();
-cerr << "hexapod here 2" << endl;
-	
+ 
 
 	// if (data.inputValue(aAnimatedFloor).asBool() ||  
 	// 	(! m_colony->hasMesh()) ||  oT == MTime(0.0)) 
@@ -294,19 +285,15 @@ cerr << "hexapod here 2" << endl;
 	if (data.inputValue(aAnimatedFloor).asBool() || 
 		(! m_colony->hasMesh()) ||  oT == MTime(0.0)) 
 	{
-		// cerr << "Setting Floor Mesh" << endl;
 		m_colony->setMesh(thisNode, data);
 	}
 
-cerr << "hexapod here 3" << endl;
-
-
+ 
  	/*
  	Time going backwards or we are before the start frame
  	*/
 	if (dt < 0 ||  oT < MTime(0.0)) {
-			cerr << "hexapod here 4" << endl;
-
+ 
 		m_colony->clear();
 		data.setClean(hexapod::aOutIdIndex);
 		data.setClean(hexapod::aOutSortedId);
@@ -319,7 +306,6 @@ cerr << "hexapod here 3" << endl;
 		data.setClean(hexapod::aOutPosition);
 		data.setClean(hexapod::aOutPhi);
 		data.setClean(hexapod::aOutScale);
-		cerr << "hexapod here 4 end" << endl;
 
 		return( MS::kSuccess );
 	}
@@ -329,8 +315,7 @@ cerr << "hexapod here 3" << endl;
 	We want to show the default pose when no particles exist
 	*/
 	if( (sortedId.length() == 0) && showDefault) {
-				cerr << "hexapod here 5" << endl;
-
+	 
 		m_colony->clear();
 		m_colony->getDefaultOutputData(
 			thisNode, data,
@@ -348,8 +333,7 @@ cerr << "hexapod here 3" << endl;
 		st = outputData(hexapod::aOutPosition, data, outPosition);er;
 		st = outputData(hexapod::aOutPhi, data, outPhi);er;
 		st = outputData(hexapod::aOutScale, data, outScale);er;
-		cerr << "hexapod here 5 end" << endl;
-
+ 
 		return( MS::kSuccess );
 	}
 
@@ -357,20 +341,17 @@ cerr << "hexapod here 3" << endl;
 	If time is moving forward, do a sim step
 	*/
 	if (dt >  0.0 ) {
-					cerr << "hexapod here 6" << endl;
-
+			 
 		// cerr << "Moving forwards - updating....." << endl;
 		m_colony->update(dt, thisNode, data);
 		m_colony->applyActuators(thisNode, data);
-			cerr << "hexapod here 6 end" << endl;
-
+ 
 	}
 
  /*
 	output whatever is stored
  */
-				cerr << "hexapod here 7" << endl;
-
+			 
 	m_colony->getOutputData(idIndex, outLeftA,outLeftB,outLeftC,outRightA,
 		outRightB,outRightC,outPosition,outPhi, outScale
 		);
@@ -386,8 +367,7 @@ cerr << "hexapod here 3" << endl;
 	st = outputData(hexapod::aOutPosition, data, outPosition);
 	st = outputData(hexapod::aOutPhi, data, outPhi);
 	st = outputData(hexapod::aOutScale, data, outScale);
-			cerr << "hexapod here 7 end" << endl;
-
+	 
 	return( MS::kSuccess );
 }
 

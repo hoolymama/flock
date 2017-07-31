@@ -4,7 +4,7 @@ Set up the new control for the first time
 */
 global proc AEActuatorNew(string $nodeAttr){
 
-	print($nodeAttr+"\n");
+	// print($nodeAttr+"\n");
 
 	setUITemplate -pst attributeEditorTemplate;
 	string $nodeName = attr.nodeFromNodeAttr($nodeAttr);
@@ -50,7 +50,7 @@ proc string gradientOptionVarName(string $controlName, int $index) {
 			string $cmd=("setAttr "+$nodeAttr+"["+$index+"].actuatorRamp["+$i+"] "+ $val +" "+$pos+" "+ $interp+";");
 			evalEcho($cmd);
 		}
-		print("\n");
+		// print("\n");
 		for ($j in $actualStopIndices) {
 			if ($j >= $i) {
 				removeMultiInstance  ($nodeAttr+"["+$index+"].actuatorRamp["+$j+"]");
@@ -192,12 +192,12 @@ global proc updateActuatorFrameLabel(
 	string $channel = `getAttr -as ($nodeAttr+"["+$index+"].actuatorOutputChannel")`;
 	int $active = `getAttr ($nodeAttr+"["+$index+"].actuatorActive")`;
 
-	print("$rank: "+ $rank+"\n");
-	print("$axis: "+ $axis+"\n");
-	print("$channel: "+ $channel+"\n");
-	print("$active: "+ $active+"\n");
+	// print("$rank: "+ $rank+"\n");
+	// print("$axis: "+ $axis+"\n");
+	// print("$channel: "+ $channel+"\n");
+	// print("$active: "+ $active+"\n");
 
-	print($nodeAttr+"["+$index+"].actuatorRank");
+	// print($nodeAttr+"["+$index+"].actuatorRank");
 
 	string $activeStr = $active ? " (Active)" : " (Inactive)";
 	string $label = ($rank+":"+$axis+"-->"+$channel+ " ["+$index+"] " +$activeStr);
@@ -219,21 +219,21 @@ global proc AEActuatorReplace(string $nodeAttr){
 	for ($frame in $frames) {
 		deleteUI($frame);
 	}
-	print("AEActuatorReplace: "+ $nodeAttr +"\n");
+	// print("AEActuatorReplace: "+ $nodeAttr +"\n");
 
 	int $size = `getAttr  -size $nodeAttr`;
-	print("$size: "+ $size +"\n");
+	// print("$size: "+ $size +"\n");
 	int $indices[] = `getAttr -mi $nodeAttr`;
 
-	print("$indices:\n ");
-	print($indices);
+	// print("$indices:\n ");
+	// print($indices);
 	
 	int $numAtts = `size $indices`;
 
 
 
 	for ($index in $indices) {
-		print("adding plug "+$index+"\n");
+		// print("adding plug "+$index+"\n");
 		setParent $controlName;
 		string $frame = `frameLayout -cll 1 -cl 0 -label ("actuator:"+$index)`;
 
@@ -275,7 +275,7 @@ global proc AEActuatorReplace(string $nodeAttr){
 
 		string $updateFrameLabelCmd = ("updateActuatorFrameLabel(\""+$nodeAttr+"\", "+$index+", \""+$frame+"\")");
 		string $delIndexCmd = ("removeMultiInstance \""+$nodeAttr+"["+$index+"]\"");
-		print($delIndexCmd+"\n");
+		// print($delIndexCmd+"\n");
 		symbolButton -e -c  $updateFrameLabelCmd $labelBtn;
 		symbolButton -e -c  $delIndexCmd $deleteBtn;
 

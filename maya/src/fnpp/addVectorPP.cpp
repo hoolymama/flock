@@ -78,7 +78,7 @@ MStatus addVectorPP::compute (const MPlug& plug, MDataBlock& data)
 	unsigned len;
 	for(unsigned i = 0;i < num; i++, hInArray.next()) {
 
-		cerr << "addVectorPP loop" << endl;
+		// cerr << "addVectorPP loop" << endl;
 		MDataHandle hIn = hInArray.inputValue(&st);
 		if(st.error()) continue;
 		MObject dIn = hIn.data();

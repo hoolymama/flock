@@ -112,7 +112,7 @@ phiArrayToMulti::~phiArrayToMulti () {}
 MStatus phiArrayToMulti::compute (const MPlug& plug, MDataBlock& data) 
 {
 	if (! (plug == aOutput ) ) return MS::kUnknownParameter;	
-	cerr << 	"phiArrayToMulti::compute: plug="	 << plug.name() << endl;
+	// cerr << 	"phiArrayToMulti::compute: plug="	 << plug.name() << endl;
 	MStatus st = MS::kSuccess;
 	MDataHandle hIn = data.inputValue( aInput, &st );	ert;
 	MObject objIn  = hIn.data();

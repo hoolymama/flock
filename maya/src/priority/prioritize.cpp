@@ -33,13 +33,12 @@ MObject prioritize::aDrawColorR;
 MObject prioritize::aDrawColorG;
 MObject prioritize::aDrawColorB;
 MObject prioritize::aActive;
-// MObject prioritize::aContainerContribution;
-MObject prioritize::aMagnitude;
+ MObject prioritize::aMagnitude;
 
 
-MObject prioritize::aInData;				// compound (multi)
+MObject prioritize::aInData;				 
 MObject prioritize::aMaxForce;
-MObject prioritize::aEnableGraph;		// cache and do drawing
+MObject prioritize::aEnableGraph;		 
 
 
 MObject prioritize::aSampleBy;	
@@ -48,19 +47,15 @@ MObject prioritize::aWidth;
 MObject prioritize::aXOffset;	
 MObject prioritize::aYOffset;	
 
-MObject prioritize::aCurrentTime;	
 
 MObject prioritize::aOutForce; 
-
+MObject prioritize::aOutForces; 
 prioritize::prioritize() {
-	m_lastTimeIEvaluated = MAnimControl::currentTime();
-	m_drawCache = 0;
-	drawState = 0;
+ 
 }
 
 prioritize::~prioritize() {
-	if (m_drawCache) delete m_drawCache;
-	m_drawCache = 0;
+ 
 }
 
 MStatus prioritize::connectionBroken ( const MPlug & plug, const MPlug & otherPlug, bool asSrc ){
@@ -83,169 +78,91 @@ MStatus prioritize::connectionBroken ( const MPlug & plug, const MPlug & otherPl
 MStatus prioritize::compute( const MPlug& plug, MDataBlock& data )
 { 
 
-
-// cerr << "prioritiz::compute" << endl;
-
-
 	MStatus st;
-	if( plug != aOutForce)  return MS::kUnknownParameter;
+	if(! (( plug == aOutForce) || (plug == aOutForces)) ) return MS::kUnknownParameter;
 
 
 
-
-	short doDraw = data.inputValue(aEnableGraph).asShort();
-	if (m_drawCache){delete m_drawCache;m_drawCache = 0;}
-
-
-	MTime cT =  data.inputValue( aCurrentTime).asTime();
-	MTime dT = cT - m_lastTimeIEvaluated;
-	m_lastTimeIEvaluated = cT;
-
-	MVectorArray outForce;
-
-	double dt = dT.as( MTime::kSeconds );
-	if (dt <= 0.0) {
-		// cerr << "priority clean" << endl;
-		MDataHandle hOut =  data.outputValue( aOutForce, &st); er;
-		MFnVectorArrayData fnOutput;
-		MObject dOutput = fnOutput.create( outForce, &st );er;
-		hOut.set( dOutput);
-		data.setClean( plug );
-		return( MS::kSuccess );
-
- 
-	}
+	double maxForce = data.inputValue( aMaxForce).asDouble();
+	if (maxForce < 0.0) maxForce = 0.0;
 
 
+	MVectorArray outTotalForce;
+	MDoubleArray accum;
 
 
-	if (doDraw ) m_drawCache = new VEC_LIST;
-	m_colorArray.clear();
+	MArrayDataHandle ha = data.inputArrayValue( aInData, &st ); 
 
-	
-	double maxContrib = data.inputValue( aMaxForce).asDouble();
-	if (maxContrib < 0.0) maxContrib = 0.0;
-
-	double magnitude = data.inputValue( aMagnitude).asDouble();
-	
-	MArrayDataHandle hInData = data.inputArrayValue( aInData, &st ); 
-
-	MDoubleArray previousMag;
-	MIntArray elementFull;
 
 	bool firstIter = true;
-	unsigned int firstLength = 0;	
+	unsigned int len = 0;	
 
-	unsigned n = hInData.elementCount();
-
-	MString nodeName = MFnDependencyNode(thisMObject()).name();
-
-	
-
-	MDataHandle hInPos = data.inputValue( aPositions, &st ); er;
-	MObject dInPos= hInPos.data();
-	MFnVectorArrayData fnInPos( dInPos,  &st ); er;			
-	m_positions.copy(fnInPos.array( &st ));	er;		
-
-	if (magnitude != 0.0) {
-		for(unsigned i = 0;i < n; i++, hInData.next()) {
-
-			MDataHandle hInDataCompound = hInData.inputValue(&st ); er;			if (st.error()) continue;
-			bool active = hInDataCompound.child(aActive).asBool();
-		//	float contrib = hInDataCompound.child(aContainerContribution).asFloat();
-			MDataHandle hInForce = hInDataCompound.child( aInForce );
-			MObject dInForce = hInForce.data();
-			MFnVectorArrayData fnInForce( dInForce,  &st ); 				if (st.error()) continue;
-			const MVectorArray & inForce = fnInForce.array( &st );				if (st.error()) continue;
-
-			MDataHandle hDrawColor = hInDataCompound.child( aDrawColor );
-
-			unsigned length = inForce.length();
-			unsigned firstInputId=0;
-			// ignore inputs that have been specified as inactive. But also ignore inputs with zero length.
-			if (active && length) {
-			//	cerr << "m_positions " << m_positions.length() << "length " << length << endl;
-
-				if (firstIter) {
-					firstInputId = i;
-					firstLength = length;
-					firstIter = false;
-					outForce = MVectorArray(length, MVector::zero);
-					previousMag = MDoubleArray(length, 0.0);
-					elementFull = MIntArray(length, 0);
-				} 
-
-				if (length != firstLength ) {
-
-					// MGlobal::displayWarning("Array lengths in prioritize node do not match");
-						// MString msg("Array order:"+i+" doesn't match -- length:" + length);
-					MString msg(nodeName + " input:");
-					msg = (msg + i);
-					msg = (msg + " length (");
-					msg = (msg + length);
-					msg = (msg + ") doesn't match input: ");
-					msg = (msg + firstInputId);
-					msg = (msg + " length (");
-					msg = (msg + firstLength);
-					msg = (msg + ")");
-					MGlobal::displayWarning(msg);
-
-					continue;
-				}
-
-				MVectorArray clippedVector;
-				if (m_drawCache) clippedVector = MVectorArray(length, MVector::zero);
-
-				for (unsigned j= 0; j < length; j++) {
-
-					int & full = elementFull[j];					
-					if (!full) {
-
-						MVector & out = outForce[j];	
-						double & prev = previousMag[j];					
-						double tmpMag = inForce[j].length();
+	unsigned numElements = ha.elementCount();
 
 
-						if (tmpMag) {
-							double remaining = (maxContrib - prev) ;
-							if (remaining > tmpMag ) { // space left in container is enough for new force
-								if (m_drawCache) clippedVector[j] = inForce[j];
+	MArrayDataHandle     hOutputForces = data.outputArrayValue( aOutForces, &st ); er;
+	MArrayDataBuilder    bOutputForces = hOutputForces.builder();
+	MFnVectorArrayData 	 fnOutputForce;
 
-								out += inForce[j];
-								prev += tmpMag;
-								full = 0;
-							} else { // space left in container is not enough for new force
-								MVector tv = (inForce[j].normal() * remaining);
-								if (m_drawCache) clippedVector[j] = tv ;
-								out += tv ;
 
-								prev += remaining;
-								full = 1;
-							}
-						}
+	const double epsilon = 1e-9;
+	for(unsigned i = 0;i < numElements; i++, ha.next()) {
+
+		unsigned elementIndex = ha.elementIndex(&st); er;	if (st.error()) continue;
+
+
+
+		MDataHandle hInDataCompound = ha.inputValue(&st ); er;	 if (st.error()) continue;
+
+		bool active = hInDataCompound.child(aActive).asBool();
+
+		MObject dInForce =  hInDataCompound.child( aInForce ).data();
+		MFnVectorArrayData fnInForce(dInForce);
+
+		if (firstIter) {
+			len =  fnInForce.length();
+			outTotalForce = MVectorArray(len);
+			accum  = MDoubleArray(len);
+			firstIter = false;
+		}
+
+		MVectorArray outForce = MVectorArray(len);
+
+		if (active && (fnInForce.length() == len)){
+			MVectorArray inForce = fnInForce.array();
+			for (unsigned j= 0; j < len; j++) {
+
+				if ((accum[j]+epsilon) < maxForce) {
+					double remaining = (maxForce - accum[j]) ;
+					double tmpMag = inForce[j].length();
+
+					if (tmpMag > remaining) {
+						outForce[j] = (inForce[j].normal() * remaining);
+						accum[j] = maxForce; 
+					}	else {
+						outForce[j] =  inForce[j];
+						accum[j] += inForce[j].length(); 
 					}
+					outTotalForce[j] +=  outForce[j];
 				}
-				if (m_drawCache) m_drawCache->push_back(clippedVector);					
-				m_colorArray.append(MColor(hDrawColor.asFloat3()));
-
-			}
+			}	
 		}
 
-		// mult the result
-		if (magnitude !=1.0) {
-			unsigned flen = outForce.length();
-			for (unsigned j = 0;j<  flen ; j++ ) {
-				outForce[j] = outForce[j]  * magnitude;
-			}
-		}
-		
+		MDataHandle hOutForce = bOutputForces.addElement(elementIndex);
+		MObject dOutputForce = fnOutputForce.create( outForce, &st );er;
+		hOutForce.set( dOutputForce);
+
 	}
 
-	MDataHandle hOut =  data.outputValue( aOutForce, &st); er;
-	MFnVectorArrayData fnOutput;
-	MObject dOutput = fnOutput.create( outForce, &st );er;
-	hOut.set( dOutput);
-	data.setClean( plug );
+	MDataHandle hTotalOutputForce =  data.outputValue( aOutForce, &st); er;
+	MFnVectorArrayData fnTotalOutputForce;
+	MObject dTotalOutputForce = fnTotalOutputForce.create( outTotalForce, &st );er;
+	hTotalOutputForce.set( dTotalOutputForce);
+
+
+	hTotalOutputForce.setClean();
+	hOutputForces.setAllClean();
+	
 	return( MS::kSuccess );
 }
 
@@ -256,34 +173,16 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 
 	MStatus st;
 
-
-
-	MObject thisNode = thisMObject();
-
-
-
+ MObject thisNode = thisMObject();
 
 	MPlug enPlug( thisNode, aEnableGraph );
 	short doDrawing; 
-	st = enPlug.getValue (doDrawing  );
-
+	st = enPlug.getValue (doDrawing);
 	if (doDrawing == DRAW_OFF) {
 		return;
 	}
-	if ( ! m_drawCache) return;
 
-	// get values from plugs
-	/////////////////////////////////////////
-// MVectorArray positions;
-// if (doDrawing > 1) {
-// 	MPlug posPlug( thisNode, aPositions );
-// 	MObject dPositions;
-// 	st = posPlug.getValue (dPositions ); er;
-// 	if (dPositions.hasFn(MFn::kVectorArrayData)){
-// 		MFnVectorArrayData fnPositions(dPositions);
-// 		positions = fnPositions.array();
-// 	}
-// }
+
 
 	MPlug gPlug( thisNode, aGlyphScale );
 	double glyphScale; 
@@ -315,59 +214,90 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 	/////////////////////////////////////////
 
 
-
 	if (sampleBy < 1)  sampleBy = 1;
-	// unsigned int i, j;
-
-	VEC_LIST::iterator iter = m_drawCache->begin();
-	unsigned int count = 0;
-
-
-	bool firstGoRound = true;
+ 
 
 	int pw = view.portWidth();
 	int ph = view.portHeight();
-
 	int x0, x1, y0, y1;
-
-	//int yStart; 
-	//int yEnd; 
-
+	int yStart; 
+	int yEnd; 
 	x0 = int(xOffset * pw);
 	y0 = int(yOffset * ph);
 	x1 = int((xOffset + width) * pw);
 	y1 = int((yOffset + height) * ph);
 
 
-	if (!((x1>x0)&&(y1> y0))) return;
+		MString msg = MFnDependencyNode(thisNode).name();
+		msg += " cannot draw unless you connect an array of positions";
+
+
+	MPlug positionPlug( thisNode, aPositions );
+	MObject dPositions;
+	st = positionPlug.getValue(dPositions);
+	if (st.error()) {
+		 MGlobal::displayWarning(msg);
+		 return;
+	}
+	MFnVectorArrayData fnV(dPositions);
+	MVectorArray position = fnV.array(&st); 
+	if (st.error()) {
+		 MGlobal::displayWarning(msg);
+     return;
+	}
+	unsigned len = position.length();
+
+
+	MObject thisObj = thisMObject();
+	MPlug inDataPlug(thisObj, aInData);
+	MPlug outForcePlug(thisObj, aOutForces);
+
+	unsigned numIn =  inDataPlug.numElements();
 
 	view.beginGL(); 
-
-
 	glPushAttrib(GL_CURRENT_BIT);
 	glClear(GL_CURRENT_BIT);
 
 
-	if ((doDrawing == DRAW_BARS)|| (doDrawing == DRAW_BOTH)) {
+		// draw the graph
+	if ((doDrawing == DRAW_BARS) || (doDrawing == DRAW_BOTH)) {
+
+		if ((pw * width) < (len / sampleBy)) {
+			sampleBy = short((len / (pw * width)) + 1);
+		}
+		int numSamples =  short(len / sampleBy );
+
+		MIntArray xPositions(numSamples);
+		MIntArray yPositions(numSamples);
+
+		double range = width * pw;
+		double spacing = 1.0 / numSamples;
+		for (unsigned i = 0; i< numSamples; i++){
+			xPositions[i] = int((xOffset*pw) + (  range * i * spacing ));
+		}
+		yPositions = MIntArray(numSamples, int(yOffset * ph));
+
+		double graphHeight =  ph * height ;
+		double normalizer = 	graphHeight	/ maxForce;
+		int tmp ;
 
 
-		// setup projection
-		////////////////////////////
+
+		// 	// setup projection
+		// 	////////////////////////////
 		glMatrixMode( GL_MODELVIEW );
 		glPushMatrix();
 		glLoadIdentity();
 		glMatrixMode( GL_PROJECTION );
 		glPushMatrix();
 		glLoadIdentity();
- 
+
 		gluOrtho2D(
 			0.0, (GLdouble) pw,
 			0.0, (GLdouble) ph
 			);
 		glMatrixMode( GL_MODELVIEW );
 		glShadeModel(GL_SMOOTH);
-		////////////////////////////
-
 
 		// draw the outline
 		////////////////////////////
@@ -377,182 +307,108 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 		glVertex2i(x1, y1);
 		glVertex2i(x1, y0); 
 		glEnd();
-		////////////////////////////
 
-
-		// draw maxVal
 		MPoint posTopRight, farClp; 
 		view.viewToWorld( x1, y1,  posTopRight, farClp ) ;
 		view.drawText(MFnDependencyNode(thisNode).name(), posTopRight,  M3dView::kRight);
 
 
-
-
-		MIntArray xPositions;
-		MIntArray yPositions;
-
-		unsigned int numSamples = 1;
-
-		// draw bar chart
-		////////////////////////////
 		glBegin(GL_LINES);
-		while (iter != m_drawCache->end()) {
 
-			view.setDrawColor(m_colorArray[count]);
-			MVectorArray & curVectors = *iter;
-			unsigned int len = curVectors.length();
-			if (len) {
+		for (int i = 0; i < numIn; ++i)
+		{
+			MPlug inPlug = inDataPlug.elementByPhysicalIndex(i);
+			unsigned logicalIndex = inPlug.logicalIndex();
 
+			MPlug colorPlug  = inPlug.child(aDrawColor) ;
+			float colorRed,colorGreen,colorBlue;
+			colorPlug.child(0).getValue(colorRed);
+			colorPlug.child(1).getValue(colorGreen);
+			colorPlug.child(2).getValue(colorBlue);
 
-				if (firstGoRound ){
-					if ((pw * width) < (len / sampleBy)) 
-						sampleBy = short((len / (pw * width)) + 1);
+			MPlug outPlug = outForcePlug.elementByLogicalIndex(logicalIndex);
+			MObject o;
+			st = outPlug.getValue(o);er;
+			MFnVectorArrayData fnV(o, &st);er;
+			MVectorArray dir = fnV.array();
 
-					numSamples =  short(len / sampleBy );
+			view.setDrawColor( MColor( MColor::kRGB, colorRed, colorGreen, colorBlue ) );
 
-					xPositions.setLength(numSamples);
-					double range = width * pw;
-					double spacing = 1.0 / numSamples;
-					for (unsigned i = 0; i< numSamples; i++){
-						xPositions[i] = int((xOffset*pw) + (  range * i * spacing ));
-					}
-					yPositions = MIntArray(numSamples, int(yOffset * ph));
-					firstGoRound = false;
-				}
-
-				double graphHeight =  ph * height ;
-
-				double normalizer = 	graphHeight	/ maxForce;
-				int tmp ;
-
-				for (unsigned i=0,   j=0; ((i<len) && (j < numSamples)) ;i+=sampleBy,j++) {
-					int screenMag =  int(curVectors[i].length() * normalizer) ;
-
-					glVertex2i(xPositions[j],yPositions[j]);	
-					tmp = yPositions[j] + screenMag;
-					glVertex2i(xPositions[j],tmp);	
-
-					yPositions[j] = tmp;
-
-				}
-			}			
-			count++;
-			iter++;
+			for (unsigned i=0, j=0; ((i<len) && (j < numSamples)) ;i+=sampleBy,j++) {
+				int screenMag =  int(dir[i].length() * normalizer) ;
+				glVertex2i(xPositions[j],yPositions[j]);	
+				tmp = yPositions[j] + screenMag;
+				glVertex2i(xPositions[j],tmp);	
+				yPositions[j] = tmp;
+			}
 		}
-
 		glEnd();
-		////////////////////////////
-
-
 		glMatrixMode( GL_PROJECTION );
 		glPopMatrix();
 		glMatrixMode( GL_MODELVIEW );
 		glPopMatrix();
-	}	
-	// draw posGlyphs
-	////////////////////////////
-	if ((doDrawing == DRAW_GLYPH) || (doDrawing == DRAW_BOTH)) {
 
-		unsigned int pl = m_positions.length();
-		if (pl) {
-			iter = m_drawCache->begin(); 
-			count = 0;
-			glBegin(GL_LINES);
-			while (iter != m_drawCache->end()) {
-				MVectorArray & curVectors = *iter;
-				unsigned int len = curVectors.length();
-				if (len == pl) {
-					view.setDrawColor(m_colorArray[count]);
-					for (unsigned i=0; i<len ;i++) {
-
-
-						glVertex3f(float(m_positions[i].x) ,float(m_positions[i].y) ,float(m_positions[i].z) );
-						glVertex3f(
-							(float((curVectors[i].x * glyphScale ) + m_positions[i].x)),
-							(float((curVectors[i].y * glyphScale ) + m_positions[i].y)),
-							(float((curVectors[i].z * glyphScale ) + m_positions[i].z))
-							);
-					}
-				} //else {
-				//		cerr << "len=" << len << "  --  pl=" << pl << endl;
-
-				//	}
-				count++;
-				iter++;
-			}
-			glEnd();	
-		}
 	}
 
-	////////////////////////////		
-	/*
-	if (!drawState) {
+	if ((doDrawing == DRAW_GLYPH) || (doDrawing == DRAW_BOTH)) {
+ 
+		glBegin(GL_LINES);
 
-#ifndef _WIN32
-glXSwapBuffers( view.display(), view.window() );
-#else
-SwapBuffers( view.deviceContext() );
-#endif // _WIN32
-drawState = true;
-}
-*/
+		for (int i = 0; i < numIn; ++i)
+		{
+			MPlug inPlug = inDataPlug.elementByPhysicalIndex(i);
+			unsigned logicalIndex = inPlug.logicalIndex();
+
+			MPlug colorPlug  = inPlug.child(aDrawColor) ;
+			float colorRed,colorGreen,colorBlue;
+			colorPlug.child(0).getValue(colorRed);
+			colorPlug.child(1).getValue(colorGreen);
+			colorPlug.child(2).getValue(colorBlue);
+
+			MPlug outPlug = outForcePlug.elementByLogicalIndex(logicalIndex);
+			MObject o;
+			st = outPlug.getValue(o);er;
+			MFnVectorArrayData fnV(o, &st);er;
+			MVectorArray dir = fnV.array();
+
+			view.setDrawColor( MColor( MColor::kRGB, colorRed, colorGreen, colorBlue ) );
+
+
+
+			for (unsigned i=0 ;  i<len  ;i++) {
+
+				glVertex3f(float(position[i].x) ,float(position[i].y) ,float(position[i].z) );
+				glVertex3f(
+					(float((dir[i].x * glyphScale ) + position[i].x)),
+					(float((dir[i].y * glyphScale ) + position[i].y)),
+					(float((dir[i].z * glyphScale ) + position[i].z))
+					);
+
+
+			}
+		}
+
+		glEnd();	
+
+
+	}
+
 
 	glPopAttrib();	
 
 	view.endGL();
-	//cerr  << "out draw" << endl;
+
 }
 
 bool prioritize::isBounded() const
 { 
-	return true;
+	return false;
 }
 MBoundingBox prioritize::boundingBox() const
 {   
-	//cerr << " in boundingBox" << endl;
-	MStatus st;
-
-	MObject thisNode = thisMObject();
-
-	MPlug enPlug( thisNode, aEnableGraph );
-
-
-	MPlug hPlug( thisNode, aHeight );
-	double height; 
-	st = hPlug.getValue (height ); er;
-
-	MPlug wPlug( thisNode, aWidth );
-	double width; 
-	st = wPlug.getValue (width ); er;
-
-	MPlug xPlug( thisNode, aXOffset );
-	double xOffset; 
-	st = xPlug.getValue (xOffset ); er;
-
-	MPlug yPlug( thisNode, aYOffset );
-	double yOffset; 
-	st = yPlug.getValue (yOffset ); er;
-
-	M3dView view = M3dView::active3dView();
-	int pw = view.portWidth();
-	int ph = view.portHeight();
-
-	MPoint nearPt;
-	MPoint farPt;
-	short scrCorner1X	=	short( xOffset * pw);
-	short scrCorner1Y	=	short( yOffset * ph);
-	short scrCorner2X	=	short((xOffset + width) * pw) ;
-	short scrCorner2Y	=	short((yOffset + height) * ph);
-
-	view.viewToWorld(scrCorner1X, scrCorner1Y, nearPt, farPt);
-	MPoint corner1((nearPt + farPt )*0.5);
-	view.viewToWorld(scrCorner2X, scrCorner2Y , nearPt, farPt);
-	MPoint corner2(( nearPt + farPt)*0.5);
-
-	//cerr << " out boundingBox" << endl;
-
-	return MBoundingBox( corner1, corner2 );
-}
+	 
+	return MBoundingBox( MPoint(), MPoint() );
+ }
 
 void* prioritize::creator()
 {
@@ -573,7 +429,6 @@ MStatus prioritize::initialize()
 
 	aInForce = tAttr.create("inSignal", "isg", MFnData::kVectorArray , &st ); ert;
 	tAttr.setStorable(false);
-	//st = addAttribute( aInForce ); e;
 
 	aActive = nAttr.create( "active", "act",MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
@@ -603,10 +458,7 @@ MStatus prioritize::initialize()
 	nAttr.setKeyable(true);
 	nAttr.setUsedAsColor(true);
 
-  //  aContainerContribution = nAttr.create( "containerContribution", "ccn",MFnNumericData::kFloat);
-  //  nAttr.setStorable(true);
-  //  nAttr.setKeyable(true);
-  //  nAttr.setDefault(1.0f);
+ 
 
 	aInData = cAttr.create("inputData", "ind");
 	cAttr.addChild(aInForce);
@@ -631,13 +483,7 @@ MStatus prioritize::initialize()
 	nAttr.setKeyable(true);
 	nAttr.setDefault(1.0);
 	st =addAttribute(aMaxForce);
-
-	aMagnitude = nAttr.create( "magnitude", "mag",MFnNumericData::kDouble);
-	nAttr.setStorable(true);
-	nAttr.setKeyable(true);
-	nAttr.setDefault(1.0);
-	st =addAttribute(aMagnitude);
-	
+ 
 	aEnableGraph = eAttr.create("drawStyle","dst");
 	eAttr.addField( "off"	,  DRAW_OFF     );
 	eAttr.addField( "bars"	,  DRAW_BARS 	);
@@ -683,17 +529,28 @@ MStatus prioritize::initialize()
 	nAttr.setDefault(1.0);
 	st =addAttribute(aGlyphScale);
 
+
+	aOutForces = tAttr.create("outForces","ofcs", MFnData::kVectorArray);
+	tAttr.setStorable(false);
+	tAttr.setReadable(true);
+	tAttr.setArray(true);
+	tAttr.setUsesArrayDataBuilder(true);
+	st = addAttribute( aOutForces ); ert;
+
 	aOutForce = tAttr.create("outSignal","osg", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	st = addAttribute( aOutForce ); ert;
 
-	aCurrentTime = uAttr.create( "currentTime", "ct", MFnUnitAttribute::kTime );
-	uAttr.setStorable(true);
-	st =  addAttribute(aCurrentTime);  er;
+	st = attributeAffects(aInForce, aOutForce );er;
+	st = attributeAffects(aActive, aOutForce );er;
+	st = attributeAffects(aInData, aOutForce );er;
+	st = attributeAffects(aMaxForce, aOutForce );er;
 
-
-	st = attributeAffects( aCurrentTime, aOutForce );ert;
+	st = attributeAffects(aInForce, aOutForces );er;
+	st = attributeAffects(aActive, aOutForces );er;
+	st = attributeAffects(aInData, aOutForces );er;
+	st = attributeAffects(aMaxForce, aOutForces );er;
 
 	return MS::kSuccess;
 }

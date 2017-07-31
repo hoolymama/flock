@@ -9,7 +9,9 @@ virtual	void		postConstructor();
 	private:
 		static MObject aInput1;
 		static MObject aInput2;	   
-		static MObject aWeight;	   
+		static MObject aWeight;	
+
+    static MObject aDefaultWeight;	    
 		static MObject aOutput;
 
 };
