@@ -34,8 +34,18 @@ proc amDoConnect(
  proc string[]  getNamespaces(string $node){
 
 	string $paths[] = `listRelatives -f $node`;
+
+		print ( "============\n" );
+print (   $paths  );
+	print ( "============\n" );
+
+
   string $root = string.firstToken($paths[0], "|");
  
+
+	print (" $root : "+  $root + "\n");
+
+
 	string $ns[] = `listRelatives -c $root`;
   int $num = `size $ns`;
 	for ($i = 0;$i< $num ; $i++) {
@@ -48,6 +58,9 @@ proc amDoConnect(
 proc string[] allAgentDestPlugs(string $plug) {
 	string $node =  plugNode($plug);
 	string $attr =  plugAttr($plug);
+
+
+	print (" $node : "+  $node + "\n");
 	string $namespaces[] = getNamespaces($node);
 	string $commonNodeName = string.lastToken($node, ":");
 

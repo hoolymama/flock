@@ -95,7 +95,7 @@ approach::initialize()
 	attributeAffects( 	 aMaxSeparation  	, aAssessment	);  
 
 	attributeAffects( 	 aSeparationDecay  	, aAssessment	);  
- 
+
 	attributeAffects( 	 aMaxTime  	, aAssessment	);  
 
 	attributeAffects( 	 aTimeDecay  	, aAssessment	);  
@@ -113,6 +113,7 @@ void* approach::creator()
 MStatus approach::assess( MDataBlock& data, const poolData * pd, MVectorArray &assessment)
 {
 	
+
 	MStatus st;
 	MString method(" approach::assess");
 	const double epsilon = 1e-6;
@@ -123,11 +124,18 @@ MStatus approach::assess( MDataBlock& data, const poolData * pd, MVectorArray &a
 	MVectorArray  viewVectors;
 	st = getRequiredSensorData(data, points, velocities, viewVectors); ert;
 	
+
+
+	// cerr << "points.length(): " << points.length() << endl;
+	// cerr << "velocities.length(): " << velocities.length() << endl;
+	// cerr << "viewVectors.length(): " << viewVectors.length() << endl;
+
 	MDoubleArray maxDistPP = MFnDoubleArrayData(data.inputValue(sensor::aMaxDistancePP).data()).array();
 	bool doMaxDistPP = false;	
 	unsigned len = points.length();
 	if ((maxDistPP.length() == len) && data.inputValue(aUseMaxDistancePP).asBool())	 doMaxDistPP = true;
 	////////////////////////////////////////////////////
+	
 	
 	// get double arrays from the other sensor attributes
 	////////////////////////////////////////////////////	
@@ -142,26 +150,29 @@ MStatus approach::assess( MDataBlock& data, const poolData * pd, MVectorArray &a
 	double maxTim =  data.inputValue(aMaxTime).asDouble();
 	double timDec = data.inputValue(aTimeDecay).asDouble();
 	
- 	bool   useRamps = data.inputValue(aUseRampAttenuation).asBool();
-
+	bool   useRamps = data.inputValue(aUseRampAttenuation).asBool();
+	
+	
 	////////////////////////////////	
 
 	
-	
-//	MVectorArray assessment(len);
+
 	int num = data.inputValue(aMaxNeighbors).asShort();
 	
 	if (num && (0.0 != acuity) && (0.0 != radius) && (0.0 < fov ) ) {
 		
 		
 		const AGENT_VECTOR * allAgents = pd->tree()->perm();
-		//cerr << "allAgents size " << allAgents->size() << endl;;
+	  // cerr << "allAgents size " << allAgents->size() << endl;;
 		unsigned i;
 		MRampAttribute fovRamp( thisMObject() , aFovProfile, &st ); er;
 		MRampAttribute decRamp( thisMObject() , aDecayProfile, &st ); er;
+		
+
 
 		for (AGENT_VECTOR::const_iterator searchAgent = allAgents->begin(); searchAgent!=allAgents->end(); searchAgent++ ) {
-			i = (*searchAgent)->id();
+	i = (*searchAgent)->id();
+				 // cerr << "i " << i << endl;;
 			
 			if (acuity == 0.0) continue;
 			
@@ -181,10 +192,12 @@ MStatus approach::assess( MDataBlock& data, const poolData * pd, MVectorArray &a
 			
 			////////////////////////////////
 			MVector signal(MVector::zero);
+			
 
 			const MVector viewVectorN = viewVectors[i].normal(); 
+			
 			////////////////////////////////
-	
+
 			unsigned c;
 			unsigned iter = 0;
 			for (AGENT_VECTOR::const_iterator currAgent = neighbors->begin(); currAgent!=neighbors->end(); currAgent++ ) {
@@ -216,28 +229,34 @@ MStatus approach::assess( MDataBlock& data, const poolData * pd, MVectorArray &a
 					atten = attenuateSense(
 						points[i],viewVectorN,fovRamp,decRamp,
 						points[c],resultDists[iter],radius
-					);
+						);
 				} else {
 					atten = attenuateSense(
 						points[i],viewVectorN,fov,drp,dec,
 						points[c],resultDists[iter],radius
-					);
+						);
 				}
+				
+
 				signal += diff.normal() * atten * timeAtten * sepAtten;
 				
+
 				iter++;
 			}
 			signal *= acuity  ;
 			
+
 			assessment.set(signal,i);
 			if (neighbors) {
 				delete neighbors;
 				neighbors=0; 
 			}	
+			
+
 		}
 		
 	//	sensor::multAssessment(data, assessment);
-			
+
 	}
 	
    //MDataHandle hOut = data.outputValue(sensor::aAssessment);

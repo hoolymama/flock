@@ -443,7 +443,6 @@ MStatus hexapod::initialize()
 	addAttribute( aUseMeshFloor ); 
 
 
-
 	aCurrentTime = uAttr.create( "currentTime", "ct", MFnUnitAttribute::kTime );
 	uAttr.setStorable(true);
 	st =  addAttribute(aCurrentTime);  er;
@@ -452,6 +451,7 @@ MStatus hexapod::initialize()
 	uAttr.setStorable(true);
 	st =  addAttribute(aStartTime);  er;
 	
+
 	aDefaultWhenDormant = nAttr.create( "defaultWhenDormant", "dwd",MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);

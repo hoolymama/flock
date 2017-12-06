@@ -122,9 +122,14 @@ proc setEnabledArrowStates(string $parent){
 }
 
 
-proc createSignalFrame(string $parent) {
+proc createSignalFrame(string $parent, int $odd) {
 	setParent $parent;
-	frameLayout -cll 0 -lv 0;
+	print ($odd +"\n");
+	if ($odd) {
+		frameLayout -bgs true -ebg true -cll 0 -lv 0;
+	} else {
+		frameLayout -cll 0 -lv 0;
+	}
 	
 
 	
@@ -133,9 +138,9 @@ proc createSignalFrame(string $parent) {
 	
 	checkBox  -w 20 -l "" "activeCB";
 	
-	symbolButton  -h 10 -image "upArrow.xpm" "prioritizeUpBtn";
-	symbolButton -h 10 -image "downArrow.xpm" "prioritizeDownBtn";
-	string $s = `symbolButton -h 10 -image "select.xpm" "prioritizeSelectBtn"` ;
+	symbolButton  -h 10 -image "upArrow10.png" "prioritizeUpBtn";
+	symbolButton -h 10 -image "downArrow10.png" "prioritizeDownBtn";
+	string $s = `symbolButton -h 20 -image "select20.png" "prioritizeSelectBtn"` ;
 	
 	symbolButton -e -c ("AEprioritizeSelectInputNode " + $s  ) $s ;
 	// symbolButton -h 10 -image "selectObj.xpm" "prioritizeSelectBtn";
@@ -144,37 +149,41 @@ proc createSignalFrame(string $parent) {
 	formLayout -e 
 
 
-		-attachPosition	"activeCB"  "right" 2 10
-		-attachForm		"activeCB" "left" 2  
-		-attachForm		"activeCB" "top" 2
-		-attachForm		"activeCB" "bottom" 2
+	-attachPosition	"activeCB"  "right" 2 10
+	-attachForm		"activeCB" "left" 2  
+	-attachForm		"activeCB" "top" 2
+	-attachForm		"activeCB" "bottom" 2
 
-		-attachNone		"cSlider" "right"  
-		-attachControl	"cSlider" "left" 2 "activeCB"
-		-attachForm		"cSlider" "top" 2
-		-attachForm		"cSlider" "bottom" 2
+	-attachNone		"cSlider" "right"  
+	-attachControl	"cSlider" "left" 2 "activeCB"
+	-attachForm		"cSlider" "top" 2
+	-attachForm		"cSlider" "bottom" 2
 
-		-attachForm		"prioritizeUpBtn" "top" 2
-		-attachNone			"prioritizeUpBtn" "right" 
-		-attachPosition	"prioritizeUpBtn" "bottom" 2 50
-		-attachControl		"prioritizeUpBtn" "left" 2 	"cSlider"
-		
-		-attachControl	 	"prioritizeDownBtn" "top" 2 "prioritizeUpBtn" 
-		-attachNone			"prioritizeDownBtn" "right"   
-		-attachForm			"prioritizeDownBtn" "bottom" 2
-		-attachControl		"prioritizeDownBtn" "left" 2 	"cSlider"
-				
-		-attachForm	 	"prioritizeSelectBtn" "top" 2 
-		-attachForm		"prioritizeSelectBtn" "right"   1
-		-attachForm		"prioritizeSelectBtn" "bottom" 2
-		-attachControl	"prioritizeSelectBtn" "left" 2 	"prioritizeDownBtn"
-		
-		
-		
+	-attachForm		"prioritizeUpBtn" "top" 2
+	-attachNone			"prioritizeUpBtn" "right" 
+	-attachPosition	"prioritizeUpBtn" "bottom" 0 50
+	-attachControl		"prioritizeUpBtn" "left" 2 	"cSlider"
+
+	-attachPosition	 	"prioritizeDownBtn" "top" 0 50 
+	-attachNone			"prioritizeDownBtn" "right"   
+	-attachForm			"prioritizeDownBtn" "bottom" 2
+	-attachControl		"prioritizeDownBtn" "left" 2 	"cSlider"
+
+	-attachForm	 	"prioritizeSelectBtn" "top" 2 
+	-attachForm		"prioritizeSelectBtn" "right"   1
+	-attachForm		"prioritizeSelectBtn" "bottom" 2
+	-attachControl	"prioritizeSelectBtn" "left" 2 	"prioritizeUpBtn"
+
+
+
 	$form;
 }
 
 global proc AEprioritizeReplace (string $nodeAttr) {
+
+	print("AEprioritizeReplace: "+  $nodeAttr);
+
+
 	setUITemplate -pst attributeEditorTemplate;
 	string $node = attr.nodeFromNodeAttr($nodeAttr);
 	string $controlName = AE.controlNameFromNodeAttr($nodeAttr); 
@@ -182,13 +191,12 @@ global proc AEprioritizeReplace (string $nodeAttr) {
 	button -e -c ("AEprioritizeAddSignalInput "+ $node) ($controlName+ "BTN");
 	
 	// this is a hack because listConnections is broken
-	//////////////////////
+	////////////////////
 	string $atts[] = `listAttr -m ($nodeAttr)`;
 	for ($att in $atts) {
 		string $buff[];
 		int $nt = `tokenize $att "." $buff`;
 		if ($buff[($nt-1)] == "inSignal") {
-			
 			
 			string $con = `connectionInfo -sfd ($node+"."+$att)`;
 			if (size($con)) {
@@ -197,46 +205,41 @@ global proc AEprioritizeReplace (string $nodeAttr) {
 			}
 		}
 	}
+
+
+
 	//////////////////////
 	/*
 	 Now have connections that go
 	 pri.id[0].is  sen0.ass  pri.id[1].is  sen1.ass ....
 	 */
-	
-	int $doubleNumConns = size($conns) ;
-	int $numConns = $doubleNumConns / 2;
-	string $frames[] = `layout -q -ca $controlName`;
-	int $numExistingConns = size($frames);
-	int $change = $numConns - $numExistingConns;
-	if ($change > 0) { // push
-		
-		for ($i = 0;$i<$change;$i++) {
-			createSignalFrame($controlName);
-		}
-	} else if ($change < 0) { // pop
-		
-		for ($i = 1;$i<=($change*-1);$i++) {
-			deleteUI $frames[($numExistingConns - $i)];
-		}
-	}
-	
-	setEnabledArrowStates($controlName);
-	
-	$frames = `layout -q -ca $controlName`;
-	$numExistingConns = size($frames);	
 
-	if ($numExistingConns !=  $numConns) {
-		error("something went wrong with pop and push - bailing out");
-		return;
-	} 
-	
-	setParent $controlName;
-	for ($i=0; $i<$numConns; $i++) {
-		string $priConn =  $conns[($i*2)];
-		string $srcConn =  $conns[(($i*2)+1)];
-		string  $srcNode =  attr.nodeFromNodeAttr($srcConn);
-		
-		int $plugIndex = attr.plugIndexFromPlug( $priConn );
+	 int $doubleNumConns = size($conns) ;
+	 int $numConns = $doubleNumConns / 2;
+	 string $frames[] = `layout -q -ca $controlName`;
+	 int $numExistingFrames = size($frames);
+
+	 for ($i = 0;$i< $numExistingFrames ;$i++) {
+	 	deleteUI $frames[$i];
+	 }
+
+	 for ($i = 0;$i< $numConns ;$i++) {
+	 	int $odd = (($i%2)==1);
+	 	createSignalFrame($controlName, $odd);
+	 }
+	 setEnabledArrowStates($controlName);
+
+	 $frames = `layout -q -ca $controlName`;
+
+
+	 setParent $controlName;
+
+	 for ($i=0; $i<$numConns; $i++) {
+	 	string $priConn =  $conns[($i*2)];
+	 	string $srcConn =  $conns[(($i*2)+1)];
+	 	string $srcNode =  attr.nodeFromNodeAttr($srcConn);
+
+	 	int $plugIndex = attr.plugIndexFromPlug( $priConn );
 		string $children[] = `layout -q -ca $frames[$i] `; // the form
 		setParent $children[0];
 		
@@ -271,14 +274,20 @@ global proc AEprioritizeTemplate ( string $nodeName )
 	editorTemplate -addControl "magnitude";	
 	editorTemplate -endLayout;
 	
-	editorTemplate  -cl 0 -beginLayout "Diagnostic Display" ;
-	editorTemplate -addControl "drawStyle";
+	editorTemplate  -cl 0 -beginLayout "Bar chart display" ;
+  editorTemplate -addControl "drawBarChart";
 	editorTemplate -addControl "sampleBy";
 	editorTemplate -addControl "graphHeight";
 	editorTemplate -addControl "graphWidth";
 	editorTemplate -addControl "xOffset";
 	editorTemplate -addControl "yOffset";		
-	editorTemplate -addControl "glyphScale";		
+	editorTemplate -endLayout;	
+
+		editorTemplate  -cl 0 -beginLayout "Glyph display" ;
+	editorTemplate -addControl "drawGlyphs";	
+	editorTemplate -addControl "drawResultGlyph";	
+	editorTemplate -addControl "glyphScale";	
+  editorTemplate -addControl "resultDrawColor";
 	editorTemplate -endLayout;	
 	
 	editorTemplate -addExtraControls;
@@ -318,7 +327,11 @@ global proc AEprioritizeTemplate ( string $nodeName )
 	
 	editorTemplate -suppress  "inputData";
 	editorTemplate -suppress  "outSignal";
+	editorTemplate -suppress  "outForces";
+
+	
+
 	editorTemplate -endScrollLayout;
-		
+
 	
 }

@@ -120,7 +120,7 @@ MStatus multVectorDoublePP::compute(const MPlug& plug, MDataBlock& data) {
 	bool norm = data.inputValue(aNormalizeVector).asBool();
 	
 	int len = in1.length();
- 
+
 	MVectorArray out;
 	out.copy(in1);
 
@@ -138,11 +138,15 @@ MStatus multVectorDoublePP::compute(const MPlug& plug, MDataBlock& data) {
 	}
 
 	MVector sv = MVector(scalarValue[0], scalarValue[1], scalarValue[2]);
-	for (int i = 0;i<len;i++) {
-		out[i] = MVector(out[i].x*scalarValue[0] , out[i].y*scalarValue[1] , out[i].z*scalarValue[2] );
+
+	if (! sv.isEquivalent(MVector(1.0,1.0,1.0))) {
+		for (int i = 0;i<len;i++) {
+			out[i] = MVector(out[i].x*scalarValue[0] , out[i].y*scalarValue[1] , out[i].z*scalarValue[2] );
+		}
 	}
+
   // cerr << "out2: " << out << endl;
-	 
+
 
 	MDataHandle hOut = data.outputValue(aOutput);
 	MFnVectorArrayData fnOut;

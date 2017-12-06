@@ -123,8 +123,7 @@ MStatus phiArrayToMulti::compute (const MPlug& plug, MDataBlock& data)
 	MArrayDataBuilder bOutput = hOutput.builder();
 
 
-	MEulerRotation::RotationOrder order = 
-	MEulerRotation::RotationOrder(data.inputValue(aRotateOrder).asShort());
+  MEulerRotation::RotationOrder order = MEulerRotation::RotationOrder(data.inputValue(aRotateOrder).asShort());
 
 	for (unsigned i = 0;i< nLength;i++) {
 

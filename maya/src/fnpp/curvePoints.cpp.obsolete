@@ -40,10 +40,17 @@
 
 MObject curvePoints::aCurve;
 MObject curvePoints::aNumPoints;
+MObject curvePoints::aRangeMin;
+MObject curvePoints::aRangeMax;
+// MObject curvePoints::aRange;
+
+MObject curvePoints::aReverseTangent;
+
 MObject curvePoints::aCurves;
 
 MObject curvePoints::aSpacing;
 MObject curvePoints::aOutPoints;
+MObject curvePoints::aOutTangents;
 
 
 MTypeId curvePoints::id( k_curvePoints );
@@ -77,10 +84,42 @@ MStatus curvePoints::initialize()
 	nAttr.setHidden( false );
 	nAttr.setKeyable( true );
 	nAttr.setDefault( 10 );
+
+
+
+
+
+	aRangeMin = nAttr.create( "rangeMin", "rgmn", MFnNumericData::kDouble, 0.0);
+	nAttr.setStorable(true);
+	nAttr.setWritable(true);
+	nAttr.setKeyable(true);
+
+	aRangeMax = nAttr.create( "rangeMax", "rgmx", MFnNumericData::kDouble, 1.0);
+	nAttr.setStorable(true);
+	nAttr.setWritable(true);
+	nAttr.setKeyable(true);
+
+	// aRange  = nAttr.create( "range", "rng", aRangeMin, aRangeMax);
+	// nAttr.setStorable(true);
+	// nAttr.setWritable(true);
+	// nAttr.setKeyable(true);
+
+
+
+	aReverseTangent = nAttr.create( "reverseTangent", "rtn",MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setDefault(true);
+
+
 		////////////////////////////////////
 	aCurves = cAttr.create("curves", "crvs");
 	cAttr.addChild(aCurve);
 	cAttr.addChild(aNumPoints);
+	cAttr.addChild(aRangeMin);
+	cAttr.addChild(aRangeMax);
+	cAttr.addChild(aReverseTangent);
+	
 	cAttr.setArray( true );	
 	cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
 	cAttr.setReadable(false);	
@@ -93,16 +132,39 @@ MStatus curvePoints::initialize()
 	eAttr.setWritable(true);
 	addAttribute(aSpacing);
 
+
+
 	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray, &st);er;
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	st = addAttribute(aOutPoints );er;
 
+	aOutTangents = tAttr.create("outTangents", "otns", MFnData::kVectorArray, &st);er;
+	tAttr.setStorable(false);
+	tAttr.setReadable(true);
+	st = addAttribute(aOutTangents );er;
+
+
+
 	st =attributeAffects(aCurve,aOutPoints );er;
 	st =attributeAffects(aCurves,aOutPoints );er;
 	st =attributeAffects(aNumPoints,aOutPoints );er;
 	st =attributeAffects(aSpacing,aOutPoints );er;
-	
+	st =attributeAffects(aRangeMin,aOutPoints );er;
+	st =attributeAffects(aRangeMax,aOutPoints );er;
+	st =attributeAffects(aReverseTangent,aOutPoints );er;
+
+
+	st =attributeAffects(aCurve,aOutTangents );er;
+	st =attributeAffects(aCurves,aOutTangents );er;
+	st =attributeAffects(aNumPoints,aOutTangents );er;
+	st =attributeAffects(aSpacing,aOutTangents );er;
+	st =attributeAffects(aRangeMin,aOutTangents );er;
+	st =attributeAffects(aRangeMax,aOutTangents );er;
+	st =attributeAffects(aReverseTangent,aOutTangents );er;
+
+
+
 	return( MS::kSuccess );   
 }
 
@@ -117,7 +179,8 @@ MStatus curvePoints::compute( const MPlug& plug, MDataBlock& data )
 
 	MArrayDataHandle hCurves = data.inputArrayValue(aCurves, &st );
 	MVectorArray outPoints;	
-	
+	MVectorArray outTangents;	
+
 	Spac spacing = (Spac)data.inputValue(aSpacing).asShort();	
 
 	unsigned n = hCurves.elementCount();
@@ -126,8 +189,26 @@ MStatus curvePoints::compute( const MPlug& plug, MDataBlock& data )
 		if (st.error()) continue;
 
 		int npts =  hComp.child(curvePoints::aNumPoints).asLong() ;
+
+		double min = hComp.child(curvePoints::aRangeMin).asDouble();
+		double max = hComp.child(curvePoints::aRangeMax).asDouble();
+
+		bool reverseTangent = hComp.child(aReverseTangent).asBool();
+
 		MObject  dCurve =  hComp.child(curvePoints::aCurve).asNurbsCurveTransformed();
 		MFnNurbsCurve curveFn(dCurve);
+
+
+		if (max < min) {
+			double tmp = min;
+			min = max;
+			max = tmp;
+		}
+		double range  = max - min;
+
+
+		// cerr << "min: " << min  << " max: "  << max << endl;
+		// cerr << "range: " << range << endl;
 
 
 		MFnNurbsCurve::Form form = curveFn.form();
@@ -140,18 +221,23 @@ MStatus curvePoints::compute( const MPlug& plug, MDataBlock& data )
 			if (curveFn.form() == MFnNurbsCurve::kOpen) {
 				double recip = 1.0 / (npts -1);
 				for (unsigned i = 0;i<npts;i++) {
-					fractions.set((double(i) * recip),i);
+					fractions.set( (double(i) * recip)     ,i);
 				}
 			} else {
 				double recip = 1.0 / (npts);
 				for (unsigned i = 0;i<npts;i++) {
-					fractions.set((i * recip),i);
+					fractions.set(   (double(i) * recip)    ,i);
 				}
 			}
 		}
 
+		// cerr << "fractions" << fractions << endl;
+		for (unsigned i = 0;i<npts;i++) {
+			fractions[i] =  (fractions[i] * range) + min;
+		}
 
 		MPoint resultPoint;
+		MPoint resultTangent;
 		double param;
 		if(spacing == kParametric)  {
 			double startParam, endParam,rangeParam;
@@ -162,6 +248,7 @@ MStatus curvePoints::compute( const MPlug& plug, MDataBlock& data )
 				param = (fractions[i] * rangeParam ) + startParam;
 				st = curveFn.getPointAtParam(param,resultPoint, MSpace::kObject); 
 				outPoints.append( MVector(resultPoint));
+				outTangents.append(curveFn.tangent(param) * (reverseTangent ? -1.0 : 1.0));
 			}
 		} else {
 			double arclen = curveFn.length(epsilon, &st); er;
@@ -170,7 +257,7 @@ MStatus curvePoints::compute( const MPlug& plug, MDataBlock& data )
 				param = curveFn.findParamFromLength(fracLen, &st); er;
 				st = curveFn.getPointAtParam(param,resultPoint, MSpace::kObject); 
 				outPoints.append( MVector(resultPoint));
-
+				outTangents.append(curveFn.tangent(param) * (reverseTangent ? -1.0 : 1.0));
 			}
 		}
 	}
@@ -180,6 +267,13 @@ MStatus curvePoints::compute( const MPlug& plug, MDataBlock& data )
 	MObject dOutPoints = fnOutPoints.create(outPoints);
 	hOutPoints.set(dOutPoints);
 	st = data.setClean( aOutPoints );er;
+
+	MDataHandle hOutTangents = data.outputValue(aOutTangents);
+	MFnVectorArrayData fnOutTangents;
+	MObject dOutTangents = fnOutTangents.create(outTangents);
+	hOutTangents.set(dOutTangents);
+	st = data.setClean( aOutTangents );er;
+
 
 	return MS::kSuccess;
 }

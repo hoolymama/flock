@@ -32,11 +32,18 @@ private:
 		
 	static	MObject	 aCurve;
 	static	MObject  aNumPoints;	
+	static	MObject  aRangeMin;
+	static	MObject  aRangeMax;
+ 	static	MObject  aRange;
+	static	MObject  aRotateTangent;
+
+ 
+
 	static	MObject	 aCurves;
 
 	static	MObject	 aSpacing;
 	static	MObject  aOutPoints;
-
+	static	MObject  aOutTangents; 
 };
 #endif
 

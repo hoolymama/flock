@@ -26,7 +26,11 @@ public:
 	static MObject aBounce ;
   static MObject aFriction ;
   static MObject aPushOut ;
+  static MObject aPushOutPP ;
  
+
+
+
   static MObject aBias ;
  
   static MObject aDeltaTime ;

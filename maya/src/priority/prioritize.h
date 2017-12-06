@@ -87,19 +87,27 @@ private:
 	static  MObject         aPositions;	
 	
 	static  MObject         aInForce;	
-	static	MObject         aDrawColor;	// graph draw color
-	static	MObject         aDrawColorR;	// graph draw color
-	static	MObject         aDrawColorG;	// graph draw color
-	static	MObject         aDrawColorB;	// graph draw color
+	static	MObject         aDrawColor;	
+	static	MObject         aDrawColorR;
+	static	MObject         aDrawColorG;
+	static	MObject         aDrawColorB;
 	static	MObject         aActive;
-	// static	MObject         aContainerContribution;
-	static	MObject         aMagnitude;
+ 	static	MObject         aMagnitude;
 	
-	static	MObject         aInData;		// compound (multi)
+	static	MObject         aInData;		 
 	
-	static MObject			aMaxForce;
-	static MObject          aEnableGraph;		// cache and do drawing
-	
+	static MObject					aMaxForce;
+
+	static MObject					aDrawBarChart;
+	static MObject					aDrawGlyphs;
+	static MObject					aDrawResultGlyph;
+
+  static	MObject         aResultDrawColor;	
+	static	MObject         aResultDrawColorR;
+	static	MObject         aResultDrawColorG;
+	static	MObject         aResultDrawColorB;
+
+
 	static	MObject         aSampleBy;		
 	static	MObject         aHeight;		
 	static	MObject         aWidth;		

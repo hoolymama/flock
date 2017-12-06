@@ -41,26 +41,10 @@
  	nAttr.setWritable(true);
  	st = addAttribute(aGoalDecay); er;
 
-
-	// aSwirlMag	= nAttr.create("swirlMag","swm", MFnNumericData::kDouble, 1.0, &st); er;
- //    nAttr.setHidden(false);
- //    nAttr.setKeyable(true);
-	// nAttr.setStorable(true);
-	// nAttr.setWritable(true);
-	// st = addAttribute(aSwirlMag); er;
-
-
-	// aGoalMag	= nAttr.create("goalMag","glm", MFnNumericData::kDouble, 1.0, &st); er;
- //    nAttr.setHidden(false);
- //    nAttr.setKeyable(true);
-	// nAttr.setStorable(true);
-	// nAttr.setWritable(true);
-	// st = addAttribute(aGoalMag); er;
+ 
 
  	attributeAffects( 	 aGoalDecay  	, aAssessment	);  
-	// attributeAffects( 	 aSwirlMag  	, aAssessment	);  
-	// attributeAffects( 	 aGoalMag  	, aAssessment	);  
-
+ 
  	return MS::kSuccess;
  }
 

@@ -70,7 +70,7 @@
 #include "subVectorVectorPP.h" 
 #include "speedRampLookup.h"
 
-#include "curvePoints.h"
+// #include "curvePoints.h"
 #include "hexapod.h"
 
 #include "hungerState.h"
@@ -81,8 +81,11 @@
 #include "arrayToMulti.h"
 #include "multiBlendVectorPP.h"
 
+#include "averageVectorPP.h"
 
- 
+#include "averageDoublePP.h"
+
+
 
 MStatus initializePlugin( MObject obj)
 {
@@ -101,7 +104,7 @@ MStatus initializePlugin( MObject obj)
 
 	st = plugin.registerNode( "fishDeform", fishDeform::id, fishDeform::creator, fishDeform::initialize); er;
 	
- 
+	
 	st = plugin.registerNode( "articulate", articulate::id, articulate::creator, articulate::initialize);er;
 
 	st = plugin.registerData( "poolData", poolData::id, poolData::creator );er;
@@ -165,9 +168,12 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "phiArrayToMulti", phiArrayToMulti::id, phiArrayToMulti::creator, phiArrayToMulti::initialize); er;
 	st = plugin.registerNode( "arrayToMulti", arrayToMulti::id, arrayToMulti::creator, arrayToMulti::initialize); er;
 	st = plugin.registerNode( "multiBlendVectorPP", multiBlendVectorPP::id, multiBlendVectorPP::creator, multiBlendVectorPP::initialize); er;
+	st = plugin.registerNode( "averageVectorPP", averageVectorPP::id, averageVectorPP::creator, averageVectorPP::initialize); er;
+	st = plugin.registerNode( "averageDoublePP", averageDoublePP::id, averageDoublePP::creator, averageDoublePP::initialize); er;
 
 
-	st = plugin.registerNode( "curvePoints", curvePoints::id, curvePoints::creator, curvePoints::initialize); er;
+
+	// st = plugin.registerNode( "curvePoints", curvePoints::id, curvePoints::creator, curvePoints::initialize); er;
 	
 	st = plugin.registerNode( "hexapod", hexapod::id, hexapod::creator, hexapod::initialize, MPxNode::kLocatorNode); er;
  	// st = plugin.registerNode( "hexapodLocatorShape", hexapodLocator::id, hexapodLocator::creator,hexapodLocator::initialize, MPxNode::kLocatorNode  );er;
@@ -193,11 +199,13 @@ MStatus uninitializePlugin( MObject obj)
 
 	// st = plugin.deregisterNode( hexapodLocator::id );er;	
 	st = plugin.deregisterNode( hexapod::id );er;
-	st = plugin.deregisterNode( curvePoints::id );er;
-			
-  st = plugin.deregisterNode( multiBlendVectorPP::id );er;
+	// st = plugin.deregisterNode( curvePoints::id );er;
+	st = plugin.deregisterNode( averageDoublePP::id );er;
+	st = plugin.deregisterNode( averageVectorPP::id );er;
+	
+	st = plugin.deregisterNode( multiBlendVectorPP::id );er;
 
-		st = plugin.deregisterNode( arrayToMulti::id );er;
+	st = plugin.deregisterNode( arrayToMulti::id );er;
 	st = plugin.deregisterNode( phiArrayToMulti::id );er;
 
 	

@@ -29,6 +29,8 @@ MObject collisionSensor::aRadius;
 MObject collisionSensor::aBounce;
 MObject collisionSensor::aFriction;
 MObject collisionSensor::aPushOut;
+MObject collisionSensor::aPushOutPP;
+
 MObject collisionSensor::aDeltaTime;
 
 MObject collisionSensor::aBias;
@@ -49,6 +51,13 @@ MStatus collisionSensor::initialize()
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
 	st = addAttribute(aRadius); er;
+
+   
+ 	aPushOutPP = tAttr.create("pushOutMultPP", "pumpp", MFnData::kDoubleArray, &st ); er;
+	tAttr.setStorable(false);
+	tAttr.setConnectable(true);
+	st = addAttribute(aPushOutPP); er;
+
 
 	aBounce = nAttr.create("bounce", "bnc", MFnNumericData::kDouble, 0.0);
 	nAttr.setKeyable(true);
@@ -114,6 +123,8 @@ MStatus collisionSensor::assess(
 	}
 
 
+
+
 	if ((maxDistPP.length() == len) && data.inputValue(aUseMaxDistancePP).asBool())	 doMaxDistPP = true;
 	////////////////////////////////////////////////////
 	double fov = data.inputValue(aFov).asDouble();
@@ -126,6 +137,18 @@ MStatus collisionSensor::assess(
 	double bounce = data.inputValue(aBounce).asDouble();
 	double friction = data.inputValue(aFriction).asDouble();
 	double push = data.inputValue(aPushOut).asDouble();
+
+	MDoubleArray pupp = MFnDoubleArrayData(data.inputValue(aPushOutPP).data()).array();
+	if (pupp.length() != len)  {
+		pupp = MDoubleArray(len, push);
+	} else {
+		for (int i = 0; i < len; ++i)
+		{
+				pupp[i] = pupp[i] * push;
+		}
+	}
+
+
 
 	double bias = data.inputValue(aBias).asDouble();
 
@@ -217,7 +240,7 @@ MStatus collisionSensor::assess(
 					double dist = diff.length();
 					MVector escapeVel = normal * (1.0-(other.radius - dist)) / deltaTime;
 					// escapeVel -= velocities[i];
-					acceleration = (escapeVel * push * 0.5) /  deltaTime;
+					acceleration = (escapeVel * pupp[i] * 0.5) /  deltaTime;
 
 				} else {
 
