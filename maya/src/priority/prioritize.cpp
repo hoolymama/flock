@@ -10,20 +10,20 @@
 #include <maya/MGlobal.h>
 #include <maya/MFnUnitAttribute.h>
 
-#include <maya/MAnimControl.h> 
+#include <maya/MAnimControl.h>
 
 #include <maya/MArrayDataBuilder.h>
 #include "prioritize.h"
 #include "jMayaIds.h"
 
- 
+
 
 MTypeId prioritize::id( k_prioritize );
 
-MObject prioritize::aPositions;	
-MObject prioritize::aGlyphScale;	
+MObject prioritize::aPositions;
+MObject prioritize::aGlyphScale;
 
-MObject prioritize::aInForce;	
+MObject prioritize::aInForce;
 MObject prioritize::aDrawColor;
 MObject prioritize::aDrawColorR;
 MObject prioritize::aDrawColorG;
@@ -32,27 +32,27 @@ MObject prioritize::aActive;
 MObject prioritize::aMagnitude;
 
 
-MObject prioritize::aInData;				 
+MObject prioritize::aInData;
 MObject prioritize::aMaxForce;
 
 MObject prioritize::aDrawBarChart;
 MObject prioritize::aDrawGlyphs;
 MObject prioritize::aDrawResultGlyph;
 
-MObject prioritize::aResultDrawColor;	
+MObject prioritize::aResultDrawColor;
 MObject prioritize::aResultDrawColorR;
 MObject prioritize::aResultDrawColorG;
 MObject prioritize::aResultDrawColorB;
 
-MObject prioritize::aSampleBy;	
-MObject prioritize::aHeight;	
-MObject prioritize::aWidth;		
-MObject prioritize::aXOffset;	
-MObject prioritize::aYOffset;	
+MObject prioritize::aSampleBy;
+MObject prioritize::aHeight;
+MObject prioritize::aWidth;
+MObject prioritize::aXOffset;
+MObject prioritize::aYOffset;
 
 
-MObject prioritize::aOutForce; 
-MObject prioritize::aOutForces; 
+MObject prioritize::aOutForce;
+MObject prioritize::aOutForces;
 prioritize::prioritize() {
 
 }
@@ -61,7 +61,8 @@ prioritize::~prioritize() {
 
 }
 
-MStatus prioritize::connectionBroken ( const MPlug & plug, const MPlug & otherPlug, bool asSrc ){
+MStatus prioritize::connectionBroken ( const MPlug &plug, const MPlug &otherPlug,
+                                       bool asSrc ) {
 
 	MStatus st;
 
@@ -70,54 +71,56 @@ MStatus prioritize::connectionBroken ( const MPlug & plug, const MPlug & otherPl
 
 	if (plug == aInForce) {
 		MDataBlock data = forceCache();
-		MArrayDataHandle hInData = data.inputArrayValue( aInData, &st ); ert;
-		MArrayDataBuilder bInData = hInData.builder(&st);ert;
+		MArrayDataHandle hInData = data.inputArrayValue( aInData, &st ); msert;
+		MArrayDataBuilder bInData = hInData.builder(&st); msert;
 		el = plug.parent().logicalIndex();
-		st = bInData.removeElement(el);ert;
-	} 
+		st = bInData.removeElement(el); msert;
+	}
 	return MS::kSuccess;
 }
 
-MStatus prioritize::compute( const MPlug& plug, MDataBlock& data )
-{ 
+MStatus prioritize::compute( const MPlug &plug, MDataBlock &data )
+{
 	// JPMDBG;
 
 
 	MStatus st;
-	if(! (( plug == aOutForce) || (plug == aOutForces)) ) return MS::kUnknownParameter;
+	if (! (( plug == aOutForce) || (plug == aOutForces)) ) { return MS::kUnknownParameter; }
 
 	// JPMDBG;
 
 	double maxForce = data.inputValue( aMaxForce).asDouble();
-	if (maxForce < 0.0) maxForce = 0.0;
+	if (maxForce < 0.0) { maxForce = 0.0; }
 
 
 	MVectorArray outTotalForce;
 	MDoubleArray accum;
 
 
-	MArrayDataHandle ha = data.inputArrayValue( aInData, &st ); 
+	MArrayDataHandle ha = data.inputArrayValue( aInData, &st );
 
 
 	bool firstIter = true;
-	unsigned int len = 0;	
+	unsigned int len = 0;
 
 	unsigned numElements = ha.elementCount();
 
 
-	MArrayDataHandle     hOutputForces = data.outputArrayValue( aOutForces, &st ); er;
+	MArrayDataHandle     hOutputForces = data.outputArrayValue( aOutForces, &st ); mser;
 	MArrayDataBuilder    bOutputForces = hOutputForces.builder();
 	MFnVectorArrayData 	 fnOutputForce;
 
 
 	const double epsilon = 1e-9;
-	for(unsigned i = 0;i < numElements; i++, ha.next()) {
+	for (unsigned i = 0; i < numElements; i++, ha.next()) {
 		// cerr << "compute input element " << i << endl;
-		unsigned elementIndex = ha.elementIndex(&st); er;	if (st.error()) continue;
+		unsigned elementIndex = ha.elementIndex(&st); mser;
+		if (st.error()) { continue; }
 
 
 
-		MDataHandle hInDataCompound = ha.inputValue(&st ); er;	 if (st.error()) continue;
+		MDataHandle hInDataCompound = ha.inputValue(&st ); mser;
+		if (st.error()) { continue; }
 
 		bool active = hInDataCompound.child(aActive).asBool();
 
@@ -134,29 +137,30 @@ MStatus prioritize::compute( const MPlug& plug, MDataBlock& data )
 
 		MVectorArray outForce = MVectorArray(len);
 
-		if (active && (fnInForce.length() == len)){
+		if (active && (fnInForce.length() == len)) {
 			MVectorArray inForce = fnInForce.array();
-			for (unsigned j= 0; j < len; j++) {
+			for (unsigned j = 0; j < len; j++) {
 
-				if ((accum[j]+epsilon) < maxForce) {
+				if ((accum[j] + epsilon) < maxForce) {
 					double remaining = (maxForce - accum[j]) ;
 					double tmpMag = inForce[j].length();
 
 					if (tmpMag > remaining) {
 						outForce[j] = (inForce[j].normal() * remaining);
-						accum[j] = maxForce; 
-					}	else {
+						accum[j] = maxForce;
+					}
+					else {
 						outForce[j] =  inForce[j];
-						accum[j] += inForce[j].length(); 
+						accum[j] += inForce[j].length();
 					}
 					outTotalForce[j] +=  outForce[j];
 				}
-			}	
+			}
 		}
-	// cerr << "seting outputs "<< endl;
-	
+		// cerr << "seting outputs "<< endl;
+
 		MDataHandle hOutForce = bOutputForces.addElement(elementIndex);
-		MObject dOutputForce = fnOutputForce.create( outForce, &st );er;
+		MObject dOutputForce = fnOutputForce.create( outForce, &st ); mser;
 		hOutForce.set( dOutputForce);
 
 	}
@@ -164,24 +168,24 @@ MStatus prioritize::compute( const MPlug& plug, MDataBlock& data )
 	// cerr << "seting main output "<< endl;
 
 
-	MDataHandle hTotalOutputForce =  data.outputValue( aOutForce, &st); er;
+	MDataHandle hTotalOutputForce =  data.outputValue( aOutForce, &st); mser;
 	MFnVectorArrayData fnTotalOutputForce;
-	MObject dTotalOutputForce = fnTotalOutputForce.create( outTotalForce, &st );er;
+	MObject dTotalOutputForce = fnTotalOutputForce.create( outTotalForce, &st ); mser;
 	hTotalOutputForce.set( dTotalOutputForce);
 
 
 	hTotalOutputForce.setClean();
 	hOutputForces.setAllClean();
-	
+
 	// JPMDBG;
 
-	return( MS::kSuccess );
+	return ( MS::kSuccess );
 }
 
-void prioritize::draw( M3dView & view, const MDagPath & path, 
-	M3dView::DisplayStyle style,
-	M3dView::DisplayStatus status )
-{ 
+void prioritize::draw( M3dView &view, const MDagPath &path,
+                       M3dView::DisplayStyle style,
+                       M3dView::DisplayStatus status )
+{
 	// JPMDBG;
 	MStatus st;
 
@@ -189,66 +193,66 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 
 	MPlug barsPlug( thisNode, aDrawBarChart );
 	bool drawBars;
-	st = barsPlug.getValue (drawBars ); er;
-	
+	st = barsPlug.getValue (drawBars ); mser;
+
 	MPlug glyphsPlug( thisNode, aDrawGlyphs );
 	bool drawGlyphs;
-	st = glyphsPlug.getValue (drawGlyphs ); er;
-	
+	st = glyphsPlug.getValue (drawGlyphs ); mser;
+
 	MPlug resultPlug( thisNode, aDrawResultGlyph );
 	bool drawResultGlyphs;
-	st = resultPlug.getValue (drawResultGlyphs ); er;
+	st = resultPlug.getValue (drawResultGlyphs ); mser;
 
 	MPlug gPlug( thisNode, aGlyphScale );
-	double glyphScale; 
-	st = gPlug.getValue (glyphScale ); er;
+	double glyphScale;
+	st = gPlug.getValue (glyphScale ); mser;
 
 	MPlug mPlug( thisNode, aMaxForce );
-	double maxForce; 
-	st = mPlug.getValue (maxForce ); er;
+	double maxForce;
+	st = mPlug.getValue (maxForce ); mser;
 
 	MPlug sPlug( thisNode, aSampleBy );
-	short sampleBy; 
-	st = sPlug.getValue (sampleBy ); er;
+	short sampleBy;
+	st = sPlug.getValue (sampleBy ); mser;
 
 	MPlug hPlug( thisNode, aHeight );
-	double height; 
-	st = hPlug.getValue (height ); er;
+	double height;
+	st = hPlug.getValue (height ); mser;
 
 	MPlug wPlug( thisNode, aWidth );
-	double width; 
-	st = wPlug.getValue (width ); er;
+	double width;
+	st = wPlug.getValue (width ); mser;
 
 	MPlug xPlug( thisNode, aXOffset );
-	double xOffset; 
-	st = xPlug.getValue (xOffset ); er;
+	double xOffset;
+	st = xPlug.getValue (xOffset ); mser;
 
 	MPlug yPlug( thisNode, aYOffset );
-	double yOffset; 
-	st = yPlug.getValue (yOffset ); er;
+	double yOffset;
+	st = yPlug.getValue (yOffset ); mser;
 
 
 
 	/////////////////////////////////////////
 
 
-	if (sampleBy < 1)  sampleBy = 1;
+	if (sampleBy < 1)  { sampleBy = 1; }
 
 
-	if (xOffset < 0) xOffset=0;
-	if (yOffset < 0) yOffset=0;
-	if (width  < 0.01 ) width=0.01;
-	if (height  < 0.01 ) height=0.01;
-	if (xOffset > 0.99) xOffset=0.99;
-	if (yOffset > 0.99) yOffset=0.99;
-	if ((xOffset+width) > 1) width = 1-xOffset;
-	if ((yOffset+height) > 1) height = 1-yOffset;
+	if (xOffset < 0) { xOffset = 0; }
+	if (yOffset < 0) { yOffset = 0; }
+	if (width  < 0.01 ) { width = 0.01; }
+	if (height  < 0.01 ) { height = 0.01; }
+	if (xOffset > 0.99) { xOffset = 0.99; }
+	if (yOffset > 0.99) { yOffset = 0.99; }
+	if ((xOffset + width) > 1) { width = 1 - xOffset; }
+	if ((yOffset + height) > 1) { height = 1 - yOffset; }
 
 	int pw = view.portWidth();
 	int ph = view.portHeight();
 	int x0, x1, y0, y1;
-	int yStart; 
-	int yEnd; 
+	int yStart;
+	int yEnd;
 	x0 = int(xOffset * pw);
 	y0 = int(yOffset * ph);
 	x1 = int((xOffset + width) * pw);
@@ -268,7 +272,7 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 		return;
 	}
 	MFnVectorArrayData fnV(dPositions);
-	MVectorArray position = fnV.array(&st); 
+	MVectorArray position = fnV.array(&st);
 	if (st.error()) {
 		MGlobal::displayWarning(msg);
 		return;
@@ -282,13 +286,13 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 
 	unsigned numIn =  inDataPlug.numElements();
 
-	view.beginGL(); 
+	view.beginGL();
 	glPushAttrib(GL_CURRENT_BIT);
 	glClear(GL_CURRENT_BIT);
 
-		// draw the graph
+	// draw the graph
 
-	
+
 	if (drawBars) {
 		// JPMDBG;
 		if ((pw * width) < (len / sampleBy)) {
@@ -301,8 +305,8 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 
 		double range = width * pw;
 		double spacing = 1.0 / numSamples;
-		for (unsigned i = 0; i< numSamples; i++){
-			xPositions[i] = int((xOffset*pw) + (  range * i * spacing ));
+		for (unsigned i = 0; i < numSamples; i++) {
+			xPositions[i] = int((xOffset * pw) + (  range * i * spacing ));
 		}
 		yPositions = MIntArray(numSamples, int(yOffset * ph));
 
@@ -322,9 +326,9 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 		glLoadIdentity();
 
 		gluOrtho2D(
-			0.0, (GLdouble) pw,
-			0.0, (GLdouble) ph
-			);
+		  0.0, (GLdouble) pw,
+		  0.0, (GLdouble) ph
+		);
 		glMatrixMode( GL_MODELVIEW );
 		glShadeModel(GL_SMOOTH);
 
@@ -334,10 +338,10 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 		glVertex2i(x0, y0);
 		glVertex2i(x0, y1);
 		glVertex2i(x1, y1);
-		glVertex2i(x1, y0); 
+		glVertex2i(x1, y0);
 		glEnd();
 
-		MPoint posTopRight, farClp; 
+		MPoint posTopRight, farClp;
 		view.viewToWorld( x1, y1,  posTopRight, farClp ) ;
 		view.drawText(MFnDependencyNode(thisNode).name(), posTopRight,  M3dView::kRight);
 
@@ -350,24 +354,24 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 			unsigned logicalIndex = inPlug.logicalIndex();
 
 			MPlug colorPlug  = inPlug.child(aDrawColor) ;
-			float colorRed,colorGreen,colorBlue;
+			float colorRed, colorGreen, colorBlue;
 			colorPlug.child(0).getValue(colorRed);
 			colorPlug.child(1).getValue(colorGreen);
 			colorPlug.child(2).getValue(colorBlue);
 
 			MPlug outPlug = outForcePlug.elementByLogicalIndex(logicalIndex);
 			MObject o;
-			st = outPlug.getValue(o);er;
-			MFnVectorArrayData fnV(o, &st);er;
+			st = outPlug.getValue(o); mser;
+			MFnVectorArrayData fnV(o, &st); mser;
 			MVectorArray dir = fnV.array();
 
 			view.setDrawColor( MColor( MColor::kRGB, colorRed, colorGreen, colorBlue ) );
 
-			for (unsigned i=0, j=0; ((i<len) && (j < numSamples)) ;i+=sampleBy,j++) {
+			for (unsigned i = 0, j = 0; ((i < len) && (j < numSamples)) ; i += sampleBy, j++) {
 				int screenMag =  int(dir[i].length() * normalizer) ;
-				glVertex2i(xPositions[j],yPositions[j]);	
+				glVertex2i(xPositions[j], yPositions[j]);
 				tmp = yPositions[j] + screenMag;
-				glVertex2i(xPositions[j],tmp);	
+				glVertex2i(xPositions[j], tmp);
 				yPositions[j] = tmp;
 			}
 		}
@@ -392,35 +396,35 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 			unsigned logicalIndex = inPlug.logicalIndex();
 
 			MPlug colorPlug  = inPlug.child(aDrawColor) ;
-			float colorRed,colorGreen,colorBlue;
+			float colorRed, colorGreen, colorBlue;
 			colorPlug.child(0).getValue(colorRed);
 			colorPlug.child(1).getValue(colorGreen);
 			colorPlug.child(2).getValue(colorBlue);
 
 			MPlug outPlug = outForcePlug.elementByLogicalIndex(logicalIndex);
 			MObject o;
-			st = outPlug.getValue(o);er;
-			MFnVectorArrayData fnV(o, &st);er;
+			st = outPlug.getValue(o); mser;
+			MFnVectorArrayData fnV(o, &st); mser;
 			MVectorArray dir = fnV.array();
 
 			view.setDrawColor( MColor( MColor::kRGB, colorRed, colorGreen, colorBlue ) );
 
 
 
-			for (unsigned i=0 ;  i<len  ;i++) {
+			for (unsigned i = 0 ;  i < len  ; i++) {
 
-				glVertex3f(float(position[i].x) ,float(position[i].y) ,float(position[i].z) );
+				glVertex3f(float(position[i].x) , float(position[i].y) , float(position[i].z) );
 				glVertex3f(
-					(float((dir[i].x * glyphScale ) + position[i].x)),
-					(float((dir[i].y * glyphScale ) + position[i].y)),
-					(float((dir[i].z * glyphScale ) + position[i].z))
-					);
+				  (float((dir[i].x * glyphScale ) + position[i].x)),
+				  (float((dir[i].y * glyphScale ) + position[i].y)),
+				  (float((dir[i].z * glyphScale ) + position[i].z))
+				);
 
 
 			}
 		}
 
-		glEnd();	
+		glEnd();
 
 		// JPMDBG;
 	}
@@ -436,7 +440,7 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 		st = totalForcePlug.getValue(dOutForce);
 
 		MFnVectorArrayData fnOutForce(dOutForce);
-		MVectorArray force = fnOutForce.array(&st); er;
+		MVectorArray force = fnOutForce.array(&st); mser;
 		unsigned len = force.length();
 
 
@@ -445,24 +449,24 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 
 
 		MPlug colorPlug(thisNode, aResultDrawColor) ;
-		float colorRed,colorGreen,colorBlue;
+		float colorRed, colorGreen, colorBlue;
 		colorPlug.child(0).getValue(colorRed);
 		colorPlug.child(1).getValue(colorGreen);
 		colorPlug.child(2).getValue(colorBlue);
 
 		view.setDrawColor( MColor( MColor::kRGB, colorRed, colorGreen, colorBlue ) );
 
-		for (unsigned i=0 ;  i<len  ;i++) {
+		for (unsigned i = 0 ;  i < len  ; i++) {
 
-			glVertex3f(float(position[i].x) ,float(position[i].y) ,float(position[i].z) );
+			glVertex3f(float(position[i].x) , float(position[i].y) , float(position[i].z) );
 			glVertex3f(
-				(float((force[i].x * glyphScale ) + position[i].x)),
-				(float((force[i].y * glyphScale ) + position[i].y)),
-				(float((force[i].z * glyphScale ) + position[i].z))
-				);
+			  (float((force[i].x * glyphScale ) + position[i].x)),
+			  (float((force[i].y * glyphScale ) + position[i].y)),
+			  (float((force[i].z * glyphScale ) + position[i].z))
+			);
 		}
 
-		glEnd();	
+		glEnd();
 
 		// JPMDBG;
 		// cerr << endl;
@@ -471,29 +475,29 @@ void prioritize::draw( M3dView & view, const MDagPath & path,
 
 
 
-	glPopAttrib();	
+	glPopAttrib();
 
 	view.endGL();
 	// JPMDBG;
 }
 
 bool prioritize::isBounded() const
-{ 
+{
 	return false;
 }
 MBoundingBox prioritize::boundingBox() const
-{   
+{
 
 	return MBoundingBox( MPoint(), MPoint() );
 }
 
-void* prioritize::creator()
+void *prioritize::creator()
 {
 	return new prioritize();
 }
 
 MStatus prioritize::initialize()
-{ 
+{
 
 	MStatus st;
 
@@ -504,27 +508,27 @@ MStatus prioritize::initialize()
 	MFnEnumAttribute eAttr;
 	MFnUnitAttribute uAttr;
 
-	aInForce = tAttr.create("inSignal", "isg", MFnData::kVectorArray , &st ); er;
+	aInForce = tAttr.create("inSignal", "isg", MFnData::kVectorArray , &st ); mser;
 	tAttr.setStorable(false);
 
-	aActive = nAttr.create( "active", "act",MFnNumericData::kBoolean);
+	aActive = nAttr.create( "active", "act", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(true);
 
-	aDrawColorR = nAttr.create( "drawColorR", "dcr",MFnNumericData::kFloat);
+	aDrawColorR = nAttr.create( "drawColorR", "dcr", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setConnectable(true);
 	nAttr.setDefault(0.0f);
 
-	aDrawColorG = nAttr.create( "drawColorG", "dcg",MFnNumericData::kFloat);
+	aDrawColorG = nAttr.create( "drawColorG", "dcg", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setConnectable(true);
 	nAttr.setDefault(0.0f);
 
-	aDrawColorB = nAttr.create( "drawColorB", "dcb",MFnNumericData::kFloat);
+	aDrawColorB = nAttr.create( "drawColorB", "dcb", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setConnectable(true);
@@ -550,137 +554,138 @@ MStatus prioritize::initialize()
 	st = addAttribute(aInData);
 
 	//st =addAttribute(aDrawColor);
-	aPositions = tAttr.create("positionPP", "ppp", MFnData::kVectorArray , &st ); er;
+	aPositions = tAttr.create("positionPP", "ppp", MFnData::kVectorArray , &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	st = addAttribute(aPositions);
 
-	aMaxForce = nAttr.create( "maxSignal", "mxs",MFnNumericData::kDouble);
+	aMaxForce = nAttr.create( "maxSignal", "mxs", MFnNumericData::kDouble);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(1.0);
 	nAttr.setMin(0.00);
-	st =addAttribute(aMaxForce);
+	st = addAttribute(aMaxForce);
 
 
-	aDrawBarChart = nAttr.create( "drawBarChart", "dbc",MFnNumericData::kBoolean);
+	aDrawBarChart = nAttr.create( "drawBarChart", "dbc", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(true);
-	st = addAttribute( aDrawBarChart ); er;
+	st = addAttribute( aDrawBarChart ); mser;
 
 
-	aDrawGlyphs = nAttr.create( "drawGlyphs", "dgl",MFnNumericData::kBoolean);
+	aDrawGlyphs = nAttr.create( "drawGlyphs", "dgl", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(true);
-	st = addAttribute( aDrawGlyphs ); er;
+	st = addAttribute( aDrawGlyphs ); mser;
 
-	aDrawResultGlyph = nAttr.create( "drawResultGlyph", "drgl",MFnNumericData::kBoolean);
+	aDrawResultGlyph = nAttr.create( "drawResultGlyph", "drgl", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(true);
-	st = addAttribute( aDrawResultGlyph ); er;
+	st = addAttribute( aDrawResultGlyph ); mser;
 
 
-	aResultDrawColorR = nAttr.create( "resultDrawColorR", "rdcr",MFnNumericData::kFloat);
+	aResultDrawColorR = nAttr.create( "resultDrawColorR", "rdcr", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setConnectable(true);
 	nAttr.setDefault(0.0f);
 
-	aResultDrawColorG = nAttr.create( "resultDrawColorG", "rdcg",MFnNumericData::kFloat);
+	aResultDrawColorG = nAttr.create( "resultDrawColorG", "rdcg", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setConnectable(true);
 	nAttr.setDefault(0.0f);
 
-	aResultDrawColorB = nAttr.create( "resultDrawColorB", "rdcb",MFnNumericData::kFloat);
+	aResultDrawColorB = nAttr.create( "resultDrawColorB", "rdcb", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setConnectable(true);
 	nAttr.setDefault(0.0f);
 
-	aResultDrawColor = nAttr.create( "resultDrawColor", "rdrc",aResultDrawColorR, aResultDrawColorG, aResultDrawColorB);
+	aResultDrawColor = nAttr.create( "resultDrawColor", "rdrc", aResultDrawColorR,
+	                                 aResultDrawColorG, aResultDrawColorB);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setUsedAsColor(true);
-	st =addAttribute(aResultDrawColor);
+	st = addAttribute(aResultDrawColor);
 
-	aSampleBy = nAttr.create( "sampleBy", "smp",MFnNumericData::kShort);
+	aSampleBy = nAttr.create( "sampleBy", "smp", MFnNumericData::kShort);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(1);
-	st =addAttribute(aSampleBy);
+	st = addAttribute(aSampleBy);
 
-	aHeight = nAttr.create( "graphHeight", "gph",MFnNumericData::kDouble);
+	aHeight = nAttr.create( "graphHeight", "gph", MFnNumericData::kDouble);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(0.2);
-	 nAttr.setMin(0.01);
-	 nAttr.setMax(1.00);
-	 	 nAttr.setSoftMin(0.01);
-	 nAttr.setSoftMax(1.00);
-	st =addAttribute(aHeight);
+	nAttr.setMin(0.01);
+	nAttr.setMax(1.00);
+	nAttr.setSoftMin(0.01);
+	nAttr.setSoftMax(1.00);
+	st = addAttribute(aHeight);
 
-	aWidth = nAttr.create( "graphWidth", "gpw",MFnNumericData::kDouble);
+	aWidth = nAttr.create( "graphWidth", "gpw", MFnNumericData::kDouble);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(0.2);
-		 nAttr.setMin(0.01);
-	 nAttr.setMax(1.00);
-	 	 nAttr.setSoftMin(0.01);
-	 nAttr.setSoftMax(1.00);
-	st =addAttribute(aWidth);
+	nAttr.setMin(0.01);
+	nAttr.setMax(1.00);
+	nAttr.setSoftMin(0.01);
+	nAttr.setSoftMax(1.00);
+	st = addAttribute(aWidth);
 
-	aXOffset = nAttr.create( "xOffset", "xof",MFnNumericData::kDouble);
+	aXOffset = nAttr.create( "xOffset", "xof", MFnNumericData::kDouble);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(0.02);
-		 nAttr.setMin(0.00);
-	 nAttr.setMax(0.99);
-	 	 nAttr.setSoftMin(0.00);
-	 nAttr.setSoftMax(0.99);
-	st =addAttribute(aXOffset);
+	nAttr.setMin(0.00);
+	nAttr.setMax(0.99);
+	nAttr.setSoftMin(0.00);
+	nAttr.setSoftMax(0.99);
+	st = addAttribute(aXOffset);
 
-	aYOffset = nAttr.create( "yOffset", "yof",MFnNumericData::kDouble);
+	aYOffset = nAttr.create( "yOffset", "yof", MFnNumericData::kDouble);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(0.02);
-		 nAttr.setMin(0.00);
-	 nAttr.setMax(0.99);
-	 	 nAttr.setSoftMin(0.00);
-	 nAttr.setSoftMax(0.99);
-	st =addAttribute(aYOffset);
+	nAttr.setMin(0.00);
+	nAttr.setMax(0.99);
+	nAttr.setSoftMin(0.00);
+	nAttr.setSoftMax(0.99);
+	st = addAttribute(aYOffset);
 
-	aGlyphScale = nAttr.create( "glyphScale", "gsc",MFnNumericData::kDouble);
+	aGlyphScale = nAttr.create( "glyphScale", "gsc", MFnNumericData::kDouble);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(1.0);
-	st =addAttribute(aGlyphScale);
+	st = addAttribute(aGlyphScale);
 
 
-	aOutForces = tAttr.create("outForces","ofcs", MFnData::kVectorArray);
+	aOutForces = tAttr.create("outForces", "ofcs", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	tAttr.setArray(true);
 	tAttr.setUsesArrayDataBuilder(true);
-	st = addAttribute( aOutForces ); er;
+	st = addAttribute( aOutForces ); mser;
 
-	aOutForce = tAttr.create("outSignal","osg", MFnData::kVectorArray);
+	aOutForce = tAttr.create("outSignal", "osg", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
-	st = addAttribute( aOutForce ); er;
+	st = addAttribute( aOutForce ); mser;
 
-	st = attributeAffects(aInForce, aOutForce );er;
-	st = attributeAffects(aActive, aOutForce );er;
-	st = attributeAffects(aInData, aOutForce );er;
-	st = attributeAffects(aMaxForce, aOutForce );er;
+	st = attributeAffects(aInForce, aOutForce ); mser;
+	st = attributeAffects(aActive, aOutForce ); mser;
+	st = attributeAffects(aInData, aOutForce ); mser;
+	st = attributeAffects(aMaxForce, aOutForce ); mser;
 
-	st = attributeAffects(aInForce, aOutForces );er;
-	st = attributeAffects(aActive, aOutForces );er;
-	st = attributeAffects(aInData, aOutForces );er;
-	st = attributeAffects(aMaxForce, aOutForces );er;
+	st = attributeAffects(aInForce, aOutForces ); mser;
+	st = attributeAffects(aActive, aOutForces ); mser;
+	st = attributeAffects(aInData, aOutForces ); mser;
+	st = attributeAffects(aMaxForce, aOutForces ); mser;
 
 	return MS::kSuccess;
 }
@@ -688,7 +693,7 @@ MStatus prioritize::initialize()
 void prioritize::postConstructor()
 {
 	MFnDependencyNode nodeFn(thisMObject());
-	nodeFn.setName("prioritizeShape#"); 
+	nodeFn.setName("prioritizeShape#");
 	// 	setExistWithoutInConnections(true);
 	//	setExistWithoutOutConnections(true);
 }

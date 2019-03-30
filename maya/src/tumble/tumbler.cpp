@@ -53,12 +53,12 @@ MObject tumbler::aVelocity;
 MObject tumbler::aMass;
 
 
-MObject tumbler::aFrontAxis;	
-MObject tumbler::aUpAxis;	
+MObject tumbler::aFrontAxis;
+MObject tumbler::aUpAxis;
 
-MObject tumbler::aGoalFront;	
+MObject tumbler::aGoalFront;
 MObject tumbler::aGoalUp;
-MObject tumbler::aGoalWeightPP;	
+MObject tumbler::aGoalWeightPP;
 
 MObject tumbler::aImpulse ;
 
@@ -71,15 +71,15 @@ MObject tumbler::aOmega;
 MObject tumbler::aGoalWeight;
 
 
-MObject tumbler::aTorqueConserve; 
+MObject tumbler::aTorqueConserve;
 MObject tumbler::aRotateOrder;
 MObject tumbler::aOutputUnit;
 
-MObject tumbler::aOutPoints; 	
-MObject tumbler::aOutPhi; 
-MObject tumbler::aOutOmega; 	
-MObject tumbler::aOutFront; 	
-MObject tumbler::aOutUp; 	
+MObject tumbler::aOutPoints;
+MObject tumbler::aOutPhi;
+MObject tumbler::aOutOmega;
+MObject tumbler::aOutFront;
+MObject tumbler::aOutUp;
 MObject tumbler::aOutRotation;
 MObject tumbler::aOutRotationData;
 MObject tumbler::aCurrentTime;
@@ -88,15 +88,15 @@ MObject tumbler::aCurrentTime;
 
 MTypeId tumbler::id( k_tumbler );
 
-tumbler::tumbler(){
+tumbler::tumbler() {
 
 	m_lastTimeIEvaluated = MAnimControl::currentTime();
 }
 
-tumbler::~tumbler(){}
+tumbler::~tumbler() {}
 
 void *tumbler::creator()
-{	
+{
 	return new tumbler;
 }
 
@@ -120,16 +120,16 @@ MStatus tumbler::initialize()
 	aPosition = tAttr.create("position", "pos", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
-	st = addAttribute( aPosition );er;
-	
+	st = addAttribute( aPosition ); mser;
+
 	aVelocity = tAttr.create("velocity", "vel", MFnData::kVectorArray);
 	tAttr.setReadable(false);
-	st = addAttribute( aVelocity );er;
+	st = addAttribute( aVelocity ); mser;
 
 	aMass = tAttr.create("mass", "mas", MFnData::kDoubleArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
-	st = addAttribute( aMass );er;
+	st = addAttribute( aMass ); mser;
 
 
 	aFrontAxis = eAttr.create( "frontAxis", "fa", mayaMath::xAxis);
@@ -141,7 +141,7 @@ MStatus tumbler::initialize()
 	eAttr.addField( "negZ",	 mayaMath::zAxisNeg );
 	eAttr.setKeyable(true);
 	eAttr.setHidden(false);
-	st = addAttribute( aFrontAxis );er;
+	st = addAttribute( aFrontAxis ); mser;
 
 	aUpAxis = eAttr.create( "upAxis", "ua", mayaMath::yAxis);
 	eAttr.addField( "X",		mayaMath::xAxis 	);
@@ -152,28 +152,28 @@ MStatus tumbler::initialize()
 	eAttr.addField( "negZ",	 	mayaMath::zAxisNeg 	);
 	eAttr.setKeyable(true);
 	eAttr.setHidden(false);
-	st = addAttribute( aUpAxis );er;
+	st = addAttribute( aUpAxis ); mser;
 
-	aGoalFront = tAttr.create("goalFrontVector", "gfnt", MFnData::kVectorArray , &st ); er;
+	aGoalFront = tAttr.create("goalFrontVector", "gfnt", MFnData::kVectorArray , &st ); mser;
 	tAttr.setStorable(false);
-	st = addAttribute( aGoalFront ); er;
+	st = addAttribute( aGoalFront ); mser;
 
-	aGoalUp = tAttr.create("goalUpVector", "gup", MFnData::kVectorArray , &st ); er;
+	aGoalUp = tAttr.create("goalUpVector", "gup", MFnData::kVectorArray , &st ); mser;
 	tAttr.setStorable(false);
-	st = addAttribute( aGoalUp ); er;
+	st = addAttribute( aGoalUp ); mser;
 
-	aGoalWeightPP = tAttr.create("goalWeightPP", "gwpp", MFnData::kDoubleArray , &st ); er;
+	aGoalWeightPP = tAttr.create("goalWeightPP", "gwpp", MFnData::kDoubleArray , &st ); mser;
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	tAttr.setStorable(false);
-	st = addAttribute( aGoalWeightPP ); er;
+	st = addAttribute( aGoalWeightPP ); mser;
 
-	aImpulse = tAttr.create("impulse", "ii", MFnData::kVectorArray, &st);er;
+	aImpulse = tAttr.create("impulse", "ii", MFnData::kVectorArray, &st); mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
-	st = addAttribute( aImpulse ); er;
+	st = addAttribute( aImpulse ); mser;
 
 	////////////////////////////////////////////////////////////
-	aLocalImpulse = nAttr.create( "localImpulse", "lim",MFnNumericData::kBoolean);
+	aLocalImpulse = nAttr.create( "localImpulse", "lim", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(true);
@@ -183,27 +183,27 @@ MStatus tumbler::initialize()
 	aPhi = tAttr.create("phi", "ph", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
-	st = addAttribute(aPhi);er;
+	st = addAttribute(aPhi); mser;
 
-	aOmega= tAttr.create("omega", "om", MFnData::kVectorArray);
+	aOmega = tAttr.create("omega", "om", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
-	st = addAttribute(aOmega);er;
+	st = addAttribute(aOmega); mser;
 
 
 
-	aGoalWeight = nAttr.create("goalWeight", "gwt", MFnNumericData::kDouble);	
+	aGoalWeight = nAttr.create("goalWeight", "gwt", MFnNumericData::kDouble);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setDefault(1.0);
-	st = addAttribute(aGoalWeight);er;
+	st = addAttribute(aGoalWeight); mser;
 
 
-	aTorqueConserve = nAttr.create("conserveSpin", "csp", MFnNumericData::kDouble);	
+	aTorqueConserve = nAttr.create("conserveSpin", "csp", MFnNumericData::kDouble);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setDefault(1.0);
-	st = addAttribute(aTorqueConserve);er;
+	st = addAttribute(aTorqueConserve); mser;
 
 	aRotateOrder = eAttr.create( "rotateOrder", "ro", ROTATE_ORDER_XYZ);
 	eAttr.addField("xyz", ROTATE_ORDER_XYZ);
@@ -214,46 +214,46 @@ MStatus tumbler::initialize()
 	eAttr.addField("zyx", ROTATE_ORDER_ZYX);
 	eAttr.setKeyable(true);
 	eAttr.setHidden(false);
-	st = addAttribute( aRotateOrder );er;
+	st = addAttribute( aRotateOrder ); mser;
 
 	aOutputUnit = eAttr.create( "angularUnit", "ang", mayaMath::kDegrees);
 	eAttr.addField("radians",  mayaMath::kRadians);
 	eAttr.addField("degrees", mayaMath::kDegrees);
 	uAttr.setKeyable(true);
 	uAttr.setHidden(false);
-	st = addAttribute( aOutputUnit );er;
+	st = addAttribute( aOutputUnit ); mser;
 
 	aOutPhi = tAttr.create("outPhi", "oph", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	tAttr.setWritable(false);
 
-	aOutOmega= tAttr.create("outOmega", "oom", MFnData::kVectorArray);
+	aOutOmega = tAttr.create("outOmega", "oom", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	tAttr.setWritable(false);
 
-	aOutFront= tAttr.create("outFront", "ofn", MFnData::kVectorArray);
+	aOutFront = tAttr.create("outFront", "ofn", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	tAttr.setWritable(false);
 
-	aOutUp= tAttr.create("outUp", "oup", MFnData::kVectorArray);
+	aOutUp = tAttr.create("outUp", "oup", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	tAttr.setWritable(false);
 
-	aOutRotation = tAttr.create("outRotation", "orot", MFnData::kVectorArray , &st ); er;
+	aOutRotation = tAttr.create("outRotation", "orot", MFnData::kVectorArray , &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	tAttr.setWritable(false);
 
-	aOutPoints = tAttr.create("outPoints", "opns", MFnData::kVectorArray , &st ); er;
+	aOutPoints = tAttr.create("outPoints", "opns", MFnData::kVectorArray , &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	tAttr.setWritable(false);
-	
-	aOutRotationData = cAttr.create("outRotationData","ord", &st ); er;
+
+	aOutRotationData = cAttr.create("outRotationData", "ord", &st ); mser;
 	cAttr.addChild(aOutPhi);
 	cAttr.addChild(aOutOmega);
 	cAttr.addChild(aOutFront);
@@ -261,23 +261,23 @@ MStatus tumbler::initialize()
 	cAttr.addChild(aOutRotation);
 	cAttr.addChild(aOutPoints);
 	cAttr.setWritable(false);
-	st = addAttribute(aOutRotationData);er;
+	st = addAttribute(aOutRotationData); mser;
 
 
 	// Time
 	///////////////////////////////////////////////////////////////////////
 	aCurrentTime = uAttr.create( "currentTime", "ct", MFnUnitAttribute::kTime );
 	uAttr.setStorable(true);
-	st =  addAttribute(aCurrentTime);  er;
+	st =  addAttribute(aCurrentTime);  mser;
 
-	st = attributeAffects(aCurrentTime, aOutRotationData );er;
+	st = attributeAffects(aCurrentTime, aOutRotationData ); mser;
 
 
-	return( MS::kSuccess );
+	return ( MS::kSuccess );
 }
 
 
-MStatus tumbler::compute(const MPlug& plug, MDataBlock& data)
+MStatus tumbler::compute(const MPlug &plug, MDataBlock &data)
 //
 //	Descriptions:
 //		compute output force.
@@ -288,13 +288,13 @@ MStatus tumbler::compute(const MPlug& plug, MDataBlock& data)
 	MString method("tumbler::compute");
 
 
-	if( !	(plug.parent() == aOutRotationData) ) return( MS::kUnknownParameter);
+	if ( !	(plug.parent() == aOutRotationData) ) { return ( MS::kUnknownParameter); }
 
 
 	//////////////////////////////////////////////////
 	MPlug pPlug = plug.parent((&st));
 
-	if (st.error()) return( MS::kFailure);
+	if (st.error()) { return ( MS::kFailure); }
 
 
 	MTime cT =  data.inputValue( aCurrentTime).asTime();
@@ -320,19 +320,19 @@ MStatus tumbler::compute(const MPlug& plug, MDataBlock& data)
 	MDataHandle hPhi = data.inputValue( aPhi );
 	MObject dPhi = hPhi.data();
 	MFnVectorArrayData fnPhi( dPhi );
-	MVectorArray phi = fnPhi.array( &st );er;
+	MVectorArray phi = fnPhi.array( &st ); mser;
 
-	MDataHandle hOmega =data.inputValue( aOmega );
+	MDataHandle hOmega = data.inputValue( aOmega );
 	MObject dOmega = hOmega.data();
 	MFnVectorArrayData fnOmega( dOmega );
-	MVectorArray omega = fnOmega.array( &st );er;
+	MVectorArray omega = fnOmega.array( &st ); mser;
 
 	MDataHandle hGoalFront = data.inputValue( aGoalFront );
 	MObject dGoalFront = hGoalFront.data();
 	MFnVectorArrayData fnGoalFront( dGoalFront );
 	MVectorArray goalFront = fnGoalFront.array( &st );
 
-	MDataHandle hGoalUp =data.inputValue( aGoalUp );
+	MDataHandle hGoalUp = data.inputValue( aGoalUp );
 	MObject dGoalUp = hGoalUp.data();
 	MFnVectorArrayData fnGoalUp( dGoalUp );
 	MVectorArray goalUp = fnGoalUp.array( &st );
@@ -342,7 +342,7 @@ MStatus tumbler::compute(const MPlug& plug, MDataBlock& data)
 	MFnDoubleArrayData fnGoalPP( dGoalPP );
 	MDoubleArray goalWeightPP = fnGoalPP.array( &st );
 
-	MDataHandle hImpulse =data.inputValue( aImpulse );
+	MDataHandle hImpulse = data.inputValue( aImpulse );
 	MObject dImpulse = hImpulse.data();
 	MFnVectorArrayData fnImpulse( dImpulse );
 	MVectorArray impulse = fnImpulse.array( &st );
@@ -353,8 +353,8 @@ MStatus tumbler::compute(const MPlug& plug, MDataBlock& data)
 
 
 	if (dt > 0.0) {
-	// MVectorArray  outPoints;
-	// outPoints.copy(points);
+		// MVectorArray  outPoints;
+		// outPoints.copy(points);
 
 		MVectorArray  outPhi(len);
 		MVectorArray  outOmega(len);
@@ -364,226 +364,228 @@ MStatus tumbler::compute(const MPlug& plug, MDataBlock& data)
 
 		//cerr << "about to simstep" << endl;
 		st = simStep( 	dt,
-			data, 
-			phi,
-			omega,
-			goalFront,
-			goalUp,
-			goalWeightPP,
-			impulse,
-			// collisionImpulse,
-			points,
-			velocities,
-			outPhi,
-			outOmega,
-			outFront,
-			outUp,					
-			outRotation
-			);
+		                data,
+		                phi,
+		                omega,
+		                goalFront,
+		                goalUp,
+		                goalWeightPP,
+		                impulse,
+		                // collisionImpulse,
+		                points,
+		                velocities,
+		                outPhi,
+		                outOmega,
+		                outFront,
+		                outUp,
+		                outRotation
+		            );
 
 
 		MDataHandle hOutFront = data.outputValue(aOutFront);
 		MFnVectorArrayData fnOutFront;
-		MObject dOutFront = fnOutFront.create( outFront, &st );er;
+		MObject dOutFront = fnOutFront.create( outFront, &st ); mser;
 		hOutFront.set( dOutFront );
-//	data.setClean( aOutFront);
+		//	data.setClean( aOutFront);
 
 		MDataHandle hOutUp = data.outputValue(aOutUp);
 		MFnVectorArrayData fnOutUp;
-		MObject dOutUp = fnOutUp.create( outUp, &st );er;
+		MObject dOutUp = fnOutUp.create( outUp, &st ); mser;
 		hOutUp.set( dOutUp );
-//	data.setClean( aOutUp);
+		//	data.setClean( aOutUp);
 
 		MDataHandle hOutPhi = data.outputValue(aOutPhi);
 		MFnVectorArrayData fnOutPhi;
-		MObject dOutPhi = fnOutPhi.create( outPhi, &st );er;
+		MObject dOutPhi = fnOutPhi.create( outPhi, &st ); mser;
 		hOutPhi.set( dOutPhi );
-//	data.setClean( aOutPhi);
+		//	data.setClean( aOutPhi);
 
 		MDataHandle hOutOmega = data.outputValue(aOutOmega);
 		MFnVectorArrayData fnOutOmega;
-		MObject dOutOmega = fnOutOmega.create( outOmega, &st );er;
+		MObject dOutOmega = fnOutOmega.create( outOmega, &st ); mser;
 		hOutOmega.set( dOutOmega );
-//	data.setClean( aOutOmega);
+		//	data.setClean( aOutOmega);
 
 		MDataHandle hOutRotation = data.outputValue(aOutRotation);
 		MFnVectorArrayData fnOutRotation;
-		MObject dOutRotation = fnOutRotation.create( outRotation, &st );er;
+		MObject dOutRotation = fnOutRotation.create( outRotation, &st ); mser;
 		hOutRotation.set( dOutRotation );
-//	data.setClean( aOutRotation);''
+		//	data.setClean( aOutRotation);''
 
 		MDataHandle hOutPoints = data.outputValue(aOutPoints);
 		MFnVectorArrayData fnOutPoints;
-		MObject dOutPoints = fnOutPoints.create( points, &st );er;
+		MObject dOutPoints = fnOutPoints.create( points, &st ); mser;
 		hOutPoints.set( dOutPoints );
 
 	}
 
 	data.setClean( aOutRotationData);
 
- 
-	return( MS::kSuccess );
+
+	return ( MS::kSuccess );
 }
 
 
 MStatus tumbler::simStep
 (
-	double dt,
-	MDataBlock &data, 
-	const MVectorArray &phi,
-	const MVectorArray &omega,
-	const MVectorArray &goalFront,
-	const MVectorArray &goalUp,
-	const MDoubleArray &goalWeightPP,
-	const MVectorArray &impulse,
-	const MVectorArray &points,
-	const MVectorArray &velocities,
-	MVectorArray &outPhi,
-	MVectorArray &outOmega,
-	MVectorArray &outFront,
-	MVectorArray &outUp,
-	MVectorArray &outRotation
-	)
+  double dt,
+  MDataBlock &data,
+  const MVectorArray &phi,
+  const MVectorArray &omega,
+  const MVectorArray &goalFront,
+  const MVectorArray &goalUp,
+  const MDoubleArray &goalWeightPP,
+  const MVectorArray &impulse,
+  const MVectorArray &points,
+  const MVectorArray &velocities,
+  MVectorArray &outPhi,
+  MVectorArray &outOmega,
+  MVectorArray &outFront,
+  MVectorArray &outUp,
+  MVectorArray &outRotation
+)
 {
-	
+
 	MStatus st;
 
 	if (dt == 0.0) {
 		dt = 1.0;
 	}
-	double dtRecip2 = 1.0 / (dt*dt);
+	double dtRecip2 = 1.0 / (dt * dt);
 
- 
+
 	double torqueConValue = data.inputValue(aTorqueConserve).asDouble();
 	double goalWeightValue = data.inputValue(aGoalWeight).asDouble();
 	short rotateOrder = data.inputValue(aRotateOrder).asShort();
 	short outUnit =  data.inputValue(aOutputUnit).asShort();
- 
+
 	mayaMath::axis frontAxis = mayaMath::axis(data.inputValue(aFrontAxis).asShort());
 	mayaMath::axis upAxis = mayaMath::axis(data.inputValue(aUpAxis).asShort());
-	
-	
+
+
 	// rotate order
 	////////////////////////////////////////////////////
 	MEulerRotation::RotationOrder ord;
 	switch ( rotateOrder ) {
 		case ROTATE_ORDER_XYZ:
-		ord = MEulerRotation::kXYZ; break;
+			ord = MEulerRotation::kXYZ; break;
 		case ROTATE_ORDER_YZX:
-		ord = MEulerRotation::kYZX; break;
+			ord = MEulerRotation::kYZX; break;
 		case ROTATE_ORDER_ZXY:
-		ord = MEulerRotation::kZXY; break;
+			ord = MEulerRotation::kZXY; break;
 		case ROTATE_ORDER_XZY:
-		ord = MEulerRotation::kXZY; break;
+			ord = MEulerRotation::kXZY; break;
 		case ROTATE_ORDER_YXZ:
-		ord = MEulerRotation::kYXZ; break;
+			ord = MEulerRotation::kYXZ; break;
 		case ROTATE_ORDER_ZYX:
-		ord = MEulerRotation::kZYX; break;
+			ord = MEulerRotation::kZYX; break;
 		default:
-		ord = MEulerRotation::kXYZ; break;
+			ord = MEulerRotation::kXYZ; break;
 	}
 	////////////////////////////////////////////////////
- 
+
 	unsigned len = phi.length();
-	
- 
-	if (!len) return MS::kFailure;
-	
-	if (!( 	(omega.length() == len)  
-		&& 	(goalFront.length() == len) 
-		&& 	(goalUp.length() == len)  
-		)) {
+
+
+	if (!len) { return MS::kFailure; }
+
+	if (!( 	(omega.length() == len)
+	        && 	(goalFront.length() == len)
+	        && 	(goalUp.length() == len)
+	     )) {
 		MGlobal::displayWarning("tumbler array length mismatch - omega, goalFront and goalUp must be the same length");
-	return MS::kFailure;
-}
-
-
-bool doLocalImpulse = data.inputValue(aLocalImpulse).asBool();
-
-bool doImpulse = false;
-bool doGoal = false;
-bool doGoalPP = false;
-if  (impulse.length() == len) doImpulse =true;
-
-if  ((goalFront.length() == len) && (goalUp.length() == len)) doGoal = true;
-if  (goalWeightPP.length() == len) doGoalPP = true;
-
-MIntArray indexes ;
-MFloatArray positions ;
-MFloatArray values;
-MIntArray interps;
-
-unsigned vlen ;
-float val;
-
-MMatrix outMat;	
-MMatrix goalMat;
-MMatrix phiMat;
-
-MVector goalTorque;
-
-double gw = -goalWeightValue *dtRecip2;
-
-for (unsigned i=0;i<len;i++) {
-
-
-
-	goalMat = mayaMath::matFromAim(MVector::zero, goalFront[i],goalUp[i], MVector(1.0,1.0,1.0),frontAxis,upAxis);	
-
-
-	MMatrix phiMat = mayaMath::matFromPhi(phi[i]);
-
-	MMatrix localPhiMat	= phiMat * goalMat.inverse();	
-
-	MVector localOmega = (omega[i] * goalMat.inverse());
-	
-	MVector localPhi = mayaMath::phiFromMat(localPhiMat);			
-
-	if (doGoalPP) 	gw = -goalWeightPP[i]   * dtRecip2;;
-	
-
-
-	MVector localGoalTorque = localPhi * gw;		
-
-	MVector localDeltaOmega = ( localGoalTorque  *dt);
-
-	if (doImpulse) {
-		if (doLocalImpulse) {
-			localDeltaOmega += impulse[i];
-		} else {
-			localDeltaOmega += impulse[i] * goalMat.inverse();	
-		}
+		return MS::kFailure;
 	}
 
 
+	bool doLocalImpulse = data.inputValue(aLocalImpulse).asBool();
 
-	MVector localOutOmega = (localOmega*torqueConValue) + localDeltaOmega;
+	bool doImpulse = false;
+	bool doGoal = false;
+	bool doGoalPP = false;
+	if  (impulse.length() == len) { doImpulse = true; }
 
-	MVector localDeltaPhi = localOutOmega * dt; 	
+	if  ((goalFront.length() == len) && (goalUp.length() == len)) { doGoal = true; }
+	if  (goalWeightPP.length() == len) { doGoalPP = true; }
 
-	MVector localOutPhi = localPhi +  localDeltaPhi;
+	MIntArray indexes ;
+	MFloatArray positions ;
+	MFloatArray values;
+	MIntArray interps;
 
-	MMatrix localOutPhiMat = mayaMath::matFromPhi(localOutPhi);	
+	unsigned vlen ;
+	float val;
 
-	MVector outOmegaVal = localOutOmega *  goalMat;
+	MMatrix outMat;
+	MMatrix goalMat;
+	MMatrix phiMat;
 
-	MMatrix outPhiMat =localOutPhiMat * goalMat;	
+	MVector goalTorque;
 
-	MVector outPhiVal = mayaMath::phiFromMat(outPhiMat);	
+	double gw = -goalWeightValue * dtRecip2;
 
-	outOmega.set(outOmegaVal,i);		
+	for (unsigned i = 0; i < len; i++) {
 
-	outPhi.set(outPhiVal,i);
-	MVector oFront = mayaMath::axisVector(frontAxis) * outPhiMat;
-	MVector oUp = mayaMath::axisVector(upAxis) * outPhiMat;
 
-	outFront.set(oFront,i);
-	outUp.set(oUp,i);	 	
 
-	MVector vOut =  mayaMath::phiToEuler(outPhiVal,ord,mayaMath::RotateUnit(outUnit));
-	outRotation.set(vOut,i);
+		goalMat = mayaMath::matFromAim(MVector::zero, goalFront[i], goalUp[i], MVector(1.0, 1.0,
+		                               1.0), frontAxis, upAxis);
 
-}
 
-return MS::kSuccess;
+		MMatrix phiMat = mayaMath::matFromPhi(phi[i]);
+
+		MMatrix localPhiMat	= phiMat * goalMat.inverse();
+
+		MVector localOmega = (omega[i] * goalMat.inverse());
+
+		MVector localPhi = mayaMath::phiFromMat(localPhiMat);
+
+		if (doGoalPP) 	{ gw = -goalWeightPP[i]   * dtRecip2; };
+
+
+
+		MVector localGoalTorque = localPhi * gw;
+
+		MVector localDeltaOmega = ( localGoalTorque  * dt);
+
+		if (doImpulse) {
+			if (doLocalImpulse) {
+				localDeltaOmega += impulse[i];
+			}
+			else {
+				localDeltaOmega += impulse[i] * goalMat.inverse();
+			}
+		}
+
+
+
+		MVector localOutOmega = (localOmega * torqueConValue) + localDeltaOmega;
+
+		MVector localDeltaPhi = localOutOmega * dt;
+
+		MVector localOutPhi = localPhi +  localDeltaPhi;
+
+		MMatrix localOutPhiMat = mayaMath::matFromPhi(localOutPhi);
+
+		MVector outOmegaVal = localOutOmega *  goalMat;
+
+		MMatrix outPhiMat = localOutPhiMat * goalMat;
+
+		MVector outPhiVal = mayaMath::phiFromMat(outPhiMat);
+
+		outOmega.set(outOmegaVal, i);
+
+		outPhi.set(outPhiVal, i);
+		MVector oFront = mayaMath::axisVector(frontAxis) * outPhiMat;
+		MVector oUp = mayaMath::axisVector(upAxis) * outPhiMat;
+
+		outFront.set(oFront, i);
+		outUp.set(oUp, i);
+
+		MVector vOut =  mayaMath::phiToEuler(outPhiVal, ord, mayaMath::RotateUnit(outUnit));
+		outRotation.set(vOut, i);
+
+	}
+
+	return MS::kSuccess;
 }

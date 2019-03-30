@@ -34,20 +34,20 @@ MStatus ellipsoidSensor::initialize()
 	MFnNumericAttribute nAttr;
 	MStatus st;
 
-	aPhi = tAttr.create("phi", "phi", MFnData::kVectorArray, &st ); er;
+	aPhi = tAttr.create("phi", "phi", MFnData::kVectorArray, &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
-	st = addAttribute(aPhi); er;
+	st = addAttribute(aPhi); mser;
 
-	aScale = tAttr.create("scale", "scl", MFnData::kVectorArray, &st ); er;
+	aScale = tAttr.create("scale", "scl", MFnData::kVectorArray, &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
-	st = addAttribute(aScale); er;
+	st = addAttribute(aScale); mser;
 
 	return MS::kSuccess;
 }
 
-void* ellipsoidSensor::creator()
+void *ellipsoidSensor::creator()
 {
 	return new ellipsoidSensor;
 }
@@ -56,39 +56,40 @@ void* ellipsoidSensor::creator()
 // Implementation
 
 MStatus ellipsoidSensor::assess(
-	MDataBlock& data, 
-	const poolData * pd, 
-	MVectorArray &assessment)
+  MDataBlock &data,
+  const poolData *pd,
+  MVectorArray &assessment)
 {
 
 	MStatus st;
 	MString method(" ellipsoidSensor::assess");
 
 	// get the 3 main required vector arrays
-	////////////////////////////////////////////////////	
+	////////////////////////////////////////////////////
 	MVectorArray  points;
 	MVectorArray  velocities;
 	MVectorArray  viewVectors;
-	st = getRequiredSensorData(data, points, velocities, viewVectors); ert;
+	st = getRequiredSensorData(data, points, velocities, viewVectors); msert;
 
 
-	MDoubleArray maxDistPP = MFnDoubleArrayData(data.inputValue(sensor::aMaxDistancePP).data()).array();
-	bool doMaxDistPP = false;	
+	MDoubleArray maxDistPP = MFnDoubleArrayData(data.inputValue(
+	                           sensor::aMaxDistancePP).data()).array();
+	bool doMaxDistPP = false;
 	unsigned len = points.length();
 
- 	MVectorArray phi = MFnVectorArrayData(data.inputValue(aPhi).data()).array();
- 	MVectorArray scale = MFnVectorArrayData(data.inputValue(aScale).data()).array();
- 	if (!((phi.length() == len) && (scale.length() == len))) {
- 		return MS::kSuccess;
- 	}
- 	MMatrixArray mats(len);
- 	for (unsigned i=0;i<len;i++){
- 		mats[i] = mayaMath::matFromPhi(points[i],phi[i],scale[i]);
- 	}
+	MVectorArray phi = MFnVectorArrayData(data.inputValue(aPhi).data()).array();
+	MVectorArray scale = MFnVectorArrayData(data.inputValue(aScale).data()).array();
+	if (!((phi.length() == len) && (scale.length() == len))) {
+		return MS::kSuccess;
+	}
+	MMatrixArray mats(len);
+	for (unsigned i = 0; i < len; i++) {
+		mats[i] = mayaMath::matFromPhi(points[i], phi[i], scale[i]);
+	}
 
 
 
-	if ((maxDistPP.length() == len) && data.inputValue(aUseMaxDistancePP).asBool())	 doMaxDistPP = true;
+	if ((maxDistPP.length() == len) && data.inputValue(aUseMaxDistancePP).asBool())	 { doMaxDistPP = true; }
 	////////////////////////////////////////////////////
 	double fov = data.inputValue(aFov).asDouble();
 	double drp = data.inputValue(aDropOff).asDouble();
@@ -102,40 +103,42 @@ MStatus ellipsoidSensor::assess(
 	int num = data.inputValue(aMaxNeighbors).asShort();
 
 	if (num && (0.0 != acuity) && (0.0 != radius) && (0.0 < fov ) ) {
-		const AGENT_VECTOR * allAgents = pd->tree()->perm();
+		const AGENT_VECTOR *allAgents = pd->tree()->perm();
 		unsigned i;
 
-		MRampAttribute fovRamp( thisMObject() , aFovProfile, &st ); er;
-		MRampAttribute decRamp( thisMObject() , aDecayProfile, &st ); er;
+		MRampAttribute fovRamp( thisMObject() , aFovProfile, &st ); mser;
+		MRampAttribute decRamp( thisMObject() , aDecayProfile, &st ); mser;
 
-		for (AGENT_VECTOR::const_iterator searchAgent = allAgents->begin(); searchAgent!=allAgents->end(); searchAgent++ ) {
+		for (AGENT_VECTOR::const_iterator searchAgent = allAgents->begin();
+		     searchAgent != allAgents->end(); searchAgent++ ) {
 			i = (*searchAgent)->id();
 
 			// do the search for this point
 			////////////////////////////////
 			MDoubleArray resultDists;
-			AGENT_VECTOR * neighbors = new AGENT_VECTOR;
-			if (doMaxDistPP) radius = maxDistPP[i];
+			AGENT_VECTOR *neighbors = new AGENT_VECTOR;
+			if (doMaxDistPP) { radius = maxDistPP[i]; }
 			pd->closestNPoints( *searchAgent , radius, num, neighbors, resultDists ) ;
 			if (!(neighbors->size())) {
 				delete neighbors;
-				neighbors=0; 
-				continue;	
+				neighbors = 0;
+				continue;
 			}
 
 			MVector signal(MVector::zero);
-			const MVector viewVectorN = viewVectors[i].normal(); 
+			const MVector viewVectorN = viewVectors[i].normal();
 
 			unsigned c;
 			unsigned iter = 0;
 
-			for (AGENT_VECTOR::const_iterator currAgent = neighbors->begin(); currAgent!=neighbors->end(); currAgent++ ) {
+			for (AGENT_VECTOR::const_iterator currAgent = neighbors->begin();
+			     currAgent != neighbors->end(); currAgent++ ) {
 				c = (*currAgent)->id();
 
-				// we want to get the intersection point on the ellipsoid; 
-				MMatrix &m = mats[c]; 
+				// we want to get the intersection point on the ellipsoid;
+				MMatrix &m = mats[c];
 				MPoint meInNeighborEllipsoidSpace = MPoint(points[i]) * m.inverse();
-				
+
 				double localDist =  MVector(meInNeighborEllipsoidSpace).length();
 				bool inside = localDist < 1.0;
 
@@ -150,17 +153,18 @@ MStatus ellipsoidSensor::assess(
 				double dist = inside ? 0 : dP.length();
 
 				double atten;
-				
+
 				if (useRamps) {
 					atten = attenuateSense(
-						points[i],viewVectorN,fovRamp,decRamp,
-						wsIntersection,dist,radius
-						);
-				} else {
+					          points[i], viewVectorN, fovRamp, decRamp,
+					          wsIntersection, dist, radius
+					        );
+				}
+				else {
 					atten = attenuateSense(
-						points[i],viewVectorN,fov,drp,dec,
-						wsIntersection,dist,radius
-						);
+					          points[i], viewVectorN, fov, drp, dec,
+					          wsIntersection, dist, radius
+					        );
 				}
 				dP = dpNormal * atten;
 
@@ -169,10 +173,10 @@ MStatus ellipsoidSensor::assess(
 			}
 			signal *= acuity  ;
 
-			assessment.set(signal,i);
+			assessment.set(signal, i);
 			if (neighbors) {
 				delete neighbors;
-				neighbors=0; 
+				neighbors = 0;
 			}
 		}
 	}

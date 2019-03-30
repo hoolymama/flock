@@ -159,25 +159,25 @@ MObject flockShape::aOutIds;
 // MObject flockShape::aDrawDummy;
 MTypeId flockShape::id( k_flockShape );
 
-flockShape::flockShape(){
-	
+flockShape::flockShape() {
+
 	m_pClonerStack = new clonerStack;
-//	cerr << "flockShape::ctor. made new clonerStack " << m_pClonerStack << endl;
-	
-	
+	//	cerr << "flockShape::ctor. made new clonerStack " << m_pClonerStack << endl;
+
+
 }
-flockShape::~flockShape(){
+flockShape::~flockShape() {
 	if (m_pClonerStack) {
 		delete m_pClonerStack;
-		m_pClonerStack =0;
+		m_pClonerStack = 0;
 	}
-//	cerr << "flockShape::dtor. deleted m_pClonerStack " << m_pClonerStack << endl;
-	
+	//	cerr << "flockShape::dtor. deleted m_pClonerStack " << m_pClonerStack << endl;
+
 }
 
-void *flockShape::creator(){return new flockShape;}
+void *flockShape::creator() {return new flockShape;}
 
-MStatus flockShape::initialize(){
+MStatus flockShape::initialize() {
 	MStatus st;
 
 	MString method("flockShape::initialize");
@@ -192,34 +192,34 @@ MStatus flockShape::initialize(){
 
 	// Id Mapping attrs
 	///////////////////////////////////////////////////////////////////////
-	
-	
-	
-	// aIdPP = tAttr.create("particleId","pid", MFnData::kDoubleArray, &st ); er;
+
+
+
+	// aIdPP = tAttr.create("particleId","pid", MFnData::kDoubleArray, &st ); mser;
 	// tAttr.setStorable(false);
 	// tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-	// st = addAttribute( aIdPP );er;
+	// st = addAttribute( aIdPP );mser;
 
-	aSortedIdPP = tAttr.create("sortedId","sid", MFnData::kIntArray, &st ); er;
+	aSortedIdPP = tAttr.create("sortedId", "sid", MFnData::kIntArray, &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-	st = addAttribute( aSortedIdPP );er;
+	st = addAttribute( aSortedIdPP ); mser;
 
-	aIdIndexPP = tAttr.create("idIndex","idi", MFnData::kIntArray, &st ); er;
+	aIdIndexPP = tAttr.create("idIndex", "idi", MFnData::kIntArray, &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-	st = addAttribute( aIdIndexPP );er;
+	st = addAttribute( aIdIndexPP ); mser;
 
-	aActivePP = tAttr.create("active","act", MFnData::kDoubleArray, &st ); er;
+	aActivePP = tAttr.create("active", "act", MFnData::kDoubleArray, &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-	st = addAttribute( aActivePP );er;
+	st = addAttribute( aActivePP ); mser;
 	///////////////////////////////////////////////////////////////////////
 
 
 
-// Transformation
-///////////////////////////////////////////////////////////////////////
+	// Transformation
+	///////////////////////////////////////////////////////////////////////
 
 	aRotateOrder = eAttr.create( "rotateOrder", "ro", mayaMath::xyz);
 	eAttr.addField("xyz", mayaMath::xyz);
@@ -230,22 +230,22 @@ MStatus flockShape::initialize(){
 	eAttr.addField("zyx", mayaMath::zyx);
 	eAttr.setKeyable(true);
 	eAttr.setHidden(false);
-	st = addAttribute( aRotateOrder );er;
+	st = addAttribute( aRotateOrder ); mser;
 
-	aTranslatePP = tAttr.create("translatePP","tpp", MFnData::kVectorArray, &st ); er;
+	aTranslatePP = tAttr.create("translatePP", "tpp", MFnData::kVectorArray, &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-	st = addAttribute( aTranslatePP );er;
+	st = addAttribute( aTranslatePP ); mser;
 
-	aRotatePP = tAttr.create("rotatePP","rpp", MFnData::kVectorArray, &st ); er;
+	aRotatePP = tAttr.create("rotatePP", "rpp", MFnData::kVectorArray, &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-	st = addAttribute( aRotatePP );er;
+	st = addAttribute( aRotatePP ); mser;
 
-	aRotateUpPP = tAttr.create("rotateUpPP","rupp", MFnData::kVectorArray, &st ); er;
+	aRotateUpPP = tAttr.create("rotateUpPP", "rupp", MFnData::kVectorArray, &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-	st = addAttribute( aRotateUpPP );er;
+	st = addAttribute( aRotateUpPP ); mser;
 
 
 	// aScalePP = gAttr.create("scalePP", "spp");
@@ -254,19 +254,19 @@ MStatus flockShape::initialize(){
 	// gAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	// gAttr.setStorable(false);
 	// gAttr.setCached(false);
-	// st = addAttribute( aScalePP );er;
+	// st = addAttribute( aScalePP );mser;
 
-	aScalePP = tAttr.create("scalePP","spp", MFnData::kDoubleArray, &st ); er;
+	aScalePP = tAttr.create("scalePP", "spp", MFnData::kDoubleArray, &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-	st = addAttribute( aScalePP );er;
+	st = addAttribute( aScalePP ); mser;
 
 
 	aRotateType = eAttr.create ("rotateType", "rtp");
 	eAttr.addField( "aim",		flockShape::kRotateAim);
 	eAttr.addField( "phi",	 flockShape::kRotatePhi );
 	eAttr.setDefault(	flockShape::kRotateAim);
-	eAttr.setHidden(false);	
+	eAttr.setHidden(false);
 	addAttribute (aRotateType);
 
 	aRotateAimFrontAxis = eAttr.create ("aimFrontAxis", "afa");
@@ -277,7 +277,7 @@ MStatus flockShape::initialize(){
 	eAttr.addField( "negY",	 mayaMath::yAxisNeg );
 	eAttr.addField( "negZ",	 mayaMath::zAxisNeg );
 	eAttr.setDefault(	mayaMath::xAxis);
-	eAttr.setHidden(false);	
+	eAttr.setHidden(false);
 	addAttribute (aRotateAimFrontAxis);
 
 	aRotateAimUpAxis = eAttr.create ("aimUpAxis", "aua");
@@ -294,10 +294,14 @@ MStatus flockShape::initialize(){
 
 
 
-	aTranslateTargetX = uAttr.create( "translateTargetX", "ttgx", MFnUnitAttribute::kDistance, 0.0 );
-	aTranslateTargetY = uAttr.create( "translateTargetY", "ttgy", MFnUnitAttribute::kDistance, 0.0 );
-	aTranslateTargetZ = uAttr.create( "translateTargetZ", "ttgz", MFnUnitAttribute::kDistance, 0.0 );
-	aTranslateTarget = nAttr.create( "translateTarget", "ttg", aTranslateTargetX, aTranslateTargetY, aTranslateTargetZ );
+	aTranslateTargetX = uAttr.create( "translateTargetX", "ttgx", MFnUnitAttribute::kDistance,
+	                                  0.0 );
+	aTranslateTargetY = uAttr.create( "translateTargetY", "ttgy", MFnUnitAttribute::kDistance,
+	                                  0.0 );
+	aTranslateTargetZ = uAttr.create( "translateTargetZ", "ttgz", MFnUnitAttribute::kDistance,
+	                                  0.0 );
+	aTranslateTarget = nAttr.create( "translateTarget", "ttg", aTranslateTargetX,
+	                                 aTranslateTargetY, aTranslateTargetZ );
 	nAttr.setStorable(false);
 	nAttr.setReadable(true);
 	st = addAttribute(aTranslateTarget);
@@ -305,7 +309,8 @@ MStatus flockShape::initialize(){
 	aRotateTargetX = uAttr.create( "rotateTargetX", "rtgx", MFnUnitAttribute::kAngle, 0.0 );
 	aRotateTargetY = uAttr.create( "rotateTargetY", "rtgy", MFnUnitAttribute::kAngle, 0.0 );
 	aRotateTargetZ = uAttr.create( "rotateTargetZ", "rtgz", MFnUnitAttribute::kAngle, 0.0 );
-	aRotateTarget = nAttr.create( "rotateTarget", "rtg", aRotateTargetX, aRotateTargetY, aRotateTargetZ );
+	aRotateTarget = nAttr.create( "rotateTarget", "rtg", aRotateTargetX, aRotateTargetY,
+	                              aRotateTargetZ );
 	nAttr.setStorable(false);
 	nAttr.setReadable(true);
 	st = addAttribute(aRotateTarget);
@@ -313,26 +318,27 @@ MStatus flockShape::initialize(){
 	aScaleTargetX = nAttr.create( "scaleTargetX", "stgx", MFnNumericData::kDouble );
 	aScaleTargetY = nAttr.create( "scaleTargetY", "stgy", MFnNumericData::kDouble );
 	aScaleTargetZ = nAttr.create( "scaleTargetZ", "stgz", MFnNumericData::kDouble);
-	aScaleTarget = nAttr.create( "scaleTarget", "stg", aScaleTargetX, aScaleTargetY, aScaleTargetZ );
+	aScaleTarget = nAttr.create( "scaleTarget", "stg", aScaleTargetX, aScaleTargetY,
+	                             aScaleTargetZ );
 	nAttr.setStorable(false);
 	nAttr.setReadable(true);
 	st = addAttribute(aScaleTarget);
 
 
-	aTargetId = nAttr.create("targetId", "tid",MFnNumericData::kLong);
+	aTargetId = nAttr.create("targetId", "tid", MFnNumericData::kLong);
 	nAttr.setWritable(true);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	addAttribute (aTargetId);
-///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
 
-////////USER DEFINED ATTS ///////////////////////////////////
-	aUserPP = tAttr.create("userPP","upp", MFnData::kDoubleArray, &st ); er;
+	////////USER DEFINED ATTS ///////////////////////////////////
+	aUserPP = tAttr.create("userPP", "upp", MFnData::kDoubleArray, &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-	st = addAttribute( aUserPP );er; // not sure if this needed
+	st = addAttribute( aUserPP ); mser; // not sure if this needed
 
-	aUserTarget = nAttr.create("userTarget", "utg",MFnNumericData::kDouble);
+	aUserTarget = nAttr.create("userTarget", "utg", MFnNumericData::kDouble);
 	nAttr.setWritable(true);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
@@ -348,17 +354,21 @@ MStatus flockShape::initialize(){
 	cAttr.setArray(true);
 	cAttr.setIndexMatters(false);
 	st = addAttribute(aUserMap);
-	
-////////USER DEFINED VECTOR ATTS ///////////////////////////////////
-	aUserVectorPP = tAttr.create("userVectorPP","uvpp", MFnData::kVectorArray, &st ); er;
+
+	////////USER DEFINED VECTOR ATTS ///////////////////////////////////
+	aUserVectorPP = tAttr.create("userVectorPP", "uvpp", MFnData::kVectorArray, &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-	st = addAttribute( aUserVectorPP );er; // not sure if this needed
+	st = addAttribute( aUserVectorPP ); mser; // not sure if this needed
 
-	aUserVectorTargetX = nAttr.create( "userVectorTargetX", "vtgx", MFnNumericData::kDouble , 1.0  );
-	aUserVectorTargetY = nAttr.create( "userVectorTargetY", "vtgy", MFnNumericData::kDouble , 1.0  );
-	aUserVectorTargetZ = nAttr.create( "userVectorTargetZ", "vtgz", MFnNumericData::kDouble , 1.0  );
-	aUserVectorTarget = nAttr.create( "userVectorTarget", "uvtg", aUserVectorTargetX, aUserVectorTargetY, aUserVectorTargetZ );
+	aUserVectorTargetX = nAttr.create( "userVectorTargetX", "vtgx", MFnNumericData::kDouble ,
+	                                   1.0  );
+	aUserVectorTargetY = nAttr.create( "userVectorTargetY", "vtgy", MFnNumericData::kDouble ,
+	                                   1.0  );
+	aUserVectorTargetZ = nAttr.create( "userVectorTargetZ", "vtgz", MFnNumericData::kDouble ,
+	                                   1.0  );
+	aUserVectorTarget = nAttr.create( "userVectorTarget", "uvtg", aUserVectorTargetX,
+	                                  aUserVectorTargetY, aUserVectorTargetZ );
 	nAttr.setWritable(true);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
@@ -374,28 +384,36 @@ MStatus flockShape::initialize(){
 	cAttr.setArray(true);
 	cAttr.setIndexMatters(false);
 	st = addAttribute(aUserVectorMap);
-	
 
 
-/* FLAT TARGETS */
-	aDoFlatTargets = nAttr.create( "doFlatTargets", "dftg",MFnNumericData::kBoolean);
+
+	/* FLAT TARGETS */
+	aDoFlatTargets = nAttr.create( "doFlatTargets", "dftg", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(false);
 	nAttr.setDefault(false);
 	st = addAttribute(aDoFlatTargets);
 
-	aFlatTranslateTargetX = uAttr.create( "flatTranslateTargetX", "fttgx", MFnUnitAttribute::kDistance, 0.0 );
-	aFlatTranslateTargetY = uAttr.create( "flatTranslateTargetY", "fttgy", MFnUnitAttribute::kDistance, 0.0 );
-	aFlatTranslateTargetZ = uAttr.create( "flatTranslateTargetZ", "fttgz", MFnUnitAttribute::kDistance, 0.0 );
-	aFlatTranslateTarget = nAttr.create(  "flatTranslateTarget",  "fttg", aFlatTranslateTargetX, aFlatTranslateTargetY, aFlatTranslateTargetZ );
+	aFlatTranslateTargetX = uAttr.create( "flatTranslateTargetX", "fttgx",
+	                                      MFnUnitAttribute::kDistance, 0.0 );
+	aFlatTranslateTargetY = uAttr.create( "flatTranslateTargetY", "fttgy",
+	                                      MFnUnitAttribute::kDistance, 0.0 );
+	aFlatTranslateTargetZ = uAttr.create( "flatTranslateTargetZ", "fttgz",
+	                                      MFnUnitAttribute::kDistance, 0.0 );
+	aFlatTranslateTarget = nAttr.create(  "flatTranslateTarget",  "fttg",
+	                                      aFlatTranslateTargetX, aFlatTranslateTargetY, aFlatTranslateTargetZ );
 	nAttr.setStorable(false);
 	nAttr.setReadable(true);
 	nAttr.setWritable(false);
 
-	aFlatRotateTargetX = uAttr.create( "flatRotateTargetX", "frtgx", MFnUnitAttribute::kAngle, 0.0 );
-	aFlatRotateTargetY = uAttr.create( "flatRotateTargetY", "frtgy", MFnUnitAttribute::kAngle, 0.0 );
-	aFlatRotateTargetZ = uAttr.create( "flatRotateTargetZ", "frtgz", MFnUnitAttribute::kAngle, 0.0 );
-	aFlatRotateTarget = nAttr.create( "flatRotateTarget", "frtg", aFlatRotateTargetX, aFlatRotateTargetY, aFlatRotateTargetZ );
+	aFlatRotateTargetX = uAttr.create( "flatRotateTargetX", "frtgx", MFnUnitAttribute::kAngle,
+	                                   0.0 );
+	aFlatRotateTargetY = uAttr.create( "flatRotateTargetY", "frtgy", MFnUnitAttribute::kAngle,
+	                                   0.0 );
+	aFlatRotateTargetZ = uAttr.create( "flatRotateTargetZ", "frtgz", MFnUnitAttribute::kAngle,
+	                                   0.0 );
+	aFlatRotateTarget = nAttr.create( "flatRotateTarget", "frtg", aFlatRotateTargetX,
+	                                  aFlatRotateTargetY, aFlatRotateTargetZ );
 	nAttr.setStorable(false);
 	nAttr.setReadable(true);
 	nAttr.setWritable(false);
@@ -404,13 +422,15 @@ MStatus flockShape::initialize(){
 	aFlatScaleTargetX = nAttr.create( "flatScaleTargetX", "fstgx", MFnNumericData::kDouble );
 	aFlatScaleTargetY = nAttr.create( "flatScaleTargetY", "fstgy", MFnNumericData::kDouble );
 	aFlatScaleTargetZ = nAttr.create( "flatScaleTargetZ", "fstgz", MFnNumericData::kDouble);
-	aFlatScaleTarget = nAttr.create( "flatScaleTarget", "fstg", aFlatScaleTargetX, aFlatScaleTargetY, aFlatScaleTargetZ );
+	aFlatScaleTarget = nAttr.create( "flatScaleTarget", "fstg", aFlatScaleTargetX,
+	                                 aFlatScaleTargetY, aFlatScaleTargetZ );
 	nAttr.setStorable(false);
 	nAttr.setReadable(true);
 	nAttr.setWritable(false);
 
 
-	aFlatUserDoubleTarget = nAttr.create("flatUserDoubleTarget", "fudtg",MFnNumericData::kDouble);
+	aFlatUserDoubleTarget = nAttr.create("flatUserDoubleTarget", "fudtg",
+	                                     MFnNumericData::kDouble);
 	nAttr.setStorable(false);
 	nAttr.setReadable(true);
 	nAttr.setWritable(false);
@@ -418,10 +438,14 @@ MStatus flockShape::initialize(){
 	nAttr.setUsesArrayDataBuilder( true );
 	nAttr.setIndexMatters(true);
 
-	aFlatUserVectorTargetX = nAttr.create( "flatUserVectorTargetX", "fuvtgx", MFnNumericData::kDouble , 1.0  );
-	aFlatUserVectorTargetY = nAttr.create( "flatUserVectorTargetY", "fuvtgy", MFnNumericData::kDouble , 1.0  );
-	aFlatUserVectorTargetZ = nAttr.create( "flatUserVectorTargetZ", "fuvtgz", MFnNumericData::kDouble , 1.0  );
-	aFlatUserVectorTarget = nAttr.create( "flatUserVectorTarget", "fuvtg", aFlatUserVectorTargetX, aFlatUserVectorTargetY, aFlatUserVectorTargetZ );
+	aFlatUserVectorTargetX = nAttr.create( "flatUserVectorTargetX", "fuvtgx",
+	                                       MFnNumericData::kDouble , 1.0  );
+	aFlatUserVectorTargetY = nAttr.create( "flatUserVectorTargetY", "fuvtgy",
+	                                       MFnNumericData::kDouble , 1.0  );
+	aFlatUserVectorTargetZ = nAttr.create( "flatUserVectorTargetZ", "fuvtgz",
+	                                       MFnNumericData::kDouble , 1.0  );
+	aFlatUserVectorTarget = nAttr.create( "flatUserVectorTarget", "fuvtg",
+	                                      aFlatUserVectorTargetX, aFlatUserVectorTargetY, aFlatUserVectorTargetZ );
 	nAttr.setStorable(false);
 	nAttr.setReadable(true);
 	nAttr.setWritable(false);
@@ -444,14 +468,14 @@ MStatus flockShape::initialize(){
 	cAttr.setUsesArrayDataBuilder( true );
 	cAttr.setIndexMatters(true);
 	st = addAttribute(aFlatTargets);
-	
 
 
 
-///////////////////////////////////////////////////////////////////////
 
-// TODO 
-	
+	///////////////////////////////////////////////////////////////////////
+
+	// TODO
+
 	// aLodBBMin = nAttr.create( "lodBBMin", "lbn",  MFnNumericData::k3Double );
 	// nAttr.setHidden(false);
 
@@ -467,8 +491,8 @@ MStatus flockShape::initialize(){
 	// cAttr.addChild(aLodBBSiz);
 	// cAttr.setStorable(true);
 	// cAttr.setHidden(false);
-	
-	// st = addAttribute(aLodBB);er
+
+	// st = addAttribute(aLodBB);mser
 
 	// aLodGeometrySet = mAttr.create("lodGeometrySet","lgse");
 	// aLodGeometryStart = nAttr.create( "lodGeometryStart", "lgst",  MFnNumericData::kFloat);
@@ -490,31 +514,31 @@ MStatus flockShape::initialize(){
 	// cAttr.setArray(true);
 	// cAttr.setIndexMatters(false);
 	// //cAttr.setUsesArrayDataBuilder(true);
-	// st = addAttribute(aLodGeometry);er;
+	// st = addAttribute(aLodGeometry);mser;
 
 
 	aPointsBBMin = nAttr.create( "pointsBBMin", "pbn",  MFnNumericData::k3Double );
 	nAttr.setHidden(false);
-		//	nAttr.setKeyable(true);
+	//	nAttr.setKeyable(true);
 	aPointsBBMax = nAttr.create( "pointsBBMax", "pbx",  MFnNumericData::k3Double );
 	nAttr.setHidden(false);
-		//	nAttr.setKeyable(true);
+	//	nAttr.setKeyable(true);
 	aPointsBBSiz = nAttr.create( "pointsBBSiz", "pbs",  MFnNumericData::k3Double );
 	nAttr.setHidden(false);
-		//	nAttr.setKeyable(true);
+	//	nAttr.setKeyable(true);
 	aPointsBB = cAttr.create("pointsBB", "pbb");
 	cAttr.addChild(aPointsBBMin);
 	cAttr.addChild(aPointsBBMax);
 	cAttr.addChild(aPointsBBSiz);
 	cAttr.setStorable(true);
 	cAttr.setHidden(false);
-	st = addAttribute(aPointsBB);er;
+	st = addAttribute(aPointsBB); mser;
 
 
 
-	aMesh= tAttr.create("mesh","ms", MFnData::kMesh);
+	aMesh = tAttr.create("mesh", "ms", MFnData::kMesh);
 
-	aMeshActive = nAttr.create( "meshActive", "mac",MFnNumericData::kBoolean);
+	aMeshActive = nAttr.create( "meshActive", "mac", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(true);
@@ -523,15 +547,15 @@ MStatus flockShape::initialize(){
 	aInMeshes = cAttr.create("inMeshes", "inm");
 	cAttr.addChild(aMesh);
 	cAttr.addChild(aMeshActive);
-	cAttr.setArray( true );	
+	cAttr.setArray( true );
 	cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
-	cAttr.setReadable(false);	
-	st = addAttribute( aInMeshes );er;	
-	
-	
-	aOutIds = tAttr.create("outIds","oids", MFnData::kIntArray, &st ); er;
+	cAttr.setReadable(false);
+	st = addAttribute( aInMeshes ); mser;
+
+
+	aOutIds = tAttr.create("outIds", "oids", MFnData::kIntArray, &st ); mser;
 	tAttr.setStorable(false);
-	st = addAttribute( aOutIds );er;
+	st = addAttribute( aOutIds ); mser;
 
 	aCullList = tAttr.create( "cullList", "cls", MFnData::kString );
 	tAttr.setStorable(true);
@@ -548,208 +572,208 @@ MStatus flockShape::initialize(){
 
 	aCurrentTime = uAttr.create( "currentTime", "ct", MFnUnitAttribute::kTime );
 	uAttr.setStorable(true);
-	st =  addAttribute(aCurrentTime);  er;
+	st =  addAttribute(aCurrentTime);  mser;
 
 
 
 
-	st =attributeAffects(aCurrentTime ,aOutMeshes );er;	
-	st =attributeAffects(aCurrentTime ,aOutIds );er;	
-	// st =attributeAffects(aCullList ,aOutMeshes );er;	
-	// st =attributeAffects(aCullList ,aOutIds );er;	
-	// st =attributeAffects(aActivePP ,aOutMeshes );er;	
-	// st =attributeAffects(aActivePP ,aOutIds );er;	
+	st = attributeAffects(aCurrentTime , aOutMeshes ); mser;
+	st = attributeAffects(aCurrentTime , aOutIds ); mser;
+	// st =attributeAffects(aCullList ,aOutMeshes );mser;
+	// st =attributeAffects(aCullList ,aOutIds );mser;
+	// st =attributeAffects(aActivePP ,aOutMeshes );mser;
+	// st =attributeAffects(aActivePP ,aOutIds );mser;
 
 
 
-	// st =attributeAffects(aCurrentTime ,aFlatTargets );er;	 
-	// st =attributeAffects(aCullList ,aFlatTargets );er;	 
-	// st =attributeAffects(aActivePP ,aFlatTargets );er;	
+	// st =attributeAffects(aCurrentTime ,aFlatTargets );mser;
+	// st =attributeAffects(aCullList ,aFlatTargets );mser;
+	// st =attributeAffects(aActivePP ,aFlatTargets );mser;
 
-	st =attributeAffects(aCurrentTime ,aFlatTranslateTargetX );er;	 
-	// st =attributeAffects(aCullList ,aFlatTranslateTargetX );er;	 
-	// st =attributeAffects(aActivePP ,aFlatTranslateTargetX );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatTranslateTargetY );er;	 
-	// st =attributeAffects(aCullList ,aFlatTranslateTargetY );er;	 
-	// st =attributeAffects(aActivePP ,aFlatTranslateTargetY );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatTranslateTargetZ );er;	 
-	// st =attributeAffects(aCullList ,aFlatTranslateTargetZ );er;	 
-	// st =attributeAffects(aActivePP ,aFlatTranslateTargetZ );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatTranslateTarget );er;	 
-	// st =attributeAffects(aCullList ,aFlatTranslateTarget );er;	 
-	// st =attributeAffects(aActivePP ,aFlatTranslateTarget );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatRotateTargetX );er;	 
-	// st =attributeAffects(aCullList ,aFlatRotateTargetX );er;	 
-	// st =attributeAffects(aActivePP ,aFlatRotateTargetX );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatRotateTargetY );er;	 
-	// st =attributeAffects(aCullList ,aFlatRotateTargetY );er;	 
-	// st =attributeAffects(aActivePP ,aFlatRotateTargetY );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatRotateTargetZ );er;	 
-	// st =attributeAffects(aCullList ,aFlatRotateTargetZ );er;	 
-	// st =attributeAffects(aActivePP ,aFlatRotateTargetZ );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatRotateTarget );er;	 
-	// st =attributeAffects(aCullList ,aFlatRotateTarget );er;	 
-	// st =attributeAffects(aActivePP ,aFlatRotateTarget );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatScaleTargetX );er;	 
-	// st =attributeAffects(aCullList ,aFlatScaleTargetX );er;	 
-	// st =attributeAffects(aActivePP ,aFlatScaleTargetX );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatScaleTargetY );er;	 
-	// st =attributeAffects(aCullList ,aFlatScaleTargetY );er;	 
-	// st =attributeAffects(aActivePP ,aFlatScaleTargetY );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatScaleTargetZ );er;	 
-	// st =attributeAffects(aCullList ,aFlatScaleTargetZ );er;	 
-	// st =attributeAffects(aActivePP ,aFlatScaleTargetZ );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatScaleTarget );er;	 
-	// st =attributeAffects(aCullList ,aFlatScaleTarget );er;	 
-	// st =attributeAffects(aActivePP ,aFlatScaleTarget );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatUserDoubleTarget );er;	 
-	// st =attributeAffects(aCullList ,aFlatUserDoubleTarget );er;	 
-	// st =attributeAffects(aActivePP ,aFlatUserDoubleTarget );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatUserVectorTargetX );er;	 
-	// st =attributeAffects(aCullList ,aFlatUserVectorTargetX );er;	 
-	// st =attributeAffects(aActivePP ,aFlatUserVectorTargetX );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatUserVectorTargetY );er;	 
-	// st =attributeAffects(aCullList ,aFlatUserVectorTargetY );er;	 
-	// st =attributeAffects(aActivePP ,aFlatUserVectorTargetY );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatUserVectorTargetZ );er;	 
-	// st =attributeAffects(aCullList ,aFlatUserVectorTargetZ );er;	 
-	// st =attributeAffects(aActivePP ,aFlatUserVectorTargetZ );er;	
-	
-	st =attributeAffects(aCurrentTime ,aFlatUserVectorTarget );er;	 
-	// st =attributeAffects(aCullList ,aFlatUserVectorTarget );er;	 
-	// st =attributeAffects(aActivePP ,aFlatUserVectorTarget );er;	
+	st = attributeAffects(aCurrentTime , aFlatTranslateTargetX ); mser;
+	// st =attributeAffects(aCullList ,aFlatTranslateTargetX );mser;
+	// st =attributeAffects(aActivePP ,aFlatTranslateTargetX );mser;
 
+	st = attributeAffects(aCurrentTime , aFlatTranslateTargetY ); mser;
+	// st =attributeAffects(aCullList ,aFlatTranslateTargetY );mser;
+	// st =attributeAffects(aActivePP ,aFlatTranslateTargetY );mser;
 
+	st = attributeAffects(aCurrentTime , aFlatTranslateTargetZ ); mser;
+	// st =attributeAffects(aCullList ,aFlatTranslateTargetZ );mser;
+	// st =attributeAffects(aActivePP ,aFlatTranslateTargetZ );mser;
 
-// st =attributeAffects(aCurrentTime,aTranslateTargetX  );er;	
-// st =attributeAffects(aCurrentTime,aTranslateTargetY  );er;	
-// st =attributeAffects(aCurrentTime,aTranslateTargetZ  );er;	
-// st =attributeAffects(aCurrentTime,aTranslateTarget  );er;	
-// st =attributeAffects(aCurrentTime,aRotateTargetX );er;	
-// st =attributeAffects(aCurrentTime,aRotateTargetY  );er;	
-// st =attributeAffects(aCurrentTime,aRotateTargetZ  );er;	
-// st =attributeAffects(aCurrentTime,aRotateTarget );er;	
-// st =attributeAffects(aCurrentTime,aScaleTargetX );er;	
-// st =attributeAffects(aCurrentTime,aScaleTargetY );er;	
-// st =attributeAffects(aCurrentTime,aScaleTargetZ );er;	
-// st =attributeAffects(aCurrentTime,aScaleTarget );er;	
-// st =attributeAffects(aCurrentTime,aUserMap );er;	
+	st = attributeAffects(aCurrentTime , aFlatTranslateTarget ); mser;
+	// st =attributeAffects(aCullList ,aFlatTranslateTarget );mser;
+	// st =attributeAffects(aActivePP ,aFlatTranslateTarget );mser;
+
+	st = attributeAffects(aCurrentTime , aFlatRotateTargetX ); mser;
+	// st =attributeAffects(aCullList ,aFlatRotateTargetX );mser;
+	// st =attributeAffects(aActivePP ,aFlatRotateTargetX );mser;
+
+	st = attributeAffects(aCurrentTime , aFlatRotateTargetY ); mser;
+	// st =attributeAffects(aCullList ,aFlatRotateTargetY );mser;
+	// st =attributeAffects(aActivePP ,aFlatRotateTargetY );mser;
+
+	st = attributeAffects(aCurrentTime , aFlatRotateTargetZ ); mser;
+	// st =attributeAffects(aCullList ,aFlatRotateTargetZ );mser;
+	// st =attributeAffects(aActivePP ,aFlatRotateTargetZ );mser;
+
+	st = attributeAffects(aCurrentTime , aFlatRotateTarget ); mser;
+	// st =attributeAffects(aCullList ,aFlatRotateTarget );mser;
+	// st =attributeAffects(aActivePP ,aFlatRotateTarget );mser;
+
+	st = attributeAffects(aCurrentTime , aFlatScaleTargetX ); mser;
+	// st =attributeAffects(aCullList ,aFlatScaleTargetX );mser;
+	// st =attributeAffects(aActivePP ,aFlatScaleTargetX );mser;
+
+	st = attributeAffects(aCurrentTime , aFlatScaleTargetY ); mser;
+	// st =attributeAffects(aCullList ,aFlatScaleTargetY );mser;
+	// st =attributeAffects(aActivePP ,aFlatScaleTargetY );mser;
+
+	st = attributeAffects(aCurrentTime , aFlatScaleTargetZ ); mser;
+	// st =attributeAffects(aCullList ,aFlatScaleTargetZ );mser;
+	// st =attributeAffects(aActivePP ,aFlatScaleTargetZ );mser;
+
+	st = attributeAffects(aCurrentTime , aFlatScaleTarget ); mser;
+	// st =attributeAffects(aCullList ,aFlatScaleTarget );mser;
+	// st =attributeAffects(aActivePP ,aFlatScaleTarget );mser;
+
+	st = attributeAffects(aCurrentTime , aFlatUserDoubleTarget ); mser;
+	// st =attributeAffects(aCullList ,aFlatUserDoubleTarget );mser;
+	// st =attributeAffects(aActivePP ,aFlatUserDoubleTarget );mser;
+
+	st = attributeAffects(aCurrentTime , aFlatUserVectorTargetX ); mser;
+	// st =attributeAffects(aCullList ,aFlatUserVectorTargetX );mser;
+	// st =attributeAffects(aActivePP ,aFlatUserVectorTargetX );mser;
+
+	st = attributeAffects(aCurrentTime , aFlatUserVectorTargetY ); mser;
+	// st =attributeAffects(aCullList ,aFlatUserVectorTargetY );mser;
+	// st =attributeAffects(aActivePP ,aFlatUserVectorTargetY );mser;
+
+	st = attributeAffects(aCurrentTime , aFlatUserVectorTargetZ ); mser;
+	// st =attributeAffects(aCullList ,aFlatUserVectorTargetZ );mser;
+	// st =attributeAffects(aActivePP ,aFlatUserVectorTargetZ );mser;
+
+	st = attributeAffects(aCurrentTime , aFlatUserVectorTarget ); mser;
+	// st =attributeAffects(aCullList ,aFlatUserVectorTarget );mser;
+	// st =attributeAffects(aActivePP ,aFlatUserVectorTarget );mser;
 
 
-	return( MS::kSuccess );
+
+	// st =attributeAffects(aCurrentTime,aTranslateTargetX  );mser;
+	// st =attributeAffects(aCurrentTime,aTranslateTargetY  );mser;
+	// st =attributeAffects(aCurrentTime,aTranslateTargetZ  );mser;
+	// st =attributeAffects(aCurrentTime,aTranslateTarget  );mser;
+	// st =attributeAffects(aCurrentTime,aRotateTargetX );mser;
+	// st =attributeAffects(aCurrentTime,aRotateTargetY  );mser;
+	// st =attributeAffects(aCurrentTime,aRotateTargetZ  );mser;
+	// st =attributeAffects(aCurrentTime,aRotateTarget );mser;
+	// st =attributeAffects(aCurrentTime,aScaleTargetX );mser;
+	// st =attributeAffects(aCurrentTime,aScaleTargetY );mser;
+	// st =attributeAffects(aCurrentTime,aScaleTargetZ );mser;
+	// st =attributeAffects(aCurrentTime,aScaleTarget );mser;
+	// st =attributeAffects(aCurrentTime,aUserMap );mser;
+
+
+	return ( MS::kSuccess );
 
 }
 
 void flockShape::drawABox(const MVector &bmin, const MVector &bmax) {
 	glBegin( GL_LINES );
-	
+
 	////////////////// BASE
-	glVertex3f(float(bmin.x),float(bmin.y),float(bmin.z));
-	glVertex3f(float(bmin.x),float(bmin.y),float(bmax.z));
+	glVertex3f(float(bmin.x), float(bmin.y), float(bmin.z));
+	glVertex3f(float(bmin.x), float(bmin.y), float(bmax.z));
 
-	glVertex3f(float(bmin.x),float(bmin.y),float(bmax.z));
-	glVertex3f(float(bmax.x),float(bmin.y),float(bmax.z));
+	glVertex3f(float(bmin.x), float(bmin.y), float(bmax.z));
+	glVertex3f(float(bmax.x), float(bmin.y), float(bmax.z));
 
-	glVertex3f(float(bmax.x),float(bmin.y),float(bmax.z));
-	glVertex3f(float(bmax.x),float(bmin.y),float(bmin.z));
+	glVertex3f(float(bmax.x), float(bmin.y), float(bmax.z));
+	glVertex3f(float(bmax.x), float(bmin.y), float(bmin.z));
 
-	glVertex3f(float(bmax.x),float(bmin.y),float(bmin.z));
-	glVertex3f(float(bmin.x),float(bmin.y),float(bmin.z));
+	glVertex3f(float(bmax.x), float(bmin.y), float(bmin.z));
+	glVertex3f(float(bmin.x), float(bmin.y), float(bmin.z));
 
 	////////////////// TOP
-	glVertex3f(float(bmin.x),float(bmax.y),float(bmin.z));
-	glVertex3f(float(bmin.x),float(bmax.y),float(bmax.z));
+	glVertex3f(float(bmin.x), float(bmax.y), float(bmin.z));
+	glVertex3f(float(bmin.x), float(bmax.y), float(bmax.z));
 
-	glVertex3f(float(bmin.x),float(bmax.y),float(bmax.z));
-	glVertex3f(float(bmax.x),float(bmax.y),float(bmax.z));
+	glVertex3f(float(bmin.x), float(bmax.y), float(bmax.z));
+	glVertex3f(float(bmax.x), float(bmax.y), float(bmax.z));
 
-	glVertex3f(float(bmax.x),float(bmax.y),float(bmax.z));
-	glVertex3f(float(bmax.x),float(bmax.y),float(bmin.z));
+	glVertex3f(float(bmax.x), float(bmax.y), float(bmax.z));
+	glVertex3f(float(bmax.x), float(bmax.y), float(bmin.z));
 
-	glVertex3f(float(bmax.x),float(bmax.y),float(bmin.z));
-	glVertex3f(float(bmin.x),float(bmax.y),float(bmin.z));
-	
+	glVertex3f(float(bmax.x), float(bmax.y), float(bmin.z));
+	glVertex3f(float(bmin.x), float(bmax.y), float(bmin.z));
+
 	/////////////////// LEGS
-	glVertex3f(float(bmin.x),float(bmin.y),float(bmin.z));
-	glVertex3f(float(bmin.x),float(bmax.y),float(bmin.z));
-	
-	glVertex3f(float(bmin.x),float(bmin.y),float(bmax.z));	
-	glVertex3f(float(bmin.x),float(bmax.y),float(bmax.z));	
-	
-	glVertex3f(float(bmax.x),float(bmin.y),float(bmax.z));		
-	glVertex3f(float(bmax.x),float(bmax.y),float(bmax.z));
-	
-	glVertex3f(float(bmax.x),float(bmin.y),float(bmin.z));	
-	glVertex3f(float(bmax.x),float(bmax.y),float(bmin.z));	
+	glVertex3f(float(bmin.x), float(bmin.y), float(bmin.z));
+	glVertex3f(float(bmin.x), float(bmax.y), float(bmin.z));
+
+	glVertex3f(float(bmin.x), float(bmin.y), float(bmax.z));
+	glVertex3f(float(bmin.x), float(bmax.y), float(bmax.z));
+
+	glVertex3f(float(bmax.x), float(bmin.y), float(bmax.z));
+	glVertex3f(float(bmax.x), float(bmax.y), float(bmax.z));
+
+	glVertex3f(float(bmax.x), float(bmin.y), float(bmin.z));
+	glVertex3f(float(bmax.x), float(bmax.y), float(bmin.z));
 	glEnd();
-	
+
 	// make the corners big points
 	glPushAttrib(GL_CURRENT_BIT);
 	glPointSize(5);
 	glBegin( GL_POINTS );
-	glVertex3f(float(bmin.x),float(bmin.y),float(bmin.z));
-	glVertex3f(float(bmin.x),float(bmin.y),float(bmax.z));
-	glVertex3f(float(bmin.x),float(bmax.y),float(bmin.z));
-	glVertex3f(float(bmin.x),float(bmax.y),float(bmax.z));
-	glVertex3f(float(bmax.x),float(bmin.y),float(bmin.z));
-	glVertex3f(float(bmax.x),float(bmin.y),float(bmax.z));
-	glVertex3f(float(bmax.x),float(bmax.y),float(bmin.z));
-	glVertex3f(float(bmax.x),float(bmax.y),float(bmax.z));
+	glVertex3f(float(bmin.x), float(bmin.y), float(bmin.z));
+	glVertex3f(float(bmin.x), float(bmin.y), float(bmax.z));
+	glVertex3f(float(bmin.x), float(bmax.y), float(bmin.z));
+	glVertex3f(float(bmin.x), float(bmax.y), float(bmax.z));
+	glVertex3f(float(bmax.x), float(bmin.y), float(bmin.z));
+	glVertex3f(float(bmax.x), float(bmin.y), float(bmax.z));
+	glVertex3f(float(bmax.x), float(bmax.y), float(bmin.z));
+	glVertex3f(float(bmax.x), float(bmax.y), float(bmax.z));
 	glEnd();
 	glPopAttrib();
-	
+
 }
 
 
 
 void flockShape::draw(
-	M3dView & view, 
-	const MDagPath & path,
-	M3dView::DisplayStyle style,
-	M3dView::DisplayStatus status )
+  M3dView &view,
+  const MDagPath &path,
+  M3dView::DisplayStyle style,
+  M3dView::DisplayStatus status )
 {
 	MStatus st;
-	
+
 	MObject thisNode = thisMObject();
 	MPlug ptsPlug( thisNode, aPointsBB );
 	//MPlug lodPlug( thisNode, aLodBB );
-	MVector pbmin,pbmax;
+	MVector pbmin, pbmax;
 	//MVector lbmin,lbmax;
-	st= bbValue(ptsPlug, pbmin, pbmax) ;
+	st = bbValue(ptsPlug, pbmin, pbmax) ;
 	//st= bbValue(lodPlug, lbmin, lbmax) ;
 
 	view.beginGL();
 	//drawABox(lbmin, lbmax);
 	drawABox(pbmin, pbmax);
-	// drawABox(pbmin+lbmin, pbmax+lbmax);	
-	// drawBoxCorners(pbmin,pbmax);	
+	// drawABox(pbmin+lbmin, pbmax+lbmax);
+	// drawBoxCorners(pbmin,pbmax);
 	view.endGL();
 
 }
 
 
-bool flockShape::isBounded() const{
+bool flockShape::isBounded() const {
 	return false;
 }
 
 
-MBoundingBox flockShape::boundingBox() const{
-//	MStatus st;
+MBoundingBox flockShape::boundingBox() const {
+	//	MStatus st;
 	MBoundingBox bb;
 
 	return bb;
@@ -760,10 +784,10 @@ The compute method is concerned only with generating an output mesh in the maya 
 
 	Strategies:
 
-A: 
-Rig Loop = In this strategy we use an external rig. 
+A:
+Rig Loop = In this strategy we use an external rig.
 	The output mesh deformations are arbitrary and will be the same as the delight render
-	For every particle 
+	For every particle
 	we set values on TRS + User maps + DetailTarget
 	we then request geometry from inMesh and gradually build outMesh;
 
@@ -776,7 +800,7 @@ C: We register a callback that deforms and positions some input geometry without
 */
 
 
-MStatus flockShape::computeTarget(MDataBlock& data){
+MStatus flockShape::computeTarget(MDataBlock &data) {
 	MStatus st;
 	MObject thisNode = thisMObject();
 	MTime cT =  data.inputValue( aCurrentTime).asTime();
@@ -794,51 +818,53 @@ MStatus flockShape::computeTarget(MDataBlock& data){
 	MPlug sxp(thisNode, aScaleTargetX);
 	MPlug syp(thisNode, aScaleTargetY);
 	MPlug szp(thisNode, aScaleTargetZ);
-	MPlug userMapPlug(thisNode,aUserMap);
-	MPlug userVectorMapPlug(thisNode,aUserVectorMap);
-	
+	MPlug userMapPlug(thisNode, aUserMap);
+	MPlug userVectorMapPlug(thisNode, aUserVectorMap);
+
 	// all the user target plugs whether connected or not
-	MArrayDataHandle hUserMap = data.inputArrayValue( aUserMap, &st ); 
+	MArrayDataHandle hUserMap = data.inputArrayValue( aUserMap, &st );
 	MPlugArray userTargetPlugs;
 	unsigned nUserPlugs = hUserMap.elementCount();
-	for(unsigned i = 0;i < nUserPlugs; i++) {
-		MPlug userMapCompoundPlug = userMapPlug.elementByPhysicalIndex(i, &st);er;
-		MPlug userTargetPlug = userMapCompoundPlug.child(aUserTarget, &st);er;
+	for (unsigned i = 0; i < nUserPlugs; i++) {
+		MPlug userMapCompoundPlug = userMapPlug.elementByPhysicalIndex(i, &st); mser;
+		MPlug userTargetPlug = userMapCompoundPlug.child(aUserTarget, &st); mser;
 		userTargetPlugs.append(userTargetPlug);
 	}
 
-	MArrayDataHandle hUserVectorMap = data.inputArrayValue( aUserVectorMap, &st ); 
+	MArrayDataHandle hUserVectorMap = data.inputArrayValue( aUserVectorMap, &st );
 	MPlugArray userVectorTargetPlugs;
 	unsigned nUserVectorPlugs = hUserVectorMap.elementCount();
-	for(unsigned i = 0;i < nUserVectorPlugs; i++) {
-		MPlug userVectorMapCompoundPlug = userVectorMapPlug.elementByPhysicalIndex(i, &st);er;
-		MPlug userVectorTargetPlug = userVectorMapCompoundPlug.child(aUserVectorTarget, &st);er;
+	for (unsigned i = 0; i < nUserVectorPlugs; i++) {
+		MPlug userVectorMapCompoundPlug = userVectorMapPlug.elementByPhysicalIndex(i, &st); mser;
+		MPlug userVectorTargetPlug = userVectorMapCompoundPlug.child(aUserVectorTarget, &st);
+		mser;
 		userVectorTargetPlugs.append(userVectorTargetPlug);
 	}
 
 
 
-	short rotateOrder = data.inputValue(aRotateOrder).asShort()+1;
-	MTransformationMatrix::RotationOrder order = MTransformationMatrix::RotationOrder(rotateOrder);
+	short rotateOrder = data.inputValue(aRotateOrder).asShort() + 1;
+	MTransformationMatrix::RotationOrder order = MTransformationMatrix::RotationOrder(
+	      rotateOrder);
 
 
 	// short rotateOrder = data.inputValue(aRotateOrder).asShort();
-	// MTransformationMatrix::RotationOrder ord = mayaMath::mtmRotOrder(rotateOrder);	
+	// MTransformationMatrix::RotationOrder ord = mayaMath::mtmRotOrder(rotateOrder);
 	unsigned targetId = data.inputValue(aTargetId).asLong();
 
 	//	tracer;
 
 
 	rigSlice theSlice(thisNode, data);
-	const particleStack stack =  theSlice.stack();	
+	const particleStack stack =  theSlice.stack();
 	unsigned stackSize = unsigned(theSlice.stack().size());
 
 	//cerr << "stack size "<< stack.size() << endl;
 
-	// this is the pointer to the particle whose values we want to set 
+	// this is the pointer to the particle whose values we want to set
 	// on the output plugs ;
 	particleStack::const_iterator stack_iter_ultimate_target = stack.end();
-	particleStack::const_iterator stack_iter = stack.begin();	
+	particleStack::const_iterator stack_iter = stack.begin();
 
 
 
@@ -855,7 +881,7 @@ MStatus flockShape::computeTarget(MDataBlock& data){
 	while (stack_iter != stack.end()) {
 		int stackId = (*stack_iter)->id();
 		stackIds.append(stackId);
-		
+
 		// remember this particle if it is the id we want to track on the output plug
 
 
@@ -863,102 +889,103 @@ MStatus flockShape::computeTarget(MDataBlock& data){
 			stack_iter_ultimate_target = stack_iter;
 		}
 
-	 
-			st =  (*stack_iter)->setPlugValues(
-				txp,typ,tzp,rxp,ryp,rzp,sxp,syp,szp,
-				userTargetPlugs,userVectorTargetPlugs,order
-				);er;
 
-			m_pClonerStack->pushPoints();
+		st =  (*stack_iter)->setPlugValues(
+		        txp, typ, tzp, rxp, ryp, rzp, sxp, syp, szp,
+		        userTargetPlugs, userVectorTargetPlugs, order
+		      ); mser;
 
-	 
+		m_pClonerStack->pushPoints();
+
+
 
 
 
 		/////////////////////////////////////
 		// Set the flat plugs
 		// MPlug flatTargetsPlug(thisNode, aFlatTargets);
-	 
-			MPlug flatElementPlug = flatTargetsPlug.elementByLogicalIndex(stackId, &st); er;
 
-			MPlug flatTranslatePlug = flatElementPlug.child(aFlatTranslateTarget, &st); er;
-			MPlug flatTranslatePlugX = flatTranslatePlug.child(aFlatTranslateTargetX, &st); er;
-			MPlug flatTranslatePlugY = flatTranslatePlug.child(aFlatTranslateTargetY, &st); er;
-			MPlug flatTranslatePlugZ = flatTranslatePlug.child(aFlatTranslateTargetZ, &st); er;
-			
-			MPlug flatRotatePlug = flatElementPlug.child(aFlatRotateTarget, &st); er;
-			MPlug flatRotatePlugX = flatRotatePlug.child(aFlatRotateTargetX, &st); er;
-			MPlug flatRotatePlugY = flatRotatePlug.child(aFlatRotateTargetY, &st); er;
-			MPlug flatRotatePlugZ = flatRotatePlug.child(aFlatRotateTargetZ, &st); er;
-			
-			MPlug flatScalePlug = flatElementPlug.child(aFlatScaleTarget, &st); er;
-			MPlug flatScalePlugX = flatScalePlug.child(aFlatScaleTargetX, &st); er;
-			MPlug flatScalePlugY = flatScalePlug.child(aFlatScaleTargetY, &st); er;
-			MPlug flatScalePlugZ = flatScalePlug.child(aFlatScaleTargetZ, &st); er;
-			
+		MPlug flatElementPlug = flatTargetsPlug.elementByLogicalIndex(stackId, &st); mser;
 
-			MPlug flatUserDoublePlug = flatElementPlug.child(aFlatUserDoubleTarget, &st); er;
-			MPlug flatUserVectorPlug = flatElementPlug.child(aFlatUserVectorTarget, &st); er;
+		MPlug flatTranslatePlug = flatElementPlug.child(aFlatTranslateTarget, &st); mser;
+		MPlug flatTranslatePlugX = flatTranslatePlug.child(aFlatTranslateTargetX, &st); mser;
+		MPlug flatTranslatePlugY = flatTranslatePlug.child(aFlatTranslateTargetY, &st); mser;
+		MPlug flatTranslatePlugZ = flatTranslatePlug.child(aFlatTranslateTargetZ, &st); mser;
 
-			// all the user target plugs whether connected or not
+		MPlug flatRotatePlug = flatElementPlug.child(aFlatRotateTarget, &st); mser;
+		MPlug flatRotatePlugX = flatRotatePlug.child(aFlatRotateTargetX, &st); mser;
+		MPlug flatRotatePlugY = flatRotatePlug.child(aFlatRotateTargetY, &st); mser;
+		MPlug flatRotatePlugZ = flatRotatePlug.child(aFlatRotateTargetZ, &st); mser;
 
-			MPlugArray flatUserDoublePlugs;
-			for(unsigned i = 0;i < nUserPlugs; i++) {
-				MPlug flatDoublePlug = flatUserDoublePlug.elementByPhysicalIndex(i, &st);er;
-				flatUserDoublePlugs.append(flatDoublePlug);
-			}
+		MPlug flatScalePlug = flatElementPlug.child(aFlatScaleTarget, &st); mser;
+		MPlug flatScalePlugX = flatScalePlug.child(aFlatScaleTargetX, &st); mser;
+		MPlug flatScalePlugY = flatScalePlug.child(aFlatScaleTargetY, &st); mser;
+		MPlug flatScalePlugZ = flatScalePlug.child(aFlatScaleTargetZ, &st); mser;
 
-			MPlugArray flatUserVectorPlugs;
-			for(unsigned i = 0;i < nUserVectorPlugs; i++) {
-				MPlug flatVectorPlug = flatUserVectorPlug.elementByPhysicalIndex(i, &st);er;
-				flatUserVectorPlugs.append(flatVectorPlug);
-			}
 
-			st =  (*stack_iter)->setPlugValues(
-				flatTranslatePlugX,flatTranslatePlugY,flatTranslatePlugZ,
-				flatRotatePlugX,flatRotatePlugY,flatRotatePlugZ,
-				flatScalePlugX,flatScalePlugY,flatScalePlugZ,
-				flatUserDoublePlugs,flatUserVectorPlugs,order
-				);er;
+		MPlug flatUserDoublePlug = flatElementPlug.child(aFlatUserDoubleTarget, &st); mser;
+		MPlug flatUserVectorPlug = flatElementPlug.child(aFlatUserVectorTarget, &st); mser;
+
+		// all the user target plugs whether connected or not
+
+		MPlugArray flatUserDoublePlugs;
+		for (unsigned i = 0; i < nUserPlugs; i++) {
+			MPlug flatDoublePlug = flatUserDoublePlug.elementByPhysicalIndex(i, &st); mser;
+			flatUserDoublePlugs.append(flatDoublePlug);
+		}
+
+		MPlugArray flatUserVectorPlugs;
+		for (unsigned i = 0; i < nUserVectorPlugs; i++) {
+			MPlug flatVectorPlug = flatUserVectorPlug.elementByPhysicalIndex(i, &st); mser;
+			flatUserVectorPlugs.append(flatVectorPlug);
+		}
+
+		st =  (*stack_iter)->setPlugValues(
+		        flatTranslatePlugX, flatTranslatePlugY, flatTranslatePlugZ,
+		        flatRotatePlugX, flatRotatePlugY, flatRotatePlugZ,
+		        flatScalePlugX, flatScalePlugY, flatScalePlugZ,
+		        flatUserDoublePlugs, flatUserVectorPlugs, order
+		      ); mser;
 
 		/////////////////////////////////////
 
-		 
+
 
 		stack_iter++;
-	}		
+	}
 
 	// now set the output plugs one last time so the rig ends up where we want it.
 	if (stack_iter_ultimate_target != stack.end()) {
 		st =  (*stack_iter_ultimate_target)->setPlugValues(
-			txp,typ,tzp,rxp,ryp,rzp,sxp,syp,szp,
-			userTargetPlugs,userVectorTargetPlugs,order
-			);er;
-	} else {
+		        txp, typ, tzp, rxp, ryp, rzp, sxp, syp, szp,
+		        userTargetPlugs, userVectorTargetPlugs, order
+		      ); mser;
+	}
+	else {
 		rigParticle p(nUserPlugs, nUserVectorPlugs);
 		p.setPlugValues(
-			txp,typ,tzp,rxp,ryp,rzp,sxp,syp,szp,
-			userTargetPlugs,userVectorTargetPlugs,order
-			);er;
-	}	
+		  txp, typ, tzp, rxp, ryp, rzp, sxp, syp, szp,
+		  userTargetPlugs, userVectorTargetPlugs, order
+		); mser;
+	}
 	// cerr << "stackIds " << stackIds << endl;
-	
-	MArrayDataHandle  hOutput = data.outputArrayValue( aOutMeshes, &st ); er;
- 
-		m_pClonerStack->prepareOutGeometry();
-		MArrayDataBuilder bOutput = hOutput.builder();
-		m_pClonerStack->doOutput(bOutput);
- 
+
+	MArrayDataHandle  hOutput = data.outputArrayValue( aOutMeshes, &st ); mser;
+
+	m_pClonerStack->prepareOutGeometry();
+	MArrayDataBuilder bOutput = hOutput.builder();
+	m_pClonerStack->doOutput(bOutput);
+
 	hOutput.setAllClean();
 
 
-	/////////////////////////////////////////////////////////////// 
+	///////////////////////////////////////////////////////////////
 	MDataHandle hOutIds = data.outputValue(aOutIds, &st);
 	MFnIntArrayData fnOutIds;
-	MObject dOutIds = fnOutIds.create( stackIds, &st ); er;
+	MObject dOutIds = fnOutIds.create( stackIds, &st ); mser;
 	hOutIds.set(dOutIds);
-	data.setClean(aOutIds);	
-	/////////////////////////////////////////////////////////////// 
+	data.setClean(aOutIds);
+	///////////////////////////////////////////////////////////////
 
 	return MS::kSuccess;
 }
@@ -975,21 +1002,21 @@ MStatus flockShape::computeTarget(MDataBlock& data){
 // 	MTime cT =  data.inputValue( aCurrentTime).asTime();
 
 // 	short rotateOrder = data.inputValue(aRotateOrder).asShort()+1;
-// 	MTransformationMatrix::RotationOrder order = 
+// 	MTransformationMatrix::RotationOrder order =
 // 	MTransformationMatrix::RotationOrder(rotateOrder);
 
 
 
 // 	rigSlice theSlice(thisNode, data);
-// 	const particleStack stack =  theSlice.stack();	
+// 	const particleStack stack =  theSlice.stack();
 // 	unsigned stackSize = unsigned(theSlice.stack().size());
 
-// 	particleStack::const_iterator stack_iter = stack.begin();	
+// 	particleStack::const_iterator stack_iter = stack.begin();
 
 
 
 // 	// set up builder stuff
-// 	MArrayDataHandle  haFlatTargets = data.outputArrayValue( aFlatTargets, &st ); er;
+// 	MArrayDataHandle  haFlatTargets = data.outputArrayValue( aFlatTargets, &st ); mser;
 // 	MArrayDataBuilder   bFlatTargets = haFlatTargets.builder();
 
 // 	MIntArray stackIds;
@@ -1043,7 +1070,7 @@ MStatus flockShape::computeTarget(MDataBlock& data){
 
 // 		const MFloatArray & floatValues =  (*stack_iter)->values()  ;
 // 		MDataHandle hFlatUserDoubleArray =  hFlatTarget.child(aFlatUserDoubleTarget);
-// 		MArrayDataHandle	haFlatUserDoubleTarget(hFlatUserDoubleArray, &st);er;	
+// 		MArrayDataHandle	haFlatUserDoubleTarget(hFlatUserDoubleArray, &st);mser;
 // 		MArrayDataBuilder  bFlatUserDoubleTarget = haFlatUserDoubleTarget.builder();
 // 		for(unsigned i = 0;i < floatValues.length(); i++) {
 // 			MDataHandle hFlatUserDoubleTarget =  bFlatUserDoubleTarget.addElement(i);
@@ -1055,7 +1082,7 @@ MStatus flockShape::computeTarget(MDataBlock& data){
 
 // 		const MFloatVectorArray & vectorValues = (*stack_iter)->vectorValues();
 // 		MDataHandle hFlatUserVectorArray =  hFlatTarget.child(aFlatUserVectorTarget);
-// 		MArrayDataHandle	haFlatUserVectorTarget(hFlatUserVectorArray, &st);er;	
+// 		MArrayDataHandle	haFlatUserVectorTarget(hFlatUserVectorArray, &st);mser;
 // 		MArrayDataBuilder  bFlatUserVectorTarget = haFlatUserVectorTarget.builder();
 // 		for(unsigned i = 0;i < vectorValues.length(); i++) {
 // 			MDataHandle hFlatUserVectorTarget =  bFlatUserVectorTarget.addElement(i);
@@ -1074,30 +1101,30 @@ MStatus flockShape::computeTarget(MDataBlock& data){
 //   // cerr << "haFlatTargets.setAllClean()" << endl;
 
 
-// 	// /////////////////////////////////////////////////////////////// 
+// 	// ///////////////////////////////////////////////////////////////
 // 	// MDataHandle hOutIds = data.outputValue(aOutIds, &st);
 // 	// MFnIntArrayData fnOutIds;
-// 	// MObject dOutIds = fnOutIds.create( stackIds, &st ); er;
+// 	// MObject dOutIds = fnOutIds.create( stackIds, &st ); mser;
 // 	// hOutIds.set(dOutIds);
-// 	// data.setClean(aOutIds);	
-// 	// /////////////////////////////////////////////////////////////// 
+// 	// data.setClean(aOutIds);
+// 	// ///////////////////////////////////////////////////////////////
 
 // 	// cerr << "data.setClean(aOutIds)" << endl;
 
 // 	return MS::kSuccess;
 // }
 
-MStatus flockShape::compute(const MPlug& plug, MDataBlock& data){
-//	tracer;
+MStatus flockShape::compute(const MPlug &plug, MDataBlock &data) {
+	//	tracer;
 	MStatus st;
 
 
-	if (! ( (plug == aOutMeshes)  
-		||  (plug.isElement() && plug.array() == aOutMeshes) 
-		||  (plug == aOutIds)  
-		) ) return MS::kUnknownParameter;
+	if (! ( (plug == aOutMeshes)
+	        ||  (plug.isElement() && plug.array() == aOutMeshes)
+	        ||  (plug == aOutIds)
+	      ) ) { return MS::kUnknownParameter; }
 
-		st = computeTarget(data);
+	st = computeTarget(data);
 	return MS::kSuccess;
 
 
@@ -1133,10 +1160,10 @@ MStatus flockShape::compute(const MPlug& plug, MDataBlock& data){
 
 	// cerr << "------------------------------------------------- " << endl;
 	// cerr << "PLUG: " << plug.name() << endl;
- // 	cerr << "plug.isElement(): " << plug.isElement() << endl;
+	// 	cerr << "plug.isElement(): " << plug.isElement() << endl;
 	// cerr << "(plug.array() == aOutMeshes): " << (plug.array() == aOutMeshes) << endl;
 	// cerr << "isMeshesPug: " << isMeshesPug<< endl;
-	
+
 	// bool doFlatTargets = data.inputValue(aDoFlatTargets).asBool();
 
 
@@ -1147,7 +1174,7 @@ MStatus flockShape::compute(const MPlug& plug, MDataBlock& data){
 	// 	st = computeFlatTargets(data);
 	//   data.setClean(plug);
 	// 	return MS::kSuccess;
-	// }  
+	// }
 
 	// if ( (!doFlatTargets) && isMeshesPug) {
 	// 	cerr << "computeTarget(data)" << endl;
@@ -1169,7 +1196,7 @@ MStatus flockShape::compute(const MPlug& plug, MDataBlock& data){
 
 // MStatus flockShape::addSlice(float sampleTime){
 
-// // return 
+// // return
 // 	rigSliceMap::const_iterator slice_iter = m_sliceMap.find(sampleTime);
 // 	if (slice_iter != m_sliceMap.end()) {
 // 		return( MS::kUnknownParameter );
@@ -1186,12 +1213,12 @@ MStatus flockShape::compute(const MPlug& plug, MDataBlock& data){
 // 	// and then in all previous slices with respect to this slice.
 // 	// We do this by copying and inserting missing particles into the destination list from the source list
 
-// 	// TODO - when filling gaps, rather than copy to a new particle, just point to the original 
+// 	// TODO - when filling gaps, rather than copy to a new particle, just point to the original
 // 	// (flag as soft, so we know not to delete it)
 
-// 	if (! m_sliceMap.empty()) {	
+// 	if (! m_sliceMap.empty()) {
 
-// 	// first, plug gaps where particles died in this slice.	
+// 	// first, plug gaps where particles died in this slice.
 // 		rigSliceMap::reverse_iterator rit  = m_sliceMap.rbegin();
 // 		rigSlice * prevSlice = rit->second;
 // 		theSlice->plugGaps(*prevSlice);
@@ -1202,28 +1229,28 @@ MStatus flockShape::compute(const MPlug& plug, MDataBlock& data){
 // 			rigSlice * oldSlice = it->second;
 // 			oldSlice->plugGaps(*theSlice);
 // 		}
-// 	} 
+// 	}
 
 // 	m_sliceMap[sampleTime] = theSlice;
 // 	return MS::kSuccess;
 // }
 
-MStatus flockShape::fortifyCache(){
+MStatus flockShape::fortifyCache() {
 	MStatus st = MS::kSuccess;
-	if ( m_sliceMap.size() > 1) {	
+	if ( m_sliceMap.size() > 1) {
 
 		rigSliceMap::iterator leftIt  = m_sliceMap.begin();
 		rigSliceMap::const_iterator rightIt  = m_sliceMap.begin();
 		rightIt++;
 
-		for (;rightIt !=m_sliceMap.end();rightIt++,leftIt++) {		
-			rigSlice * leftSlice = leftIt->second;
-			const rigSlice * rightSlice = rightIt->second;
+		for (; rightIt != m_sliceMap.end(); rightIt++, leftIt++) {
+			rigSlice *leftSlice = leftIt->second;
+			const rigSlice *rightSlice = rightIt->second;
 			st = leftSlice->fortify(*rightSlice);
 		}
 	}
 	return st;
-}  
+}
 
 // RtVoid deleteProgData(RtString  * data) {
 // 	delete data[0];
@@ -1258,11 +1285,11 @@ MStatus flockShape::fortifyCache(){
 
 
 // 	/////detail//////////////////////
-// 	unsigned n = progStrings.length();	
+// 	unsigned n = progStrings.length();
 // // 	if (lodSetNames.length() != n)  cerr << "lodSetNames.length()  " << lodSetNames.length()  << endl;
 // 	bool do_detail = (n > 1) ;
-// 	RtBound bound = { lbminf.x, lbmaxf.x, lbminf.y, lbmaxf.y, lbminf.z, lbmaxf.z } ;	
-// 	RiAttributeBegin(); 
+// 	RtBound bound = { lbminf.x, lbmaxf.x, lbminf.y, lbmaxf.y, lbminf.z, lbmaxf.z } ;
+// 	RiAttributeBegin();
 // 	if (do_detail) RiDetail(bound); // bug in RiDetail
 
 // 	// cerr << "detailRanges.length() "<<  detailRanges.size() < endl;
@@ -1270,19 +1297,19 @@ MStatus flockShape::fortifyCache(){
 // 	for (unsigned i=0;i<n;i++) {
 // 		//const MString thisArg(lodSetNames[i]+" "+argStr);
 
-// 		if (do_detail)  RiDetailRange(detailRanges[i][0],detailRanges[i][1],detailRanges[i][2],detailRanges[i][3] );	
+// 		if (do_detail)  RiDetailRange(detailRanges[i][0],detailRanges[i][1],detailRanges[i][2],detailRanges[i][3] );
 // 		///// build the progData//////////////////////////
 
 // 		char *  argStrChar = new char[argStr.length()+1];
-// 		strcpy( argStrChar, argStr.asChar());	
-// 		char * progStrChar = new char[progStrings[i].length()+1]; 
+// 		strcpy( argStrChar, argStr.asChar());
+// 		char * progStrChar = new char[progStrings[i].length()+1];
 // 		strcpy( progStrChar, progStrings[i].asChar());
 // 		RtString * progData = new RtString[2];
 // 		progData[0] = progStrChar;
 // 		progData[1] = argStrChar;
 // 		//////////////////////////////////
 
-// 		/// EMIT TWC OBSOLETE 
+// 		/// EMIT TWC OBSOLETE
 // 		/// RiProcedural(progData,bound,RiProcRunProgram,(RtProcFreeFunc)deleteProgData);
 
 // 	}
@@ -1296,7 +1323,7 @@ MStatus flockShape::fortifyCache(){
 // MStatus flockShape::emitCache(float relativeFrame)  {
 // // need to write in to the rib the archives of attribs and shaders that are attached to the objects in the LOD sets used in this flock
 
-// // need the user map attributes, and the target connections 
+// // need the user map attributes, and the target connections
 // // need the lod BB
 // // need the reference scene
 // // need the LOD sets and their ranges
@@ -1308,38 +1335,38 @@ MStatus flockShape::fortifyCache(){
 
 
 
-// ////////////////user defined target plugs//////////////////// 
-// 	MPlug userMapPlug( thisNode, aUserMap );	
+// ////////////////user defined target plugs////////////////////
+// 	MPlug userMapPlug( thisNode, aUserMap );
 // 	std::vector<MStringArray> targetPlugsVector = getTargetPlugs(userMapPlug);
-// //////////////////////////////////// 
+// ////////////////////////////////////
 
-// ////////////////detail target plug//////////////////// 
-// //	MPlug detailPlug( thisNode, aDetailTarget );	
+// ////////////////detail target plug////////////////////
+// //	MPlug detailPlug( thisNode, aDetailTarget );
 // //	MStringArray detailTargetConns = getTargetPlugConns(detailPlug);
-// //////////////////////////////////// 
+// ////////////////////////////////////
 
 // // before we emit the cache we traverse the lists in the map
-// // making cross links to corresponding elements. This will make it easier to 
+// // making cross links to corresponding elements. This will make it easier to
 // // loop through, and will also give us the chance to check the validity of the structure.
 // // TODO - The values arrays should be the same size as the targetPlugsVector - so maybe pass those as well.
-// 	st = fortifyCache();ert;
+// 	st = fortifyCache();msert;
 // //cerr << "cache is valid and fortified" << endl;
-// //////////////////////////////////// 
+// ////////////////////////////////////
 
 
-// ////////////////get Bound//////////////////// 
+// ////////////////get Bound////////////////////
 // 	MPlug lodBBPlug( thisNode, aLodBB );
 // 	MVector lbmin,lbmax;
 // 	st= bbValue(lodBBPlug, lbmin, lbmax) ;
 // 	MFloatVector lbminf(lbmin);
 // 	MFloatVector lbmaxf(lbmax);
-// //////////////////////////////////// 
+// ////////////////////////////////////
 
 
-// ////////////////Motion Block//////////////////// 
-// 	bool doBur =false;	
+// ////////////////Motion Block////////////////////
+// 	bool doBur =false;
 // 	unsigned nSamples = unsigned(m_sliceMap.size());
-// 	if (nSamples >1) doBur=true;	
+// 	if (nSamples >1) doBur=true;
 // 	JFloatArray relativeBlurSamples;
 // 	JFloatArray blurSamples;
 
@@ -1351,23 +1378,23 @@ MStatus flockShape::fortifyCache(){
 // 	}
 // 	RtFloat * rtSamples = new RtFloat[nSamples];
 // 	std::copy( relativeBlurSamples.begin(), relativeBlurSamples.end(), rtSamples);
-// //////////////////////////////////// 
+// ////////////////////////////////////
 
 
-// 	MPlug geomPlug( thisNode, aLodGeometry );	
-// ////////////////Archive connected shaders and attribs nodes //////////////////// 
-// 	st = archiveShadersAndAttribs();er;
-// //////////////////////////////////// 
+// 	MPlug geomPlug( thisNode, aLodGeometry );
+// ////////////////Archive connected shaders and attribs nodes ////////////////////
+// 	st = archiveShadersAndAttribs();mser;
+// ////////////////////////////////////
 
 
 
 
 
-// ////////////////RunProgram Str//////////////////// 
+// ////////////////RunProgram Str////////////////////
 
 // 	//enum LODStrategy {kLodInProcedural, kLodInRib  };
 // //	MPlug strategyPlug( thisNode, aLodStrategy );
-// //	short strat;	
+// //	short strat;
 // //	st = strategyPlug.getValue(strat);
 // //	flockShape::LODStrategy  strategy = (flockShape::LODStrategy)strat;
 
@@ -1378,27 +1405,27 @@ MStatus flockShape::fortifyCache(){
 // 	MStringArray lodSetNames;
 // 	std::vector<JFloatArray> detailRanges;
 
-// 	st = createProgramStrings(geomPlug,progStrings, detailRanges, lodSetNames, blurSamples, relativeFrame) ;	
+// 	st = createProgramStrings(geomPlug,progStrings, detailRanges, lodSetNames, blurSamples, relativeFrame) ;
 
 // //	cerr << "progStrings" <<  progStrings << endl;
 
 // //	cerr << "lodSetNames" <<  lodSetNames << endl;
 
 
-// //	st = createProgramStrings(geomPlug,progStrings, detailRanges, blurSamples, relativeFrame,strategy) ;	
+// //	st = createProgramStrings(geomPlug,progStrings, detailRanges, blurSamples, relativeFrame,strategy) ;
 
 
 
 
 
 
-// //////////////////////////////////// 
+// ////////////////////////////////////
 
 
 
 
 
-// //////////////////////// loop over all particles /////////////////// 
+// //////////////////////// loop over all particles ///////////////////
 // 	const particleStack & firstStack =  m_sliceMap.begin()->second->stack();
 // 	particleStack::const_iterator  peg = firstStack.begin();
 // 	MString thisNodeName = MFnDependencyNode(thisNode).name();
@@ -1417,7 +1444,7 @@ MStatus flockShape::fortifyCache(){
 
 // 		const rigParticle * currSample = *peg;
 
-// 		std::vector<MStringArray> tpvCopy = targetPlugsVector;			
+// 		std::vector<MStringArray> tpvCopy = targetPlugsVector;
 // 		unsigned nPlugs = unsigned(tpvCopy.size());
 
 
@@ -1425,10 +1452,10 @@ MStatus flockShape::fortifyCache(){
 
 // 		// write the transform
 // 		////////////////////////////
-// 			RtMatrix ribMatrix;		
+// 			RtMatrix ribMatrix;
 // 		//cerr << "currSample->transform() " << currSample->transform() << endl;
 // 			currSample->transform().get(ribMatrix);
-// 			RiConcatTransform( ribMatrix );		
+// 			RiConcatTransform( ribMatrix );
 // 		////////////////////////////
 
 
@@ -1445,7 +1472,7 @@ MStatus flockShape::fortifyCache(){
 // 						}
 // 					}
 // 				}
-// 			} 
+// 			}
 // 		////////////////////////////
 
 // 			currSample = currSample->future();
@@ -1466,8 +1493,8 @@ MStatus flockShape::fortifyCache(){
 // 		}
 
 
-// 		/// EMIT TWC OBSOLETE 
-// 		/// emitDetailBlock(progStrings,detailRanges,lodSetNames,argStr,lbminf,lbmaxf);		
+// 		/// EMIT TWC OBSOLETE
+// 		/// emitDetailBlock(progStrings,detailRanges,lodSetNames,argStr,lbminf,lbmaxf);
 
 // 		RiTransformEnd();
 // 		RiAttributeEnd();
@@ -1491,28 +1518,28 @@ MStatus flockShape::fortifyCache(){
 
 // 	MObject thisNode = thisMObject();
 
-// ////////////////user defined target plugs//////////////////// 
-// 	MPlug userMapPlug( thisNode, aUserMap );	
+// ////////////////user defined target plugs////////////////////
+// 	MPlug userMapPlug( thisNode, aUserMap );
 // 	std::vector<MStringArray> targetPlugsVector = getTargetPlugs(userMapPlug);
-// //////////////////////////////////// 
+// ////////////////////////////////////
 
-// ////////////////get Bound//////////////////// 
+// ////////////////get Bound////////////////////
 // 	MPlug lodBBPlug( thisNode, aLodBB );
 // 	MVector lbmin,lbmax;
 // 	st= bbValue(lodBBPlug, lbmin, lbmax) ;
 // 	MFloatVector lbminf(lbmin);
 // 	MFloatVector lbmaxf(lbmax);
-// //////////////////////////////////// 
+// ////////////////////////////////////
 
-// ////////////////RunProgram Str//////////////////// 
-// 	MPlug geomPlug( thisNode, aLodGeometry );	
+// ////////////////RunProgram Str////////////////////
+// 	MPlug geomPlug( thisNode, aLodGeometry );
 // 	MStringArray progStrings;
 // 	MStringArray lodSetNames;
 // 	std::vector<JFloatArray> detailRanges;
 // 	st = createProgramStrings(geomPlug,progStrings, detailRanges,lodSetNames) ;
-// //////////////////////////////////// 
+// ////////////////////////////////////
 
-// //////////////////////// loop over all particles /////////////////// 
+// //////////////////////// loop over all particles ///////////////////
 // 	const particleStack & stack =  m_sliceMap.find(sampleTime)->second->stack();
 
 // 	particleStack::const_iterator  peg = stack.begin();
@@ -1530,14 +1557,14 @@ MStatus flockShape::fortifyCache(){
 // 		const rigParticle * currSample = *peg;
 
 
-// 		std::vector<MStringArray> tpvCopy = targetPlugsVector;			
+// 		std::vector<MStringArray> tpvCopy = targetPlugsVector;
 // 		unsigned nPlugs = unsigned(tpvCopy.size());
 
 // 	// write the transform
 // 	////////////////////////////
-// 		RtMatrix ribMatrix;		
+// 		RtMatrix ribMatrix;
 // 		currSample->transform().get(ribMatrix);
-// 		RiConcatTransform( ribMatrix );		
+// 		RiConcatTransform( ribMatrix );
 // 	////////////////////////////
 
 
@@ -1550,7 +1577,7 @@ MStatus flockShape::fortifyCache(){
 // 					(tpvCopy[i])[j]	+= currSample->values()[i];
 // 				}
 // 			}
-// 		} 
+// 		}
 // 	////////////////////////////
 
 // 	// build the procedural data strings
@@ -1564,8 +1591,8 @@ MStatus flockShape::fortifyCache(){
 // 			}
 // 		}
 
-// 		/// EMIT TWC OBSOLETE 
-// 		/// emitDetailBlock(progStrings,detailRanges,lodSetNames,argStr,lbminf,lbmaxf);	
+// 		/// EMIT TWC OBSOLETE
+// 		/// emitDetailBlock(progStrings,detailRanges,lodSetNames,argStr,lbminf,lbmaxf);
 
 // 		RiTransformEnd();
 // 		RiAttributeEnd();
@@ -1578,17 +1605,17 @@ MStatus flockShape::fortifyCache(){
 
 // }
 
-MStatus flockShape::removeCache(){
+MStatus flockShape::removeCache() {
 	rigSliceMap::iterator iter = m_sliceMap.begin();
 	while (iter != m_sliceMap.end()) {
-		if (iter->second) {	
+		if (iter->second) {
 			delete iter->second;
 		}
 		iter++;
 	}
 	m_sliceMap.clear();
 	return MS::kSuccess;
-}	
+}
 
 bool flockShape::hasCache() const {
 	return (! m_sliceMap.empty());
@@ -1603,68 +1630,71 @@ void flockShape::cacheInfo() const {
 	cerr << "-----------------------------------" << endl;
 	rigSliceMap::const_iterator iter = m_sliceMap.begin();
 	while (iter != m_sliceMap.end()) {
-		cerr << "sample time: "<< iter->first << endl;
-		if (iter->second) {	
+		cerr << "sample time: " << iter->first << endl;
+		if (iter->second) {
 			iter->second->info();
-		} else {
-			cerr << "problem with particle slice"<< endl;
+		}
+		else {
+			cerr << "problem with particle slice" << endl;
 		}
 		iter++;
 	}
 	cerr << "-----------------------------------" << endl;
 }
 
-MSelectionList flockShape::getShapesFromPlug (const MPlug& plug) const {
+MSelectionList flockShape::getShapesFromPlug (const MPlug &plug) const {
 
-// get every shape contained within sets or under nodes connected to the input plug
+	// get every shape contained within sets or under nodes connected to the input plug
 	MStatus st;
 	MSelectionList shapesList;
 
-	if (! plug.isConnected()) 	return shapesList;
+	if (! plug.isConnected()) 	{ return shapesList; }
 
 	MPlugArray conns;
-	plug.connectedTo(conns,true,false,&st);er;
-	if ( conns.length() == 0)	return shapesList;
+	plug.connectedTo(conns, true, false, &st); mser;
+	if ( conns.length() == 0)	{ return shapesList; }
 
 	MObject theNode = conns[0].node();
 	MSelectionList tmpSel;
 
 	if (theNode.hasFn(MFn::kSet)) {
 		MFnSet(theNode).getMembers (tmpSel, false);
-	} else if (theNode.hasFn(MFn::kDagNode)) {
+	}
+	else if (theNode.hasFn(MFn::kDagNode)) {
 		tmpSel.add(theNode);
-	} else {
+	}
+	else {
 		return shapesList;
 	}
 
 
-// now find all descendent shapes
-	MItDag dagIter;	
+	// now find all descendent shapes
+	MItDag dagIter;
 	MDagPath rootPath;
 	MItSelectionList selIter(tmpSel);
 
-	for ( ;!selIter.isDone();selIter.next()){
+	for ( ; !selIter.isDone(); selIter.next()) {
 		selIter.getDagPath(rootPath) ;
 		dagIter.reset(rootPath);
-		for ( ;!dagIter.isDone();dagIter.next()){
+		for ( ; !dagIter.isDone(); dagIter.next()) {
 			MObject o = dagIter.currentItem();
 			if (
-				(o.hasFn(MFn::kMesh)) ||
-				(o.hasFn(MFn::kNurbsCurve )) ||
-				(o.hasFn(MFn::kNurbsSurface )) ||
-				(o.hasFn(MFn::kStroke )) ||
-				(o.hasFn(MFn::kSubdiv)) 
-				){
+			  (o.hasFn(MFn::kMesh)) ||
+			  (o.hasFn(MFn::kNurbsCurve )) ||
+			  (o.hasFn(MFn::kNurbsSurface )) ||
+			  (o.hasFn(MFn::kStroke )) ||
+			  (o.hasFn(MFn::kSubdiv))
+			) {
 				MDagPath path;
-			dagIter.getPath(path);
+				dagIter.getPath(path);
 
-			if (! MFnDagNode(path).isIntermediateObject() ){
-				shapesList.add(path);					
+				if (! MFnDagNode(path).isIntermediateObject() ) {
+					shapesList.add(path);
+				}
 			}
 		}
 	}
-}
-return shapesList;
+	return shapesList;
 }
 
 // int flockShape::archiveAttribs(	const MStringArray & shapeNames) const {
@@ -1682,7 +1712,7 @@ return shapesList;
 // 		cmd += shapeNames[i];
 // 		cmd += "\" -nodeType \"delightGeoAttribs\" -all";
 
-// 		st = MGlobal::executeCommand(cmd,geoAttribs);er;
+// 		st = MGlobal::executeCommand(cmd,geoAttribs);mser;
 
 // 		unsigned ng = geoAttribs.length();
 
@@ -1692,7 +1722,7 @@ return shapesList;
 
 // 	}
 // // now we have all the geoAttribs nodes in a selection list
-// 	allGeoAttribs.getSelectionStrings(geoAttribs);	
+// 	allGeoAttribs.getSelectionStrings(geoAttribs);
 // 	unsigned ng = geoAttribs.length();
 // //cerr << "here: " << __LINE__ << endl;
 // 	for (unsigned j=0;j<ng;j++) {
@@ -1710,7 +1740,7 @@ return shapesList;
 // 		outputCmd += geoAttribs[j];
 // 		outputCmd += "\",\"\")"; // second argument (renderpass for some legacy sohofx hook) is empty
 
-// 		st = MGlobal::executeCommand(outputCmd);er;	
+// 		st = MGlobal::executeCommand(outputCmd);mser;
 
 // 		RiArchiveEnd();
 
@@ -1747,12 +1777,12 @@ return shapesList;
 // 			cmd += shaderTypes[t];
 // 			cmd += "\" -highest";
 
-// 			st = MGlobal::executeCommand(cmd,shader);er;
+// 			st = MGlobal::executeCommand(cmd,shader);mser;
 
-// 			if (shader != "") st = allShaders.add(shader);er;
+// 			if (shader != "") st = allShaders.add(shader);mser;
 // 		}
 
-// 		allShaders.getSelectionStrings(allShaderStrings);	
+// 		allShaders.getSelectionStrings(allShaderStrings);
 // 		unsigned nss = allShaderStrings.length();
 // 		ts += nss;
 
@@ -1769,14 +1799,14 @@ return shapesList;
 // 			RiArchiveBegin( const_cast <char *>(archiveName.asChar()), RI_NULL);
 // 			MString outputCmd = "DSN_output( \"";
 // 			outputCmd += shader;
-// 			outputCmd += "\",\""; 
-// 			outputCmd += shaderTypes[t]; 
-// 			outputCmd += "\",\"\")"; 
+// 			outputCmd += "\",\"";
+// 			outputCmd += shaderTypes[t];
+// 			outputCmd += "\",\"\")";
 
-// 			st = MGlobal::executeCommand(outputCmd);er;	
+// 			st = MGlobal::executeCommand(outputCmd);mser;
 // 			RiArchiveEnd();
 
-// 		}	
+// 		}
 // 	}
 
 
@@ -1790,13 +1820,13 @@ return shapesList;
 // // cerr << "in archiveShadersAndAttribs" << endl;
 // // we need to dig down to every shape contained within or under the sets or nodes connected to the lod geometry plug
 // 	MStatus st = MS::kSuccess;
-// 	MPlug geomPlug( thisMObject(), aLodGeometry );	
+// 	MPlug geomPlug( thisMObject(), aLodGeometry );
 // 	MSelectionList allShapesList;
 // 	unsigned n = geomPlug.numElements();
 // //MStringArray lodNames;
 // 	for (unsigned i = 0;i<n;i++){
-// 		MPlug tmpPlug = geomPlug.elementByPhysicalIndex(i); 
-// 		MPlug setPlug =  tmpPlug.child(aLodGeometrySet,&st);er;
+// 		MPlug tmpPlug = geomPlug.elementByPhysicalIndex(i);
+// 		MPlug setPlug =  tmpPlug.child(aLodGeometrySet,&st);mser;
 // 		allShapesList.merge(getShapesFromPlug(setPlug));
 // 	}
 // 	MStringArray shapeNames;

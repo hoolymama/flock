@@ -43,66 +43,66 @@ MObject speedRampLookupPP::aOutput;
 speedRampLookupPP::speedRampLookupPP () {}
 speedRampLookupPP::~speedRampLookupPP () {}
 
-void * speedRampLookupPP::creator () {
+void *speedRampLookupPP::creator () {
 	return new speedRampLookupPP;
 }
 /// Post constructor
 void
 speedRampLookupPP::postConstructor()
 {
-	
+
 }
 
 MStatus speedRampLookupPP::initialize () {
-	
+
 	MStatus st;
 	MFnTypedAttribute tAttr;
-	
+
 	MRampAttribute rAttr;
 	MFnNumericAttribute nAttr;
-	
-	aInputMin = nAttr.create("inputMin", "imn", MFnNumericData::kFloat);	
+
+	aInputMin = nAttr.create("inputMin", "imn", MFnNumericData::kFloat);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setDefault(0.0);
-	st = addAttribute(aInputMin);er;
-	
-	aInputMax = nAttr.create("inputMax", "imx", MFnNumericData::kFloat);	
+	st = addAttribute(aInputMin); mser;
+
+	aInputMax = nAttr.create("inputMax", "imx", MFnNumericData::kFloat);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setDefault(1.0);
-	st = addAttribute(aInputMax);er;
-	
-	aOutputMin = nAttr.create("outputMin", "omn", MFnNumericData::kFloat);	
+	st = addAttribute(aInputMax); mser;
+
+	aOutputMin = nAttr.create("outputMin", "omn", MFnNumericData::kFloat);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setDefault(0.0);
-	st = addAttribute(aOutputMin);er;
-	
-	aOutputMax = nAttr.create("outputMax", "omx", MFnNumericData::kFloat);	
+	st = addAttribute(aOutputMin); mser;
+
+	aOutputMax = nAttr.create("outputMax", "omx", MFnNumericData::kFloat);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setDefault(1.0);
-	st = addAttribute(aOutputMax);er;
+	st = addAttribute(aOutputMax); mser;
 
-	aRamp = rAttr.createCurveRamp("ramp","rmp",&st);
-	st = addAttribute(aRamp );er;
-	
-	aInput1 = tAttr.create("input1", "in1",MFnData::kVectorArray);
+	aRamp = rAttr.createCurveRamp("ramp", "rmp", &st);
+	st = addAttribute(aRamp ); mser;
+
+	aInput1 = tAttr.create("input1", "in1", MFnData::kVectorArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
-	st = addAttribute(aInput1);er;
+	st = addAttribute(aInput1); mser;
 
-	aInput2 = tAttr.create("input2", "in2",MFnData::kVectorArray);
+	aInput2 = tAttr.create("input2", "in2", MFnData::kVectorArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
-	st = addAttribute(aInput2);er;
+	st = addAttribute(aInput2); mser;
 
-	aOutput = tAttr.create ("output", "out",MFnData::kDoubleArray);
+	aOutput = tAttr.create ("output", "out", MFnData::kDoubleArray);
 	tAttr.setStorable (false);
 	tAttr.setWritable (false);
 	tAttr.setReadable (true);
-	st = addAttribute (aOutput);er;
+	st = addAttribute (aOutput); mser;
 
 	attributeAffects (aInputMin, aOutput);
 	attributeAffects (aInputMax, aOutput);
@@ -116,27 +116,27 @@ MStatus speedRampLookupPP::initialize () {
 }
 
 
-MStatus speedRampLookupPP::compute (const MPlug& plug, MDataBlock& data)
+MStatus speedRampLookupPP::compute (const MPlug &plug, MDataBlock &data)
 {
 
-	if(!(plug == aOutput )) return MS::kUnknownParameter;
-	
-	MStatus st;
-	
+	if (!(plug == aOutput )) { return MS::kUnknownParameter; }
 
-	
+	MStatus st;
+
+
+
 	//cerr << "about to create ramp attr in compute " << endl;
-//	MObject tob = thisMObject();
-//	MRampAttribute rampAttr(tob, aRamp,  &st);er;
+	//	MObject tob = thisMObject();
+	//	MRampAttribute rampAttr(tob, aRamp,  &st);mser;
 	//cerr << "created ramp attr in compute " << endl;
 	/*
 	MIntArray entries;
 	MFloatArray positions;
 	MFloatArray values;
 	MIntArray interps;
-	
+
 	rampAttr.getEntries(entries,positions,values,interps);
-	
+
 	cerr << "entries " << entries << endl;
 	cerr << "positions " << positions << endl;
 	cerr << "values " << values << endl;
@@ -160,12 +160,13 @@ MStatus speedRampLookupPP::compute (const MPlug& plug, MDataBlock& data)
 
 	MDoubleArray vals(nVals);
 
-	if (nVals ==  vals2.length()){
+	if (nVals ==  vals2.length()) {
 		for (int i = 0; i < nVals; ++i)
 		{
 			vals[i] = (vals1[i] - vals2[i]).length();
 		}
-	} else {
+	}
+	else {
 		for (int i = 0; i < nVals; ++i)
 		{
 			vals[i] = vals1[i].length();
@@ -173,10 +174,11 @@ MStatus speedRampLookupPP::compute (const MPlug& plug, MDataBlock& data)
 	}
 	MDoubleArray out;
 
-	doRampLookup(thisMObject(), aRamp, vals, out, float(imn),float(imx),float(omn),float(omx) );
+	doRampLookup(thisMObject(), aRamp, vals, out, float(imn), float(imx), float(omn),
+	             float(omx) );
 
-	
-	
+
+
 
 	MDataHandle hOut = data.outputValue(aOutput);
 	MFnDoubleArrayData fnOut;
@@ -185,5 +187,5 @@ MStatus speedRampLookupPP::compute (const MPlug& plug, MDataBlock& data)
 	data.setClean(plug);
 	//cerr << "done compute" << endl;
 
-	return MS::kSuccess;															
+	return MS::kSuccess;
 }

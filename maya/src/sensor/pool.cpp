@@ -33,7 +33,7 @@ pool::~pool() {
 	m_pd = 0;
 }
 
-void* pool::creator()
+void *pool::creator()
 {
 	return new pool();
 }
@@ -42,51 +42,51 @@ MStatus pool::initialize()
 
 {
 	MStatus st;
-	
+
 	MFnTypedAttribute tAttr;
-	
-	
-	aPosition = tAttr.create("position", "pos", MFnData::kVectorArray, &st);er;
+
+
+	aPosition = tAttr.create("position", "pos", MFnData::kVectorArray, &st); mser;
 	tAttr.setReadable(false);
 	tAttr.setCached(false);
-	st = addAttribute(aPosition );er;
+	st = addAttribute(aPosition ); mser;
 
 	aOutput = tAttr.create("output", "out", poolData::id);
 	tAttr.setReadable(true);
 	tAttr.setCached(false);
-	
+
 	addAttribute(aOutput);
-	
-	st = attributeAffects(aPosition, aOutput ); er;
+
+	st = attributeAffects(aPosition, aOutput ); mser;
 
 
 	return MS::kSuccess;
 }
 
 
-MStatus pool::compute( const MPlug& plug, MDataBlock& data )
+MStatus pool::compute( const MPlug &plug, MDataBlock &data )
 
 {
-	if( plug != aOutput) return( MS::kUnknownParameter );
+	if ( plug != aOutput) { return ( MS::kUnknownParameter ); }
 
- 	MStatus st;
-	MDataHandle hp = data.inputValue(aPosition,&st);
+	MStatus st;
+	MDataHandle hp = data.inputValue(aPosition, &st);
 
 	m_pd->create(hp);
-	
+
 	MDataHandle hOutput = data.outputValue(aOutput);
 	MFnPluginData fnOut;
 	MTypeId kdid(poolData::id);
-  	MObject dOut = fnOut.create(kdid , &st );er;
-  	poolData* outTree = (poolData*)fnOut.data(&st);er;
+	MObject dOut = fnOut.create(kdid , &st ); mser;
+	poolData *outTree = (poolData *)fnOut.data(&st); mser;
 
 	if (m_pd) {
-  		*outTree=(*m_pd);
+		*outTree = (*m_pd);
 	}
 
-  	MDataHandle outputHandle = data.outputValue(pool::aOutput, &st ); er;
-  	st = outputHandle.set(outTree); er;
-  	data.setClean( plug );
+	MDataHandle outputHandle = data.outputValue(pool::aOutput, &st ); mser;
+	st = outputHandle.set(outTree); mser;
+	data.setClean( plug );
 
 	return MS::kSuccess;
 }

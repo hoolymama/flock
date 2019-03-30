@@ -41,61 +41,61 @@ MObject vectorRampLookupPP::aOutput;
 vectorRampLookupPP::vectorRampLookupPP () {}
 vectorRampLookupPP::~vectorRampLookupPP () {}
 
-void * vectorRampLookupPP::creator () {
+void *vectorRampLookupPP::creator () {
 	return new vectorRampLookupPP;
 }
 /// Post constructor
 void
 vectorRampLookupPP::postConstructor()
 {
-	
+
 }
 
 MStatus vectorRampLookupPP::initialize () {
-	
+
 	MStatus st;
 	MFnTypedAttribute tAttr;
-	
+
 	MRampAttribute rAttr;
 	MFnNumericAttribute nAttr;
-	
-	aInputMin = nAttr.create("inputMin", "imn", MFnNumericData::kFloat);	
-	nAttr.setKeyable(true);
-	nAttr.setStorable(true);
-	nAttr.setDefault(0.0);
-	st = addAttribute(aInputMin);er;
-	
-	aInputMax = nAttr.create("inputMax", "imx", MFnNumericData::kFloat);	
-	nAttr.setKeyable(true);
-	nAttr.setStorable(true);
-	nAttr.setDefault(1.0);
-	st = addAttribute(aInputMax);er;
-	
-	aOutputMin = nAttr.create("outputMin", "omn", MFnNumericData::kFloat);	
-	nAttr.setKeyable(true);
-	nAttr.setStorable(true);
-	nAttr.setDefault(0.0);
-	st = addAttribute(aOutputMin);er;
-	
-	aOutputMax = nAttr.create("outputMax", "omx", MFnNumericData::kFloat);	
-	nAttr.setKeyable(true);
-	nAttr.setStorable(true);
-	nAttr.setDefault(1.0);
-	st = addAttribute(aOutputMax);er;
 
-	aRamp = rAttr.createCurveRamp("ramp","rmp",&st);
-	st = addAttribute(aRamp );er;
-	
-	aInput = tAttr.create("input", "in",MFnData::kVectorArray);
+	aInputMin = nAttr.create("inputMin", "imn", MFnNumericData::kFloat);
+	nAttr.setKeyable(true);
+	nAttr.setStorable(true);
+	nAttr.setDefault(0.0);
+	st = addAttribute(aInputMin); mser;
+
+	aInputMax = nAttr.create("inputMax", "imx", MFnNumericData::kFloat);
+	nAttr.setKeyable(true);
+	nAttr.setStorable(true);
+	nAttr.setDefault(1.0);
+	st = addAttribute(aInputMax); mser;
+
+	aOutputMin = nAttr.create("outputMin", "omn", MFnNumericData::kFloat);
+	nAttr.setKeyable(true);
+	nAttr.setStorable(true);
+	nAttr.setDefault(0.0);
+	st = addAttribute(aOutputMin); mser;
+
+	aOutputMax = nAttr.create("outputMax", "omx", MFnNumericData::kFloat);
+	nAttr.setKeyable(true);
+	nAttr.setStorable(true);
+	nAttr.setDefault(1.0);
+	st = addAttribute(aOutputMax); mser;
+
+	aRamp = rAttr.createCurveRamp("ramp", "rmp", &st);
+	st = addAttribute(aRamp ); mser;
+
+	aInput = tAttr.create("input", "in", MFnData::kVectorArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
-	st = addAttribute(aInput);er;
+	st = addAttribute(aInput); mser;
 
-	aOutput = tAttr.create ("output", "out",MFnData::kVectorArray);
+	aOutput = tAttr.create ("output", "out", MFnData::kVectorArray);
 	tAttr.setStorable (false);
 	tAttr.setWritable (false);
 	tAttr.setReadable (true);
-	st = addAttribute (aOutput);er;
+	st = addAttribute (aOutput); mser;
 
 	attributeAffects (aInputMin, aOutput);
 	attributeAffects (aInputMax, aOutput);
@@ -108,11 +108,11 @@ MStatus vectorRampLookupPP::initialize () {
 }
 
 
-MStatus vectorRampLookupPP::compute (const MPlug& plug, MDataBlock& data)
+MStatus vectorRampLookupPP::compute (const MPlug &plug, MDataBlock &data)
 {
 
-	if(!(plug == aOutput )) return MS::kUnknownParameter;
-	
+	if (!(plug == aOutput )) { return MS::kUnknownParameter; }
+
 	MStatus st;
 
 	double imn = data.inputValue(aInputMin).asFloat();
@@ -124,21 +124,22 @@ MStatus vectorRampLookupPP::compute (const MPlug& plug, MDataBlock& data)
 	MObject objIn = hIn.data();
 	MVectorArray vals =  MFnVectorArrayData(objIn).array();
 	unsigned nVals = vals.length();
-	
+
 	MDoubleArray lengths(nVals);
-	for(unsigned i = 0; i < nVals; ++i)
+	for (unsigned i = 0; i < nVals; ++i)
 	{
-		lengths[i]=vals[i].length();
+		lengths[i] = vals[i].length();
 	}
 
 	MDoubleArray result(nVals);
 
-	doRampLookup(thisMObject(), aRamp, lengths, result, float(imn),float(imx),float(omn),float(omx) );
+	doRampLookup(thisMObject(), aRamp, lengths, result, float(imn), float(imx), float(omn),
+	             float(omx) );
 
 	MVectorArray out(nVals);
-	for(unsigned i = 0; i < nVals; ++i)
+	for (unsigned i = 0; i < nVals; ++i)
 	{
-		out[i]=vals[i].normal() * result[i];
+		out[i] = vals[i].normal() * result[i];
 	}
 
 
@@ -149,5 +150,5 @@ MStatus vectorRampLookupPP::compute (const MPlug& plug, MDataBlock& data)
 	data.setClean(plug);
 	//cerr << "done compute" << endl;
 
-	return MS::kSuccess;															
+	return MS::kSuccess;
 }

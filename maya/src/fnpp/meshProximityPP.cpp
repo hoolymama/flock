@@ -8,10 +8,10 @@
 #include <maya/MMeshIntersector.h>
 #include <maya/MFnEnumAttribute.h>
 #include <maya/MFnMesh.h>
-#include <maya/MRampAttribute.h> 
+#include <maya/MRampAttribute.h>
 #include <maya/MFnNumericAttribute.h>
-#include <maya/MVectorArray.h> 
-#include <maya/MDoubleArray.h> 
+#include <maya/MVectorArray.h>
+#include <maya/MDoubleArray.h>
 
 #include "errorMacros.h"
 #include "meshProximityPP.h"
@@ -22,20 +22,20 @@ MTypeId meshProximityPP::id(k_meshProximityPP);
 
 
 MObject meshProximityPP::aPosition;
-MObject meshProximityPP::aMesh;	
+MObject meshProximityPP::aMesh;
 MObject meshProximityPP::aFalloffDistance;
 MObject meshProximityPP::aFalloffFunction;
 MObject meshProximityPP::aMagnitude;
 MObject meshProximityPP::aSide ;
-MObject meshProximityPP::aOutput;	 
+MObject meshProximityPP::aOutput;
 
-void * meshProximityPP::creator () {
+void *meshProximityPP::creator () {
 	return new meshProximityPP;
 }
 
 /// Post constructor
 void
-	meshProximityPP::postConstructor()
+meshProximityPP::postConstructor()
 {
 	MPxNode::postConstructor();
 
@@ -52,7 +52,7 @@ MStatus meshProximityPP::initialize () {
 	MFnNumericAttribute nAttr;
 	MFnEnumAttribute eAttr;
 
-	aPosition = tAttr.create("positions", "pos",MFnData::kVectorArray);
+	aPosition = tAttr.create("positions", "pos", MFnData::kVectorArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
@@ -60,33 +60,33 @@ MStatus meshProximityPP::initialize () {
 	tAttr.setCached(false);
 	addAttribute(aPosition);
 
-	aMesh = tAttr.create( "mesh", "msh", MFnData::kMesh, &st );er
+	aMesh = tAttr.create( "mesh", "msh", MFnData::kMesh, &st ); mser
 	tAttr.setReadable(false);
-	st = addAttribute(aMesh);	er;
-	
+	st = addAttribute(aMesh);	mser;
+
 	aSide = eAttr.create( "side", "sd", meshProximityPP::kInside);
 	eAttr.addField("inside", meshProximityPP::kInside);
 	eAttr.addField("outside", meshProximityPP::kOutside);
 	eAttr.addField("both", meshProximityPP::kBoth);
 	eAttr.setKeyable(true);
 	eAttr.setHidden(false);
-	st = addAttribute( aSide );er;
+	st = addAttribute( aSide ); mser;
 
 
-    aFalloffDistance = nAttr.create( "falloffDistance", "fds", MFnNumericData::kFloat);
-    nAttr.setKeyable(true); 
+	aFalloffDistance = nAttr.create( "falloffDistance", "fds", MFnNumericData::kFloat);
+	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
-    addAttribute(aFalloffDistance);
+	addAttribute(aFalloffDistance);
 
-    aMagnitude = nAttr.create( "magnitude", "mag", MFnNumericData::kFloat);
-    nAttr.setKeyable(true); 
+	aMagnitude = nAttr.create( "magnitude", "mag", MFnNumericData::kFloat);
+	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
-    addAttribute(aMagnitude);
+	addAttribute(aMagnitude);
 
-	aFalloffFunction = MRampAttribute::createCurveRamp("falloffFunction","ffu");
-	st = addAttribute( aFalloffFunction );er;
+	aFalloffFunction = MRampAttribute::createCurveRamp("falloffFunction", "ffu");
+	st = addAttribute( aFalloffFunction ); mser;
 
-	aOutput = tAttr.create ("output", "out",MFnData::kVectorArray);
+	aOutput = tAttr.create ("output", "out", MFnData::kVectorArray);
 	tAttr.setStorable (false);
 	tAttr.setWritable (false);
 	tAttr.setReadable (true);
@@ -105,9 +105,9 @@ MStatus meshProximityPP::initialize () {
 meshProximityPP::meshProximityPP () {}
 meshProximityPP::~meshProximityPP () {}
 
-MStatus meshProximityPP::compute(const MPlug& plug, MDataBlock& data) {
+MStatus meshProximityPP::compute(const MPlug &plug, MDataBlock &data) {
 
-	if (!(plug == aOutput)) 	return MS::kUnknownParameter;			
+	if (!(plug == aOutput)) 	{ return MS::kUnknownParameter; }
 
 	MStatus st;
 	MFn::Type type = MFn::kInvalid;
@@ -123,51 +123,51 @@ MStatus meshProximityPP::compute(const MPlug& plug, MDataBlock& data) {
 	float falloffDistance = data.inputValue(aFalloffDistance).asFloat();
 	float magnitude = data.inputValue(aMagnitude).asFloat();
 
-	if ((len > 0) && (falloffDistance > 0.0) && (magnitude != 0.0)){
- 		MObject dMesh =  data.inputValue(aMesh).asMeshTransformed();
-    	MFnMesh meshFn(dMesh, &st);
-    	if (! st.error()) {
+	if ((len > 0) && (falloffDistance > 0.0) && (magnitude != 0.0)) {
+		MObject dMesh =  data.inputValue(aMesh).asMeshTransformed();
+		MFnMesh meshFn(dMesh, &st);
+		if (! st.error()) {
 
-    		MObject thisObj = thisMObject();
-    		MRampAttribute rampAttr( thisObj, aFalloffFunction, &st ); er;
-    		MMeshIntersector intersector;
-    		MPointOnMesh pointInfo;
-    		MFloatPoint hitPoint;
-    		MFloatVector normal;
-    		st = intersector.create( dMesh ); er;
-    		for (int i = 0;i<len;i++) {
+			MObject thisObj = thisMObject();
+			MRampAttribute rampAttr( thisObj, aFalloffFunction, &st ); mser;
+			MMeshIntersector intersector;
+			MPointOnMesh pointInfo;
+			MFloatPoint hitPoint;
+			MFloatVector normal;
+			st = intersector.create( dMesh ); mser;
+			for (int i = 0; i < len; i++) {
 
 				MPoint pt = MPoint(in[i]);
 				st = intersector.getClosestPoint( pt, pointInfo , falloffDistance);
 				if (! st.error()) {
 					hitPoint =  pointInfo.getPoint() ;
-				
+
 					MVector diff = pt - MPoint(hitPoint);
-					
+
 					if (! diff.isEquivalent(MVector::zero)) {
 						double dist = diff.length();
 
 						normal = pointInfo.getNormal();
 						if (side != meshProximityPP::kBoth) {
-							float dot = MFloatVector(diff)*normal;
-							if ((side==meshProximityPP::kOutside) && (dot < 0.0)) continue;
-							if ((side==meshProximityPP::kInside) && (dot >= 0.0)) continue;
+							float dot = MFloatVector(diff) * normal;
+							if ((side == meshProximityPP::kOutside) && (dot < 0.0)) { continue; }
+							if ((side == meshProximityPP::kInside) && (dot >= 0.0)) { continue; }
 						}
 						MVector diffN = diff.normal();
 						double distN = dist / falloffDistance;
 						float val;
-						rampAttr.getValueAtPosition( distN, val, &st ); er;
+						rampAttr.getValueAtPosition( distN, val, &st ); mser;
 						out[i] = diffN * double(val * magnitude);
 					}
 				}
-    		}
-    	}
+			}
+		}
 	}
 
 	MDataHandle hOut = data.outputValue(aOutput);
 	MFnVectorArrayData fnOut;
-	MObject objOut = fnOut.create(out);		
+	MObject objOut = fnOut.create(out);
 	hOut.set(objOut);
-	data.setClean(plug);				
+	data.setClean(plug);
 	return MS::kSuccess;
 }

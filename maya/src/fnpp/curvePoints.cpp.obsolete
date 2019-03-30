@@ -76,7 +76,7 @@ MStatus curvePoints::initialize()
 	MFnEnumAttribute eAttr;
 	MFnCompoundAttribute cAttr;
 	
-	aCurve = tAttr.create( "curve", "crv", MFnNurbsCurveData::kNurbsCurve, &st); er;
+	aCurve = tAttr.create( "curve", "crv", MFnNurbsCurveData::kNurbsCurve, &st); mser;
 	tAttr.setReadable(false);
 	tAttr.setStorable(false);
 
@@ -123,7 +123,7 @@ MStatus curvePoints::initialize()
 	cAttr.setArray( true );	
 	cAttr.setDisconnectBehavior(MFnAttribute::kDelete);
 	cAttr.setReadable(false);	
-	st = addAttribute( aCurves );er;	
+	st = addAttribute( aCurves );mser;	
 	
 	aSpacing = eAttr.create("spacing", "spc");
 	eAttr.addField("Parametric", kParametric);
@@ -134,34 +134,34 @@ MStatus curvePoints::initialize()
 
 
 
-	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray, &st);er;
+	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray, &st);mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
-	st = addAttribute(aOutPoints );er;
+	st = addAttribute(aOutPoints );mser;
 
-	aOutTangents = tAttr.create("outTangents", "otns", MFnData::kVectorArray, &st);er;
+	aOutTangents = tAttr.create("outTangents", "otns", MFnData::kVectorArray, &st);mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
-	st = addAttribute(aOutTangents );er;
+	st = addAttribute(aOutTangents );mser;
 
 
 
-	st =attributeAffects(aCurve,aOutPoints );er;
-	st =attributeAffects(aCurves,aOutPoints );er;
-	st =attributeAffects(aNumPoints,aOutPoints );er;
-	st =attributeAffects(aSpacing,aOutPoints );er;
-	st =attributeAffects(aRangeMin,aOutPoints );er;
-	st =attributeAffects(aRangeMax,aOutPoints );er;
-	st =attributeAffects(aReverseTangent,aOutPoints );er;
+	st =attributeAffects(aCurve,aOutPoints );mser;
+	st =attributeAffects(aCurves,aOutPoints );mser;
+	st =attributeAffects(aNumPoints,aOutPoints );mser;
+	st =attributeAffects(aSpacing,aOutPoints );mser;
+	st =attributeAffects(aRangeMin,aOutPoints );mser;
+	st =attributeAffects(aRangeMax,aOutPoints );mser;
+	st =attributeAffects(aReverseTangent,aOutPoints );mser;
 
 
-	st =attributeAffects(aCurve,aOutTangents );er;
-	st =attributeAffects(aCurves,aOutTangents );er;
-	st =attributeAffects(aNumPoints,aOutTangents );er;
-	st =attributeAffects(aSpacing,aOutTangents );er;
-	st =attributeAffects(aRangeMin,aOutTangents );er;
-	st =attributeAffects(aRangeMax,aOutTangents );er;
-	st =attributeAffects(aReverseTangent,aOutTangents );er;
+	st =attributeAffects(aCurve,aOutTangents );mser;
+	st =attributeAffects(aCurves,aOutTangents );mser;
+	st =attributeAffects(aNumPoints,aOutTangents );mser;
+	st =attributeAffects(aSpacing,aOutTangents );mser;
+	st =attributeAffects(aRangeMin,aOutTangents );mser;
+	st =attributeAffects(aRangeMax,aOutTangents );mser;
+	st =attributeAffects(aReverseTangent,aOutTangents );mser;
 
 
 
@@ -251,10 +251,10 @@ MStatus curvePoints::compute( const MPlug& plug, MDataBlock& data )
 				outTangents.append(curveFn.tangent(param) * (reverseTangent ? -1.0 : 1.0));
 			}
 		} else {
-			double arclen = curveFn.length(epsilon, &st); er;
+			double arclen = curveFn.length(epsilon, &st); mser;
 			for (unsigned i = 0;i<npts;i++) {
 				double fracLen = fractions[i] * arclen;
-				param = curveFn.findParamFromLength(fracLen, &st); er;
+				param = curveFn.findParamFromLength(fracLen, &st); mser;
 				st = curveFn.getPointAtParam(param,resultPoint, MSpace::kObject); 
 				outPoints.append( MVector(resultPoint));
 				outTangents.append(curveFn.tangent(param) * (reverseTangent ? -1.0 : 1.0));
@@ -266,13 +266,13 @@ MStatus curvePoints::compute( const MPlug& plug, MDataBlock& data )
 	MFnVectorArrayData fnOutPoints;
 	MObject dOutPoints = fnOutPoints.create(outPoints);
 	hOutPoints.set(dOutPoints);
-	st = data.setClean( aOutPoints );er;
+	st = data.setClean( aOutPoints );mser;
 
 	MDataHandle hOutTangents = data.outputValue(aOutTangents);
 	MFnVectorArrayData fnOutTangents;
 	MObject dOutTangents = fnOutTangents.create(outTangents);
 	hOutTangents.set(dOutTangents);
-	st = data.setClean( aOutTangents );er;
+	st = data.setClean( aOutTangents );mser;
 
 
 	return MS::kSuccess;

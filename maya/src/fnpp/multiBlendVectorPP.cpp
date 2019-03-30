@@ -5,8 +5,8 @@
 
 #include <maya/MFnCompoundAttribute.h>
 #include <maya/MFnNumericAttribute.h>
-#include <maya/MVectorArray.h> 
-#include <maya/MDoubleArray.h> 
+#include <maya/MVectorArray.h>
+#include <maya/MDoubleArray.h>
 
 #include "errorMacros.h"
 #include "multiBlendVectorPP.h"
@@ -16,9 +16,9 @@
 
 MTypeId multiBlendVectorPP::id(k_multiBlendVectorPP);
 
-MObject multiBlendVectorPP::aVectorArray;	   
-MObject multiBlendVectorPP::aWeightArray;	
-MObject multiBlendVectorPP::aDefaultWeight;	   
+MObject multiBlendVectorPP::aVectorArray;
+MObject multiBlendVectorPP::aWeightArray;
+MObject multiBlendVectorPP::aDefaultWeight;
 MObject multiBlendVectorPP::aInput;
 
 MObject multiBlendVectorPP::aNormalizeWeights;
@@ -27,7 +27,7 @@ MObject multiBlendVectorPP::aNormalizeWeights;
 MObject multiBlendVectorPP::aOutput;
 
 
-void * multiBlendVectorPP::creator () {
+void *multiBlendVectorPP::creator () {
 	return new multiBlendVectorPP;
 }
 
@@ -49,19 +49,19 @@ MStatus multiBlendVectorPP::initialize () {
 	MFnNumericAttribute nAttr;
 	MFnCompoundAttribute cAttr;
 
-	aVectorArray = tAttr.create("vectorArray", "va",MFnData::kVectorArray);
+	aVectorArray = tAttr.create("vectorArray", "va", MFnData::kVectorArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 
-	aWeightArray = tAttr.create("weightArray", "wa",MFnData::kDoubleArray);
+	aWeightArray = tAttr.create("weightArray", "wa", MFnData::kDoubleArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 
-	aDefaultWeight = nAttr.create("defaultWeight", "dwt",MFnNumericData::kDouble);
+	aDefaultWeight = nAttr.create("defaultWeight", "dwt", MFnNumericData::kDouble);
 	nAttr.setWritable(true);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
@@ -69,8 +69,8 @@ MStatus multiBlendVectorPP::initialize () {
 
 	aInput = cAttr.create("input", "in");
 	cAttr.addChild(aVectorArray);
-	cAttr.addChild(aWeightArray);	
-	cAttr.addChild(aDefaultWeight);	
+	cAttr.addChild(aWeightArray);
+	cAttr.addChild(aDefaultWeight);
 	cAttr.setArray(true);
 	cAttr.setWritable(true);
 	cAttr.setStorable(true);
@@ -78,14 +78,14 @@ MStatus multiBlendVectorPP::initialize () {
 	addAttribute(aInput );
 
 
-	aNormalizeWeights = nAttr.create( "normalizeWeights", "nml",MFnNumericData::kBoolean);
+	aNormalizeWeights = nAttr.create( "normalizeWeights", "nml", MFnNumericData::kBoolean);
 	nAttr.setHidden(false);
 	nAttr.setStorable(true);
 	nAttr.setReadable(true);
 	nAttr.setDefault(false);
 	addAttribute(aNormalizeWeights );
- 
-	aOutput = tAttr.create ("output", "out",MFnData::kVectorArray);
+
+	aOutput = tAttr.create ("output", "out", MFnData::kVectorArray);
 	tAttr.setStorable (false);
 	tAttr.setWritable (false);
 	tAttr.setReadable (true);
@@ -103,9 +103,9 @@ MStatus multiBlendVectorPP::initialize () {
 multiBlendVectorPP::multiBlendVectorPP () {}
 multiBlendVectorPP::~multiBlendVectorPP () {}
 
-MStatus multiBlendVectorPP::compute(const MPlug& plug, MDataBlock& data) {
+MStatus multiBlendVectorPP::compute(const MPlug &plug, MDataBlock &data) {
 
-	if (!(plug == aOutput)) 	return MS::kUnknownParameter;			
+	if (!(plug == aOutput)) 	{ return MS::kUnknownParameter; }
 
 	MStatus st;
 	MFn::Type type = MFn::kInvalid;
@@ -114,19 +114,19 @@ MStatus multiBlendVectorPP::compute(const MPlug& plug, MDataBlock& data) {
 
 	bool normalize = data.inputValue(aNormalizeWeights).asBool();
 
-	MArrayDataHandle hInputs = data.inputArrayValue( aInput , &st);  ert;
+	MArrayDataHandle hInputs = data.inputArrayValue( aInput , &st);  msert;
 
 	MVectorArray out;
 	MDoubleArray totalWeight;
 	bool started = false;
 	unsigned len = 0;
 	unsigned nInputs = hInputs.elementCount();
-	for(unsigned i = 0;i < nInputs; i++, hInputs.next()) {
+	for (unsigned i = 0; i < nInputs; i++, hInputs.next()) {
 
-		// unsigned int el = hInputs.elementIndex(&st);  
-		if (st != MS::kSuccess) continue;
+		// unsigned int el = hInputs.elementIndex(&st);
+		if (st != MS::kSuccess) { continue; }
 		MDataHandle hInput = hInputs.inputValue( &st );
-		if (st != MS::kSuccess) continue;
+		if (st != MS::kSuccess) { continue; }
 
 		MObject dVectorArray =  hInput.child( aVectorArray).data(); ;
 		MVectorArray vectorArray = MFnVectorArrayData(dVectorArray).array();
@@ -135,31 +135,34 @@ MStatus multiBlendVectorPP::compute(const MPlug& plug, MDataBlock& data) {
 			len =  vectorArray.length();
 			out = MVectorArray(len);
 			totalWeight = MDoubleArray(len);
-			
-		} else {
+
+		}
+		else {
 			if (vectorArray.length() != len) {
 				continue;
 			}
 		}
 
-		MDoubleArray weightArray = MFnDoubleArrayData( hInput.child(aWeightArray).data() ).array();
+		MDoubleArray weightArray = MFnDoubleArrayData( hInput.child(
+		                             aWeightArray).data() ).array();
 		double defaultWeight =  hInput.child(aDefaultWeight).asDouble();
 
 		if (weightArray.length() != len) {
 			weightArray = MDoubleArray(len, defaultWeight);
-		} else {
-			for (unsigned i=0;i<len;i++) {
-				weightArray[i] = weightArray[i]* defaultWeight;
+		}
+		else {
+			for (unsigned i = 0; i < len; i++) {
+				weightArray[i] = weightArray[i] * defaultWeight;
 			}
 		}
 
-		for (unsigned i=0;i<len;i++) {
-			out[i] +=  vectorArray[i] * weightArray[i];	
+		for (unsigned i = 0; i < len; i++) {
+			out[i] +=  vectorArray[i] * weightArray[i];
 		}
 		if (normalize) {
 			totalWeight[i] += weightArray[i];
 		}
-	}  
+	}
 
 	if (normalize) {
 		for (int i = 0; i < len; ++i)
@@ -169,12 +172,12 @@ MStatus multiBlendVectorPP::compute(const MPlug& plug, MDataBlock& data) {
 			}
 		}
 	}
- 
+
 	MDataHandle hOut = data.outputValue(aOutput);
 	MFnVectorArrayData fnOut;
-	MObject objOut = fnOut.create(out);		
+	MObject objOut = fnOut.create(out);
 	hOut.set(objOut);
-	data.setClean(plug);				
+	data.setClean(plug);
 	return MS::kSuccess;
 
 

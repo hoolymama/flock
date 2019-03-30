@@ -1,6 +1,6 @@
 /*
 *  fishDeform.cpp
-	* 
+	*
 	*
 	*  Created by Julian Mann on 12/02/2007.
 	*  Copyright 2007 hoolyMama. All rights reserved.
@@ -20,7 +20,7 @@
 #include <maya/MFloatVectorArray.h>
 #include <maya/MFloatArray.h>
 #include <maya/MFnEnumAttribute.h>
-#include <maya/MFnMesh.h>  
+#include <maya/MFnMesh.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnDoubleArrayData.h>
 #include <maya/MFnVectorArrayData.h>
@@ -40,7 +40,7 @@
 
 #include <fishSkeleton.h>
 
-#include <fishDeform.h>    
+#include <fishDeform.h>
 
 #include <errorMacros.h>
 #include "jMayaIds.h"
@@ -90,14 +90,14 @@ MTypeId fishDeform::id( k_fishDeform );
 
 fishDeform::fishDeform()
 	: m_points(),
-	m_counts(),
-	m_connects(),
-	m_Us(),
-	m_Vs(),
-	m_uvCounts(),
-	m_uvIds(),
-	m_schoolSize(0),
-	m_outGeom( MObject::kNullObj )
+	  m_counts(),
+	  m_connects(),
+	  m_Us(),
+	  m_Vs(),
+	  m_uvCounts(),
+	  m_uvIds(),
+	  m_schoolSize(0),
+	  m_outGeom( MObject::kNullObj )
 {
 
 }
@@ -117,51 +117,52 @@ MStatus fishDeform::initialize()
 	MFnEnumAttribute eAttr;
 
 
-	aPositions = tAttr.create("position", "pos", MFnData::kVectorArray, &st);er;
+	aPositions = tAttr.create("position", "pos", MFnData::kVectorArray, &st); mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setCached(false);
-	st = addAttribute( aPositions ); er;
+	st = addAttribute( aPositions ); mser;
 
-	aDirections = tAttr.create("direction", "dir", MFnData::kVectorArray, &st);er;
+	aDirections = tAttr.create("direction", "dir", MFnData::kVectorArray, &st); mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setCached(false);
-	st = addAttribute( aDirections ); er;
+	st = addAttribute( aDirections ); mser;
 
-	aUps = tAttr.create("upVectors", "ups", MFnData::kVectorArray, &st);er;
+	aUps = tAttr.create("upVectors", "ups", MFnData::kVectorArray, &st); mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setCached(false);
-	st = addAttribute( aUps ); er;
+	st = addAttribute( aUps ); mser;
 
 
-	aScales = tAttr.create("scale", "scl", MFnData::kDoubleArray, &st);er;
+	aScales = tAttr.create("scale", "scl", MFnData::kDoubleArray, &st); mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setCached(false);
-	st = addAttribute( aScales ); er;
+	st = addAttribute( aScales ); mser;
 
-	aActive = tAttr.create("active", "atv", MFnData::kDoubleArray, &st);er;
+	aActive = tAttr.create("active", "atv", MFnData::kDoubleArray, &st); mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setCached(false);
-	st = addAttribute( aActive ); er;
+	st = addAttribute( aActive ); mser;
 
-	aPivot = tAttr.create("pivot", "pvt", MFnData::kDoubleArray, &st);er;
+	aPivot = tAttr.create("pivot", "pvt", MFnData::kDoubleArray, &st); mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setCached(false);
-	st = addAttribute( aPivot ); er;
+	st = addAttribute( aPivot ); mser;
 
 
-	aPivotOffsetMult= nAttr.create("pivotOffsetMult","pom", MFnNumericData::kFloat, 1.0f, &st ); er;
+	aPivotOffsetMult = nAttr.create("pivotOffsetMult", "pom", MFnNumericData::kFloat, 1.0f,
+	                                &st ); mser;
 	nAttr.setHidden(false);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setWritable(true);
-	st = addAttribute(aPivotOffsetMult); er;
-	
+	st = addAttribute(aPivotOffsetMult); mser;
+
 
 
 	aCullList = tAttr.create( "cullList", "cls", MFnData::kString );
@@ -169,108 +170,108 @@ MStatus fishDeform::initialize()
 	addAttribute( aCullList );
 
 
-	aInMesh= tAttr.create("inMesh","im", MFnData::kMesh);
+	aInMesh = tAttr.create("inMesh", "im", MFnData::kMesh);
 	tAttr.setReadable(false);
-	st = addAttribute( aInMesh );er;
+	st = addAttribute( aInMesh ); mser;
 
 
 
-	aBend = tAttr.create("bend", "ben", MFnData::kDoubleArray, &st);er;
+	aBend = tAttr.create("bend", "ben", MFnData::kDoubleArray, &st); mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setCached(false);
-	st = addAttribute( aBend ); er;
+	st = addAttribute( aBend ); mser;
 
 
 
-	aOffset = tAttr.create("offset", "off", MFnData::kDoubleArray, &st);er;
+	aOffset = tAttr.create("offset", "off", MFnData::kDoubleArray, &st); mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setCached(false);
-	st = addAttribute( aOffset ); er;
+	st = addAttribute( aOffset ); mser;
 
 
-	aAmplitude = tAttr.create("amplitude", "amp", MFnData::kDoubleArray, &st);er;
+	aAmplitude = tAttr.create("amplitude", "amp", MFnData::kDoubleArray, &st); mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setCached(false);
-	st = addAttribute( aAmplitude ); er;
+	st = addAttribute( aAmplitude ); mser;
 
-	aWavelength	= nAttr.create("wavelength","wl", MFnNumericData::kFloat, 1.0f, &st ); er;
+	aWavelength	= nAttr.create("wavelength", "wl", MFnNumericData::kFloat, 1.0f, &st ); mser;
 	nAttr.setHidden(false);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setWritable(true);
-	st = addAttribute(aWavelength); er;
+	st = addAttribute(aWavelength); mser;
 
-	aStart	= nAttr.create("start","sta", MFnNumericData::kFloat, 1.0f, &st ); er;
+	aStart	= nAttr.create("start", "sta", MFnNumericData::kFloat, 1.0f, &st ); mser;
 	nAttr.setHidden(false);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setWritable(true);
-	st = addAttribute(aStart); er;
+	st = addAttribute(aStart); mser;
 
-	aDropoff	= nAttr.create("dropoff","drp", MFnNumericData::kFloat, 1.0f, &st ); er;
+	aDropoff	= nAttr.create("dropoff", "drp", MFnNumericData::kFloat, 1.0f, &st ); mser;
 	nAttr.setHidden(false);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setWritable(true);
-	st = addAttribute(aDropoff); er;
+	st = addAttribute(aDropoff); mser;
 
 
-//   aOffsetMult	= nAttr.create("offsetMult","oml", MFnNumericData::kFloat, 1.0f, &st ); er;
-//   nAttr.setHidden(false);
-//   nAttr.setKeyable(true);
-//   nAttr.setStorable(true);
-//   nAttr.setWritable(true);
-//   st = addAttribute(aOffsetMult); er;
-//
-//   aBendMult	= nAttr.create("bendMult","bml", MFnNumericData::kFloat, 1.0f, &st ); er;
-//   nAttr.setHidden(false);
-//   nAttr.setKeyable(true);
-//   nAttr.setStorable(true);
-//   nAttr.setWritable(true);
-//   st = addAttribute(aBendMult); er;
-//
-//   aAmplitudeMult	= nAttr.create("amplitudeMult","aml", MFnNumericData::kFloat, 1.0f, &st ); er;
-//   nAttr.setHidden(false);
-//   nAttr.setKeyable(true);
-//   nAttr.setStorable(true);
-//   nAttr.setWritable(true);
-//   st = addAttribute(aAmplitudeMult); er;
-//
-//   aScaleMult	= nAttr.create("scaleMult","sml", MFnNumericData::kFloat, 1.0f, &st ); er;
-//   nAttr.setHidden(false);
-//   nAttr.setKeyable(true);
-//   nAttr.setStorable(true);
-//   nAttr.setWritable(true);
-//   st = addAttribute(aScaleMult); er;
+	//   aOffsetMult	= nAttr.create("offsetMult","oml", MFnNumericData::kFloat, 1.0f, &st ); mser;
+	//   nAttr.setHidden(false);
+	//   nAttr.setKeyable(true);
+	//   nAttr.setStorable(true);
+	//   nAttr.setWritable(true);
+	//   st = addAttribute(aOffsetMult); mser;
+	//
+	//   aBendMult	= nAttr.create("bendMult","bml", MFnNumericData::kFloat, 1.0f, &st ); mser;
+	//   nAttr.setHidden(false);
+	//   nAttr.setKeyable(true);
+	//   nAttr.setStorable(true);
+	//   nAttr.setWritable(true);
+	//   st = addAttribute(aBendMult); mser;
+	//
+	//   aAmplitudeMult	= nAttr.create("amplitudeMult","aml", MFnNumericData::kFloat, 1.0f, &st ); mser;
+	//   nAttr.setHidden(false);
+	//   nAttr.setKeyable(true);
+	//   nAttr.setStorable(true);
+	//   nAttr.setWritable(true);
+	//   st = addAttribute(aAmplitudeMult); mser;
+	//
+	//   aScaleMult	= nAttr.create("scaleMult","sml", MFnNumericData::kFloat, 1.0f, &st ); mser;
+	//   nAttr.setHidden(false);
+	//   nAttr.setKeyable(true);
+	//   nAttr.setStorable(true);
+	//   nAttr.setWritable(true);
+	//   st = addAttribute(aScaleMult); mser;
 
 
 
-	aNumBones	= nAttr.create("numTailBones","ntb", MFnNumericData::kShort, 8, &st ); er;
+	aNumBones	= nAttr.create("numTailBones", "ntb", MFnNumericData::kShort, 8, &st ); mser;
 	nAttr.setHidden(false);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setWritable(true);
-	st = addAttribute(aNumBones); er;
+	st = addAttribute(aNumBones); mser;
 
-	aBoneStart	= nAttr.create("headLength","hln", MFnNumericData::kFloat, 15.0f, &st ); er;
+	aBoneStart	= nAttr.create("headLength", "hln", MFnNumericData::kFloat, 15.0f, &st ); mser;
 	nAttr.setHidden(false);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setWritable(true);
-	st = addAttribute(aBoneStart); er;
+	st = addAttribute(aBoneStart); mser;
 
 
-	aBoneEnd	= nAttr.create("tailLength","tln", MFnNumericData::kFloat, 20.0f, &st ); er;
+	aBoneEnd	= nAttr.create("tailLength", "tln", MFnNumericData::kFloat, 20.0f, &st ); mser;
 	nAttr.setHidden(false);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setWritable(true);
-	st = addAttribute(aBoneEnd); er;
+	st = addAttribute(aBoneEnd); mser;
 
-	aSmoothBind = nAttr.create( "smoothBind", "smb",MFnNumericData::kBoolean);
+	aSmoothBind = nAttr.create( "smoothBind", "smb", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(false);
@@ -283,85 +284,85 @@ MStatus fishDeform::initialize()
 	addAttribute( aOutMesh );
 
 
-	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray, &st);er;
+	aOutPoints = tAttr.create("outPoints", "opts", MFnData::kVectorArray, &st); mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
-	st = addAttribute(aOutPoints );er;	
+	st = addAttribute(aOutPoints ); mser;
 
-	aOutDirections = tAttr.create("outDirections", "odrs", MFnData::kVectorArray, &st);er;
+	aOutDirections = tAttr.create("outDirections", "odrs", MFnData::kVectorArray, &st); mser;
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
-	st = addAttribute(aOutDirections );er;
+	st = addAttribute(aOutDirections ); mser;
 
 
 
 
 
-	st =attributeAffects(aNumBones ,aOutMesh );er;
-	st =attributeAffects(aBoneStart ,aOutMesh );er;
-	st =attributeAffects(aBoneEnd ,aOutMesh );er;
-	st =attributeAffects(aSmoothBind ,aOutMesh );er;
-	st =attributeAffects(aPivot ,aOutMesh );er;
-	st =attributeAffects(aPivotOffsetMult ,aOutMesh );er;
+	st = attributeAffects(aNumBones , aOutMesh ); mser;
+	st = attributeAffects(aBoneStart , aOutMesh ); mser;
+	st = attributeAffects(aBoneEnd , aOutMesh ); mser;
+	st = attributeAffects(aSmoothBind , aOutMesh ); mser;
+	st = attributeAffects(aPivot , aOutMesh ); mser;
+	st = attributeAffects(aPivotOffsetMult , aOutMesh ); mser;
 
 
 
-	st =attributeAffects(aBend ,aOutMesh );er;
-	st =attributeAffects(aOffset ,aOutMesh );er;
-	st =attributeAffects(aAmplitude ,aOutMesh );er;
-	st =attributeAffects(aWavelength ,aOutMesh );er;
-	st =attributeAffects(aDropoff ,aOutMesh );er;
-	st =attributeAffects(aStart ,aOutMesh );er;
+	st = attributeAffects(aBend , aOutMesh ); mser;
+	st = attributeAffects(aOffset , aOutMesh ); mser;
+	st = attributeAffects(aAmplitude , aOutMesh ); mser;
+	st = attributeAffects(aWavelength , aOutMesh ); mser;
+	st = attributeAffects(aDropoff , aOutMesh ); mser;
+	st = attributeAffects(aStart , aOutMesh ); mser;
 
- //  st =attributeAffects(aOffsetMult	  ,aOutMesh );er; 
- //  st =attributeAffects(aBendMult	      ,aOutMesh );er;
- //  st =attributeAffects(aAmplitudeMult   ,aOutMesh );er;
- //  st =attributeAffects(aScaleMult	      ,aOutMesh );er;
-
-
-	st =attributeAffects(aPositions ,aOutMesh );er;
-	st =attributeAffects(aDirections ,aOutMesh );er;
-	st =attributeAffects(aUps ,aOutMesh );er;
-	st =attributeAffects(aScales ,aOutMesh );er;
-	st =attributeAffects(aActive ,aOutMesh );er;
-	st =attributeAffects(aInMesh ,aOutMesh );er;
-	st =attributeAffects(aCullList ,aOutMesh );er;
+	//  st =attributeAffects(aOffsetMult	  ,aOutMesh );mser;
+	//  st =attributeAffects(aBendMult	      ,aOutMesh );mser;
+	//  st =attributeAffects(aAmplitudeMult   ,aOutMesh );mser;
+	//  st =attributeAffects(aScaleMult	      ,aOutMesh );mser;
 
 
+	st = attributeAffects(aPositions , aOutMesh ); mser;
+	st = attributeAffects(aDirections , aOutMesh ); mser;
+	st = attributeAffects(aUps , aOutMesh ); mser;
+	st = attributeAffects(aScales , aOutMesh ); mser;
+	st = attributeAffects(aActive , aOutMesh ); mser;
+	st = attributeAffects(aInMesh , aOutMesh ); mser;
+	st = attributeAffects(aCullList , aOutMesh ); mser;
 
 
-	return( MS::kSuccess );
+
+
+	return ( MS::kSuccess );
 
 }
 
-void* fishDeform::creator(){return new fishDeform();}
+void *fishDeform::creator() {return new fishDeform();}
 
 
-void fishDeform::boneDeformation(	
-unsigned numActive,  
- const MVectorArray &poss, 
-	const MVectorArray &dirs, 
-	const MVectorArray &ups, 
-	const MDoubleArray &scales, 
-	const MDoubleArray &actives, 
-	const MDoubleArray &pivot, 
-	const MDoubleArray &bends, 
-	const MDoubleArray &offsets, 
-	const MDoubleArray &amps, 
-	float headLength, 
-	float tailLength, 
-	short numTailBones,
-	float wavelength, 
-	float dropoff, 
-	float start, 
-	//float offMlt, 
-	//float ampMlt, 
-	//float bendMlt, 
-	float pivotMlt, 
-	bool smooth,
-	MFloatPointArray & verts,
-	MVectorArray &outPts,
-	MVectorArray &outDirs
+void fishDeform::boneDeformation(
+  unsigned numActive,
+  const MVectorArray &poss,
+  const MVectorArray &dirs,
+  const MVectorArray &ups,
+  const MDoubleArray &scales,
+  const MDoubleArray &actives,
+  const MDoubleArray &pivot,
+  const MDoubleArray &bends,
+  const MDoubleArray &offsets,
+  const MDoubleArray &amps,
+  float headLength,
+  float tailLength,
+  short numTailBones,
+  float wavelength,
+  float dropoff,
+  float start,
+  //float offMlt,
+  //float ampMlt,
+  //float bendMlt,
+  float pivotMlt,
+  bool smooth,
+  MFloatPointArray &verts,
+  MVectorArray &outPts,
+  MVectorArray &outDirs
 
 )  {
 	MStatus st;
@@ -369,31 +370,31 @@ unsigned numActive,
 	const float bendMlt  = -0.055;
 	const float ampMlt = 0.540;
 	const float offMlt  = 2.225;
-	
-   // bendMlt =  bendMagic;
-   // ampMlt =  ampMagic;
-   // offMlt = offsetMagic;
-   // 
-   // bendMlt = 	bendMlt * bendMagic;
-   // ampMlt = 	ampMlt * ampMagic;
-   // offMlt = offMlt * offsetMagic;
-	
+
+	// bendMlt =  bendMagic;
+	// ampMlt =  ampMagic;
+	// offMlt = offsetMagic;
+	//
+	// bendMlt = 	bendMlt * bendMagic;
+	// ampMlt = 	ampMlt * ampMagic;
+	// offMlt = offMlt * offsetMagic;
+
 	unsigned nPoints = m_points.length();
 	unsigned nPositions = poss.length();
-	bool someMissing =(numActive !=nPositions);
+	bool someMissing = (numActive != nPositions);
 	// if (someMissing) if (actives[i] < 0.5) continue;
 
 
-	fishSkeleton  * pFishSkeleton =  new fishSkeleton( numTailBones, tailLength, headLength);
+	fishSkeleton   *pFishSkeleton =  new fishSkeleton( numTailBones, tailLength, headLength);
 
 
 	JFloatVectorArray oneFishVerts(nPoints);
-	for (unsigned i =0;i<nPoints;i++) {
-		oneFishVerts[i] = JFloatVector(m_points[i].x,m_points[i].y,m_points[i].z);
+	for (unsigned i = 0; i < nPoints; i++) {
+		oneFishVerts[i] = JFloatVector(m_points[i].x, m_points[i].y, m_points[i].z);
 	}
 	pFishSkeleton->bindSkin(oneFishVerts, smooth);
 
-	unsigned nVerts = (nPoints*numActive);
+	unsigned nVerts = (nPoints * numActive);
 	verts.setLength(nVerts);
 	unsigned index = 0;
 
@@ -401,12 +402,12 @@ unsigned numActive,
 	/// JFloatVector theVert, aVert;
 	JFloatVector front, up, pos;
 
-	for (unsigned i=0;i<nPositions;i++) {
-		if (someMissing) if (actives[i] < 0.5) continue;
+	for (unsigned i = 0; i < nPositions; i++) {
+		if (someMissing) if (actives[i] < 0.5) { continue; }
 
 		float amp = float(amps[i] * ampMlt);
 		float off = float(offsets[i] * offMlt);
-		float bend = float(bends[i] * bendMlt );		
+		float bend = float(bends[i] * bendMlt );
 		float scale = float(scales[i]);
 
 		front.x = float(dirs[i].x);		front.y = float( dirs[i].y);		front.z =  float(dirs[i].z);
@@ -420,14 +421,14 @@ unsigned numActive,
 		transformMat.setToIdentity();
 		transformMat.orientZ(front, up);
 		transformMat.scale(scale);
-		transformMat+=pos;
+		transformMat += pos;
 
 
 		// pose the bones
-		pFishSkeleton->pose(amp,off,bend,wavelength, dropoff,start);
+		pFishSkeleton->pose(amp, off, bend, wavelength, dropoff, start);
 		// move to world
-		
-		JFloatVector pOff(0.0,0.0,pivot[i] * pivotMlt);
+
+		JFloatVector pOff(0.0, 0.0, pivot[i] * pivotMlt);
 		pFishSkeleton->translateBy(pOff);
 		pFishSkeleton->transformBy(transformMat);
 
@@ -437,10 +438,10 @@ unsigned numActive,
 		pFishSkeleton->transform(newVerts);
 
 		// now we have a skeleton in the right place
-		for (unsigned j = 0;j<nPoints;j++) {
+		for (unsigned j = 0; j < nPoints; j++) {
 			// points are relative to the bones they are to be transformed by
-			const JFloatVector & theVert = newVerts[j];
-			verts.set( MFloatPoint(theVert.x,theVert.y,theVert.z) ,index);
+			const JFloatVector &theVert = newVerts[j];
+			verts.set( MFloatPoint(theVert.x, theVert.y, theVert.z) , index);
 			index++;
 		}
 		/*
@@ -454,22 +455,22 @@ unsigned numActive,
 
 	delete pFishSkeleton;
 
-	return;	
+	return;
 
 }
 /**/
-			
-void fishDeform::transformOnly(		
-	unsigned numActive,
-	const MVectorArray &pos, 
-	const MVectorArray &dir, 
-	const MVectorArray &up, 
-	const MDoubleArray &scales, 
-	const MDoubleArray &actives, 
-	const MDoubleArray &pivot, 
-	float pivotMlt, 
-	MFloatPointArray & verts
-	) 
+
+void fishDeform::transformOnly(
+  unsigned numActive,
+  const MVectorArray &pos,
+  const MVectorArray &dir,
+  const MVectorArray &up,
+  const MDoubleArray &scales,
+  const MDoubleArray &actives,
+  const MDoubleArray &pivot,
+  float pivotMlt,
+  MFloatPointArray &verts
+)
 {
 	MStatus st;
 	MString method("fishDeform::appendTransformedSource");
@@ -478,16 +479,16 @@ void fishDeform::transformOnly(
 
 	unsigned nPoints = m_points.length();
 	unsigned nPositions = pos.length();
-	bool someMissing =(numActive !=nPositions);
+	bool someMissing = (numActive != nPositions);
 	// if (someMissing) if (actives[i] < 0.5) continue;
 
 
-	verts.setLength(nPoints*numActive);
+	verts.setLength(nPoints * numActive);
 	MFloatMatrix fmat;
 	unsigned index = 0;
 
-	for (unsigned i=0;i<nPositions;i++) {
-		if (someMissing) if (actives[i] < 0.5) continue;
+	for (unsigned i = 0; i < nPositions; i++) {
+		if (someMissing) if (actives[i] < 0.5) { continue; }
 
 		MFloatVector zAxis = MFloatVector(dir[i].normal());
 		if (zAxis.isEquivalent(MFloatVector::zero)) {
@@ -496,29 +497,34 @@ void fishDeform::transformOnly(
 
 
 		MFloatVector yAxis = MFloatVector(up[i]);
-		// if they are paralell then we have to resolve the situation 
+		// if they are paralell then we have to resolve the situation
 		// so - if we are on the real yAxis then use the real zAxis else use the real yAxis for up
-		if  ( zAxis.isParallel(yAxis) ) { // gotta do something, 
+		if  ( zAxis.isParallel(yAxis) ) { // gotta do something,
 			if ( yAxis.isParallel(MFloatVector::yAxis) ) {
 				zAxis = (MFloatVector::zAxis) ;
-			} else {
-				yAxis = (MFloatVector::zAxis);	
+			}
+			else {
+				yAxis = (MFloatVector::zAxis);
 			}
 		}
 
-		MFloatVector xAxis = (yAxis^zAxis).normal(); // cross prod
-		yAxis = zAxis^xAxis; // re-align y to make orthonormal axes
+		MFloatVector xAxis = (yAxis ^ zAxis).normal(); // cross prod
+		yAxis = zAxis ^ xAxis; // re-align y to make orthonormal axes
 
 		// now plug them into the matrix
-		fmat[0][0] = float(xAxis.x * scales[i]);fmat[0][1] = float(xAxis.y);			fmat[0][2] = float(xAxis.z);			fmat[0][3] = 0.0f;
-		fmat[1][0] = float(yAxis.x);			fmat[1][1] = float(yAxis.y * scales[i]);fmat[1][2] = yAxis.z;			fmat[1][3] = 0.0f;
-		fmat[2][0] = float(zAxis.x);			fmat[2][1] = float(zAxis.y);			fmat[2][2] = float(zAxis.z * scales[i]);		fmat[2][3] =  0.0f;
-		fmat[3][0] = float(pos[i].x);			fmat[3][1] = float(pos[i].y);			fmat[3][2] = float(pos[i].z);			fmat[3][3] = 1.0f;		
-		MFloatVector pOff(0.0,0.0,(pivot[i] * pivotMlt));
+		fmat[0][0] = float(xAxis.x * scales[i]); fmat[0][1] = float(xAxis.y);
+		fmat[0][2] = float(xAxis.z);			fmat[0][3] = 0.0f;
+		fmat[1][0] = float(yAxis.x);			fmat[1][1] = float(yAxis.y * scales[i]);
+		fmat[1][2] = yAxis.z;			fmat[1][3] = 0.0f;
+		fmat[2][0] = float(zAxis.x);			fmat[2][1] = float(zAxis.y);
+		fmat[2][2] = float(zAxis.z * scales[i]);		fmat[2][3] =  0.0f;
+		fmat[3][0] = float(pos[i].x);			fmat[3][1] = float(pos[i].y);
+		fmat[3][2] = float(pos[i].z);			fmat[3][3] = 1.0f;
+		MFloatVector pOff(0.0, 0.0, (pivot[i] * pivotMlt));
 
-		for (unsigned j = 0;j<nPoints;j++) {
-			
-			verts.set( (m_points[j] + pOff) *fmat  ,index);
+		for (unsigned j = 0; j < nPoints; j++) {
+
+			verts.set( (m_points[j] + pOff) *fmat  , index);
 			index++;
 		}
 	}
@@ -526,16 +532,16 @@ void fishDeform::transformOnly(
 
 
 
-MStatus fishDeform::compute( const MPlug& plug, MDataBlock& data )
+MStatus fishDeform::compute( const MPlug &plug, MDataBlock &data )
 {
 
 	MStatus st;
 	MString method("fishDeform::compute");
 	if (! (
-		(plug == aOutMesh) ||
-		(plug == aOutDirections) ||
-		(plug == aOutPoints) 
-		)) return MS::kUnknownParameter;
+	      (plug == aOutMesh) ||
+	      (plug == aOutDirections) ||
+	      (plug == aOutPoints)
+	    )) { return MS::kUnknownParameter; }
 
 	MVectorArray positions = MFnVectorArrayData(data.inputValue(aPositions).data()).array();
 	MVectorArray dirs = MFnVectorArrayData(data.inputValue(aDirections).data()).array();
@@ -552,17 +558,17 @@ MStatus fishDeform::compute( const MPlug& plug, MDataBlock& data )
 	float start = data.inputValue(aStart).asFloat();
 	float pivotMult = data.inputValue(aPivotOffsetMult).asFloat();
 
-  //  float offsetMult = data.inputValue(aOffsetMult).asFloat();
-  //  float bendMult = data.inputValue(aBendMult).asFloat();
-  //  float amplitudeMult = data.inputValue(aAmplitudeMult).asFloat();
-  //  float scaleMult = data.inputValue(aScaleMult).asFloat();
+	//  float offsetMult = data.inputValue(aOffsetMult).asFloat();
+	//  float bendMult = data.inputValue(aBendMult).asFloat();
+	//  float amplitudeMult = data.inputValue(aAmplitudeMult).asFloat();
+	//  float scaleMult = data.inputValue(aScaleMult).asFloat();
 
-  //  MDoubleArray scales(scalesTmp);
-  //
-  //  if (scaleMult != 1.0) {
-  //  	unsigned scalesLen = scales.length();
-  //  	for (unsigned i = 0;i< scalesLen;i++) scales[i] = scales[i] * scaleMult;
-  //  }
+	//  MDoubleArray scales(scalesTmp);
+	//
+	//  if (scaleMult != 1.0) {
+	//  	unsigned scalesLen = scales.length();
+	//  	for (unsigned i = 0;i< scalesLen;i++) scales[i] = scales[i] * scaleMult;
+	//  }
 
 
 	short nBones = data.inputValue(aNumBones).asShort();
@@ -580,28 +586,29 @@ MStatus fishDeform::compute( const MPlug& plug, MDataBlock& data )
 
 	// make active array valid if its not already
 	if (pl != active.length()) {
-		active=MDoubleArray(pl,1.0);
+		active = MDoubleArray(pl, 1.0);
 	}
 
-	// get 
+	// get
 	//MIntArray postCacheCullList;
 	MStringArray sa;
 	cullListString.split(' ', sa);
-	unsigned sal= sa.length();
+	unsigned sal = sa.length();
 
 	unsigned cullFish;
-	for (unsigned i=0;i<sal;i++){
+	for (unsigned i = 0; i < sal; i++) {
 		cullFish = sa[i].asInt();
 		if (cullFish >= pl ) {
 			// MGlobal::displayWarning( "ignoring culled fish: " + cullFish+" out of range 0 - "+ pl);
-		} else {
+		}
+		else {
 			active.set(0.0, cullFish );
 		}
 	}
 
 	// count active fish
 	unsigned numActive = 0;
-	for (unsigned i =0;i<pl;i++) {
+	for (unsigned i = 0; i < pl; i++) {
 		if (active[i] >= 0.5) {
 			numActive++;
 		}
@@ -619,11 +626,11 @@ MStatus fishDeform::compute( const MPlug& plug, MDataBlock& data )
 
 	//cerr << "pl " << pl << endl;
 
-	if ( 
-		(pl == dirs.length()) && 
-		(pl == ups.length())   &&
-		(pl == scales.length())
-		) 
+	if (
+	  (pl == dirs.length()) &&
+	  (pl == ups.length())   &&
+	  (pl == scales.length())
+	)
 	{
 
 		// if the number of particles changed, or the input mesh changed, then the output
@@ -631,7 +638,7 @@ MStatus fishDeform::compute( const MPlug& plug, MDataBlock& data )
 		///////////////////////////////////////////////////////////////////
 		bool schoolSizeChanged = (numActive != m_schoolSize);
 		m_schoolSize = numActive;
-		MDataHandle hMesh = data.inputValue(aInMesh, &st );er;	
+		MDataHandle hMesh = data.inputValue(aInMesh, &st ); mser;
 		MObject dMesh = hMesh.asMeshTransformed();
 		MFnMesh meshFn(dMesh);
 		bool meshTopologyChanged = updateSrcObject(dMesh);
@@ -642,47 +649,50 @@ MStatus fishDeform::compute( const MPlug& plug, MDataBlock& data )
 		MIntArray faceCounts;
 		MIntArray connectivity;
 
-		if (pivot.length() != pl) pivot = MDoubleArray(pl);
+		if (pivot.length() != pl) { pivot = MDoubleArray(pl); }
 
-		if ((pl == bends.length()) && (pl == offsets.length())&& (pl == amps.length())) {
+		if ((pl == bends.length()) && (pl == offsets.length()) && (pl == amps.length())) {
 			// cerr << "transforming and deforming" << endl;
 			// do transform and deform
 
 			boneDeformation(
-				numActive,positions,dirs,ups,scales,active,pivot,
-				bends,offsets,amps, 
-				boneStart, boneEnd, nBones,
-				wavelength,dropoff,start,
-				/*offsetMult , amplitudeMult,bendMult ,*/
-				pivotMult,
-				smoothBind, vertices, outPts, outDirs
-				);
+			  numActive, positions, dirs, ups, scales, active, pivot,
+			  bends, offsets, amps,
+			  boneStart, boneEnd, nBones,
+			  wavelength, dropoff, start,
+			  /*offsetMult , amplitudeMult,bendMult ,*/
+			  pivotMult,
+			  smoothBind, vertices, outPts, outDirs
+			);
 
-		} else {
+		}
+		else {
 
-			transformOnly(numActive,positions,dirs,ups,scales,active, pivot,pivotMult, vertices);
+			transformOnly(numActive, positions, dirs, ups, scales, active, pivot, pivotMult,
+			              vertices);
 
 		}
 		// moved from here - hope its ok
-		// st = m_outMeshFn.setObject(m_outGeom);er;
-		
-		if (!needsRebuild){
-			
-			st = m_outMeshFn.setObject(m_outGeom);er;
-			
-			
+		// st = m_outMeshFn.setObject(m_outGeom);mser;
+
+		if (!needsRebuild) {
+
+			st = m_outMeshFn.setObject(m_outGeom); mser;
+
+
 			//cerr << "not rebuilding" << endl;
-			m_outMeshFn.setPoints(vertices);	
-		} else {
+			m_outMeshFn.setPoints(vertices);
+		}
+		else {
 			//cerr << "rebuilding" << endl;
 			unsigned nCounts = (m_counts.length() );
 			unsigned nPoints = (m_points.length() );
 			unsigned index = 0;
 			faceCounts.setLength(nCounts * numActive);
 
-			for (unsigned i = 0;i<numActive;i++) {
-				for (unsigned j = 0;j<nCounts;j++) {
-					faceCounts.set(m_counts[j],index);
+			for (unsigned i = 0; i < numActive; i++) {
+				for (unsigned j = 0; j < nCounts; j++) {
+					faceCounts.set(m_counts[j], index);
 					index++;
 				}
 			}
@@ -690,18 +700,19 @@ MStatus fishDeform::compute( const MPlug& plug, MDataBlock& data )
 			unsigned nConnects = (m_connects.length() );
 			index = 0;
 			connectivity.setLength(nConnects * numActive);
-			for (unsigned i = 0;i<numActive;i++) {
-				unsigned startIndex = i*nPoints;
-				for (unsigned j = 0;j<nConnects;j++) {
+			for (unsigned i = 0; i < numActive; i++) {
+				unsigned startIndex = i * nPoints;
+				for (unsigned j = 0; j < nConnects; j++) {
 
-					connectivity.set( ( startIndex + m_connects[j] ) ,index);
+					connectivity.set( ( startIndex + m_connects[j] ) , index);
 					index++;
 				}
 			}
 
-			m_outGeom = m_outMeshCreator.create(&st);er;
-			m_outMeshFn.create( vertices.length(), faceCounts.length(), vertices, faceCounts, connectivity, m_outGeom, &st );  er;
-			//m_outMeshFn.create( vertices.length(), faceCounts.length(), vertices, faceCounts, connectivity, m_Us, m_Vs, m_outGeom, &st );  er;	
+			m_outGeom = m_outMeshCreator.create(&st); mser;
+			m_outMeshFn.create( vertices.length(), faceCounts.length(), vertices, faceCounts,
+			                    connectivity, m_outGeom, &st );  mser;
+			//m_outMeshFn.create( vertices.length(), faceCounts.length(), vertices, faceCounts, connectivity, m_Us, m_Vs, m_outGeom, &st );  mser;
 
 
 
@@ -714,45 +725,46 @@ MStatus fishDeform::compute( const MPlug& plug, MDataBlock& data )
 				MIntArray uvIds;
 
 
-				for (unsigned i = 0;i<numActive;i++) {// number of fish
-					for (unsigned j = 0;j<nUVCounts;j++) { // number of polygons in one fish
+				for (unsigned i = 0; i < numActive; i++) { // number of fish
+					for (unsigned j = 0; j < nUVCounts; j++) { // number of polygons in one fish
 						uvCounts.append(m_uvCounts[j]);
 					}
 				}
 
 				unsigned nUVIds = (m_uvIds.length() );
-				for (unsigned i = 0;i<numActive;i++) {
-					for (unsigned j = 0;j<nUVIds;j++) {
+				for (unsigned i = 0; i < numActive; i++) {
+					for (unsigned j = 0; j < nUVIds; j++) {
 						uvIds.append(m_uvIds[j]);
 					}
 				}
-				st = m_outMeshFn.setUVs(m_Us, m_Vs);	er;	
-				st = m_outMeshFn.assignUVs ( uvCounts, uvIds );		er;		
+				st = m_outMeshFn.setUVs(m_Us, m_Vs);	mser;
+				st = m_outMeshFn.assignUVs ( uvCounts, uvIds );		mser;
 
-			} else {
+			}
+			else {
 				cerr << "nUVCounts counts don't match nCounts: " <<  nUVCounts << " " <<  nCounts << endl;
 			}
 		}
 	}
 
 	// output
-	/////////////////////////////////////////////////////////////// 
+	///////////////////////////////////////////////////////////////
 	MDataHandle hMesh = data.outputValue(aOutMesh, &st);
 	hMesh.set(m_outGeom);
-	data.setClean(aOutMesh);	
-	/////////////////////////////////////////////////////////////// 
+	data.setClean(aOutMesh);
+	///////////////////////////////////////////////////////////////
 
 	MDataHandle hOutPoints = data.outputValue(aOutPoints);
 	MFnVectorArrayData fnOutPoints;
 	MObject dOutPoints = fnOutPoints.create(outPts);
 	hOutPoints.set(dOutPoints);
-	st = data.setClean( aOutPoints );er;
+	st = data.setClean( aOutPoints ); mser;
 
 	MDataHandle hOutDirections = data.outputValue(aOutDirections);
 	MFnVectorArrayData fnOutDirections;
 	MObject dOutDirections = fnOutDirections.create(outDirs);
 	hOutDirections.set(dOutDirections);
-	st = data.setClean( aOutDirections );er;
+	st = data.setClean( aOutDirections ); mser;
 
 
 
@@ -761,10 +773,10 @@ MStatus fishDeform::compute( const MPlug& plug, MDataBlock& data )
 
 
 
-bool fishDeform::updateSrcObject(MObject & dMesh){
+bool fishDeform::updateSrcObject(MObject &dMesh) {
 
 
-	// we maintain our own mesh data 
+	// we maintain our own mesh data
 	// so we can compare the input mesh every frame to see if it changed
 	MStatus st;
 	MString method("fishDeform::updateSrcObject");
@@ -778,21 +790,21 @@ bool fishDeform::updateSrcObject(MObject & dMesh){
 	MIntArray pConnects;
 
 	// compare points against old points
-	st = meshFn.getPoints(pnts); er;
-	if (pnts.length() != m_points.length()) topologyChanged=true;
+	st = meshFn.getPoints(pnts); mser;
+	if (pnts.length() != m_points.length()) { topologyChanged = true; }
 
 	// now copy in the new points
 	m_points.copy(pnts);
 
 	// update counts and connects
 	//////////////////////////////////////
-	unsigned numPolys=meshFn.numPolygons();
-	for (unsigned i=0;i<numPolys;i++) {
+	unsigned numPolys = meshFn.numPolygons();
+	for (unsigned i = 0; i < numPolys; i++) {
 		MIntArray vts;
 		meshFn.getPolygonVertices(i, vts);
 		int siz = meshFn.polygonVertexCount(i);
 		pCounts.append(siz);
-		for ( int j=0;j<siz;j++) {
+		for ( int j = 0; j < siz; j++) {
 			pConnects.append(vts[j]);
 		}
 	}
@@ -801,22 +813,24 @@ bool fishDeform::updateSrcObject(MObject & dMesh){
 	// compare new counts and connects to existing arrays
 	//////////////////////////////////////
 	if (pCounts.length() == m_counts.length()) {
-		for (unsigned i=0;i<pCounts.length();i++) {
+		for (unsigned i = 0; i < pCounts.length(); i++) {
 			if (pCounts[i] != m_counts[i]) {
 				topologyChanged = true;
 			}
 		}
-	} else {
+	}
+	else {
 		topologyChanged = true;
 	}
 
 	if (pConnects.length() == m_connects.length()) {
-		for (unsigned i=0;i<pConnects.length();i++) {
+		for (unsigned i = 0; i < pConnects.length(); i++) {
 			if (pConnects[i] != m_connects[i]) {
 				topologyChanged = true;
 			}
 		}
-	} else {
+	}
+	else {
 		topologyChanged = true;
 	}
 	//////////////////////////////////////
@@ -832,9 +846,9 @@ bool fishDeform::updateSrcObject(MObject & dMesh){
 		m_Vs.clear();
 		m_uvCounts.clear();
 		m_uvIds.clear();
-		if (meshFn.numUVs() >0){
-			st = meshFn.getUVs( m_Us,  m_Vs) ;er;
-			st = meshFn.getAssignedUVs( 	 m_uvCounts,  m_uvIds) ;er;
+		if (meshFn.numUVs() > 0) {
+			st = meshFn.getUVs( m_Us,  m_Vs) ; mser;
+			st = meshFn.getAssignedUVs( 	 m_uvCounts,  m_uvIds) ; mser;
 		}
 
 	}

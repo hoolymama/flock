@@ -37,48 +37,48 @@ MString splinePoolData::typeName( "splinePoolData" );
 splinePoolData::splinePoolData()
 {
 	m_pTree = 0;
-	
+
 }
 
 splinePoolData::~splinePoolData()
 {
 }
 
-void* splinePoolData::creator()
+void *splinePoolData::creator()
 {
 	return new splinePoolData;
 }
 
 // the ptKdTree
-splineKdTree*	splinePoolData::tree() const {return m_pTree;}
+splineKdTree	*splinePoolData::tree() const {return m_pTree;}
 
 // clean up
 void	splinePoolData::clear() {
-	if (m_pTree) {delete m_pTree;m_pTree = 0;}
+	if (m_pTree) {delete m_pTree; m_pTree = 0;}
 }
 
 
 // create new tree
 void splinePoolData::create(MDataHandle &h) {
-	
+
 	MStatus st = MS::kSuccess;
 	MString method("splinePoolData::create" );
-	
+
 	// clean up old stuff
 	clear();
-	
+
 	// make a new tree
 	m_pTree = new splineKdTree();
 	if (m_pTree)  {
-     	MObject  d = h.data();
-     	MFnDynSweptGeometryData fnG(d,&st);
-		if (!(st.error())){
-     		st = m_pTree->populate(fnG, 0);
-			if (!(st.error())){
+		MObject  d = h.data();
+		MFnDynSweptGeometryData fnG(d, &st);
+		if (!(st.error())) {
+			st = m_pTree->populate(fnG, 0);
+			if (!(st.error())) {
 				m_pTree->build();
 			}
 		}
- 	}
+	}
 	// NOTE: there is now a splineKdTree which is either
 	// null, has zero size, or has size
 	// Any calling function should check the state of the tree
@@ -87,24 +87,24 @@ void splinePoolData::create(MDataHandle &h) {
 
 void splinePoolData::create(MArrayDataHandle &ah) {
 	// create new tree from an array of curves
-	
+
 	MStatus st = MS::kSuccess;
 	MString method("splinePoolData::create" );
-	
+
 	clear();
-	
+
 	unsigned n = ah.elementCount();
-	
+
 	// make a new tree
 	m_pTree = new splineKdTree();
-	if (m_pTree)  {	
-		
-		for(unsigned i = 0;i < n; i++, ah.next()) {
+	if (m_pTree)  {
+
+		for (unsigned i = 0; i < n; i++, ah.next()) {
 			int el = ah.elementIndex(&st);
 			MDataHandle h = ah.inputValue();
 			MObject  d = h.data();
-			MFnDynSweptGeometryData fnG(d,&st);
-			if (!(st.error())){
+			MFnDynSweptGeometryData fnG(d, &st);
+			if (!(st.error())) {
 				m_pTree->populate(fnG, el);
 			}
 		}
@@ -115,11 +115,11 @@ void splinePoolData::create(MArrayDataHandle &ah) {
 	// Any calling function should check the state of the tree
 }
 
-int splinePoolData::size(){
+int splinePoolData::size() {
 	if (m_pTree)
-		return m_pTree->size();
+	{ return m_pTree->size(); }
 	else
-		return 0;
+	{ return 0; }
 }
 
 /*
@@ -129,10 +129,10 @@ MStatus splinePoolData::closestPointOnLine(
 										 double &resultU,
 										 double &resultParam
 										 ) const {
-	
+
 	MStatus st = MS::kSuccess;
 	MString method("splinePoolData::closestPointOnLine" );
-	
+
 	MPoint c = MPoint(searchPoint);
 	double searchRad = bigNum;
 	splineData tb;
@@ -143,7 +143,7 @@ MStatus splinePoolData::closestPointOnLine(
 		resultParam = tb.cachedParam() ;
 		st = MS::kSuccess;
  	} else { // we never found a closest point, so something is seriously wrong
-		st = MS::kFailure; er;
+		st = MS::kFailure; mser;
 	}
 	return st;
 										 }
@@ -154,7 +154,7 @@ MStatus splinePoolData::closestPointOnLine(
 										 ) const {
 	MStatus st = MS::kSuccess;
 	MString method("splinePoolData::closestPointOnLine" );
-	
+
 	MPoint c = MPoint(searchPoint);
 	double searchRad = bigNum;
 	splineData tb;
@@ -163,7 +163,7 @@ MStatus splinePoolData::closestPointOnLine(
 		resultPoint =  tb.cachedPoint() ;
 		st = MS::kSuccess;
  	} else { // we never found a closest point, so something is seriously wrong
-		st = MS::kFailure; er;
+		st = MS::kFailure; mser;
 	}
 	return st;
 										 }
@@ -177,14 +177,14 @@ MStatus splinePoolData::closestPointsOnLine(
 										  ) const {
 	MStatus st = MS::kSuccess;
 	MString method("splinePoolData::closestPointsOnLine" );
-	
+
 	unsigned len = searchPoints.length();
 	resultPoints.setLength(len) ;
 	//resultIds.setLength(len) ;
 	resultUs.setLength(len) ;
  	resultParams.setLength(len) ;
-	
-	
+
+
 	MPoint c   ; // the center of the search sphere
 	for (unsigned i = 0; i<len; i++ ) {
 		c = MPoint(searchPoints[i]);
@@ -198,7 +198,7 @@ MStatus splinePoolData::closestPointsOnLine(
 			resultParams.set( tb.cachedParam() , i);
 			st = MS::kSuccess;
     	} else { // we never found a closest point, so something is seriously wrong
-			st = MS::kFailure; er;
+			st = MS::kFailure; mser;
 		}
 	}
 	return st;
@@ -210,10 +210,10 @@ MStatus splinePoolData::closestPointsOnLine(
 										  ) const {
 	MStatus st = MS::kSuccess;
 	MString method("splinePoolData::closestPointsOnTri" );
-	
+
 	unsigned len = searchPoints.length();
 	resultPoints.setLength(len) ;
-	
+
 	MPoint c   ; // the center of the search sphere
 	for (unsigned i = 0; i<len; i++ ) {
 		c = MPoint(searchPoints[i]);
@@ -224,7 +224,7 @@ MStatus splinePoolData::closestPointsOnLine(
 			resultPoints.set( tb.cachedPoint() , i);
 			st = MS::kSuccess;
     	} else { // we never found a closest point, so something is seriously wrong
-			st = MS::kFailure; er;
+			st = MS::kFailure; mser;
 		}
 	}
 	return st;
@@ -240,10 +240,10 @@ MStatus splinePoolData::blendClosestTangentsOnLine(
 											) const {
 	MStatus st = MS::kSuccess;
 	MString method("splinePoolData::blendClosestTangentsOnLine" );
-	
+
 	unsigned len = searchPoints.length();
 	resultTangents.setLength(len) ;
-	
+
 	MPoint c   ; // the center of the search sphere
 	for (unsigned i = 0; i<len; i++ ) {
 		c = MPoint(searchPoints[i]);
@@ -263,7 +263,7 @@ MStatus splinePoolData::blendClosestTangentsOnLine(
 				MVector newVec = (tb.tangent() *blendVal) + (resultTangents[i] * (1.0 - blendVal));
 				resultTangents.set( newVec , i);
 			}
-    	} 
+    	}
 	}
 	return st;
 }
@@ -277,16 +277,16 @@ MStatus splinePoolData::blendClosestTangentsOnLine(
 												 ) const {
 	MStatus st = MS::kSuccess;
 	MString method("splinePoolData::blendClosestTangentsOnLine" );
-	
+
 	unsigned len = searchPoints.length();
 	unsigned forcesLen = forces.length();
 	//cerr << "forcesLen" << forcesLen << endl;
 	//cerr << forces << endl;
 	resultTangents.setLength(len) ;
-	
+
 	MPoint c   ; // the center of the search sphere
-	
-	
+
+
 	for (unsigned i = 0; i<len; i++ ) {
 		c = MPoint(searchPoints[i]);
 		double searchRad = distance;
@@ -304,18 +304,18 @@ MStatus splinePoolData::blendClosestTangentsOnLine(
 			const MVector &tan= tb.tangent();
 			MVector theVector = tan;
 			if (!(v.isEquivalent(MVector::xAxis))) { // if anything but tangent only
-				
+
 				const MVector &hit =  tb.cachedPoint();
-				
+
 				MVector norm = (c - hit);
 				norm.normalize();
 				MVector circular = (tan^(c-hit)).normal();
-				
+
 				// alternative that will act differently at the end of the line
 				// MVector norm = circular^tan;
-				
+
 				theVector = ((tan*v.x) + (norm*v.y) + (circular*v.z)).normal();
-			
+
 			}
 			if (attenuation == 0.0) {
 				resultTangents.set( theVector, i);
@@ -328,7 +328,7 @@ MStatus splinePoolData::blendClosestTangentsOnLine(
 				MVector newVec = (theVector *blendVal) + (resultTangents[i] * (1.0 - blendVal));
 				resultTangents.set( newVec , i);
 			}
-    	} 
+    	}
 	}
 	return st;
 }
@@ -345,7 +345,7 @@ MStatus splinePoolData::closestTangentsOnLine(
 		) const {
 	MStatus st = MS::kSuccess;
 	MString method("splinePoolData::closestTangentsOnLine" );
-	
+
 	unsigned len = searchPoints.length();
 	unsigned forcesLen = forces.length();
 	resultTangents.setLength(len) ;
@@ -365,24 +365,24 @@ MStatus splinePoolData::closestTangentsOnLine(
 			const MVector &tan= tb.tangent();
 			MVector theVector = tan;
 			if (!(v.isEquivalent(MVector::xAxis))) { // if anything but tangent only
-				
+
 				const MVector &hit =  tb.cachedPoint();
-				
+
 				MVector norm = (c - hit);
 				norm.normalize();
 				MVector circular = (tan^(c-hit)).normal();
-				
+
 				// alternative that will act differently at the end of the line
 				// MVector norm = circular^tan;
-				
+
 				theVector = ((tan*v.x) + (norm*v.y) + (circular*v.z)).normal();
-				
+
 			}
-			
+
 			resultTangents.set(theVector , i);
 			st = MS::kSuccess;
     	} else { // we never found a closest point, so something is seriously wrong
-			st = MS::kFailure; er;
+			st = MS::kFailure; mser;
 		}
 	}
 	return st;
@@ -395,10 +395,10 @@ MStatus splinePoolData::closestTangentsOnLine(
 	) const {
 		MStatus st = MS::kSuccess;
 		MString method("splinePoolData::closestTangentsOnLine" );
-		
+
 		unsigned len = searchPoints.length();
 		resultTangents.setLength(len) ;
-		
+
 		MPoint c   ; // the center of the search sphere
 		for (unsigned i = 0; i<len; i++ ) {
 			c = MPoint(searchPoints[i]);
@@ -409,20 +409,20 @@ MStatus splinePoolData::closestTangentsOnLine(
 				resultTangents.set( tb.tangent() , i);
 				st = MS::kSuccess;
 			} else { // we never found a closest point, so something is seriously wrong
-				st = MS::kFailure; er;
+				st = MS::kFailure; mser;
 			}
 		}
 		return st;
 	}
 */
 
-void splinePoolData::copy(const MPxData& otherData)
+void splinePoolData::copy(const MPxData &otherData)
 {
-	m_pTree = ((const splinePoolData&)otherData).tree();
+	m_pTree = ((const splinePoolData &)otherData).tree();
 }
 
 
-splinePoolData& splinePoolData::operator=(const splinePoolData & otherData ) {
+splinePoolData &splinePoolData::operator=(const splinePoolData &otherData ) {
 	if (this != &otherData ) {
 		m_pTree = otherData.tree();
 	}

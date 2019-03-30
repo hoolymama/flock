@@ -44,36 +44,36 @@
 #include "jMayaIds.h"
 #include "mayaMath.h"
 
-MObject rollerPP::aCurrentViewPP;	
-MObject rollerPP::aLastViewPP;	
+MObject rollerPP::aCurrentViewPP;
+MObject rollerPP::aLastViewPP;
 MObject rollerPP::aSpeedPP;
-MObject rollerPP::aUpPP;		 	
-MObject rollerPP::aSpeedInputMax;	
+MObject rollerPP::aUpPP;
+MObject rollerPP::aSpeedInputMax;
 MObject rollerPP::aDoBanking;
-MObject rollerPP::aBankingSpeedRamp;	
+MObject rollerPP::aBankingSpeedRamp;
 MObject rollerPP::aBankingStability;
 MObject rollerPP::aBankingWorldUpStability;
 
-MObject rollerPP::aDoRolling;	 	
-MObject rollerPP::aRollingSpeedRamp;	
-MObject rollerPP::aRollingStability;	
+MObject rollerPP::aDoRolling;
+MObject rollerPP::aRollingSpeedRamp;
+MObject rollerPP::aRollingStability;
 MObject rollerPP::aRollingWorldUpStability;
 MObject rollerPP::aCurrentTime;
-MObject rollerPP::aOutput;	
+MObject rollerPP::aOutput;
 
 
 MTypeId rollerPP::id( k_rollerPP );
 
-rollerPP::rollerPP(){
+rollerPP::rollerPP() {
 	//lastTimeIEvaluated = MAnimControl::currentTime();
-	
+
 }
 
-rollerPP::~rollerPP(){}
+rollerPP::~rollerPP() {}
 
 void *rollerPP::creator()
-{	
-    return new rollerPP;
+{
+	return new rollerPP;
 }
 
 
@@ -85,101 +85,104 @@ MStatus rollerPP::initialize()
 {
 	MStatus st;
 	MString method("rollerPP::initialize");
-	
+
 	MFnNumericAttribute nAttr;
 	MFnTypedAttribute tAttr;
 	MFnCompoundAttribute	cAttr;
 	MFnUnitAttribute	uAttr;
 
 
-	aCurrentViewPP = tAttr.create("currentViewPP", "cvpp", MFnData::kVectorArray , &st ); er;
+	aCurrentViewPP = tAttr.create("currentViewPP", "cvpp", MFnData::kVectorArray , &st );
+	mser;
 	tAttr.setStorable(false);
-	st = addAttribute( aCurrentViewPP ); er;
+	st = addAttribute( aCurrentViewPP ); mser;
 
-	aLastViewPP = tAttr.create("lastViewPP", "lvpp", MFnData::kVectorArray , &st ); er;
+	aLastViewPP = tAttr.create("lastViewPP", "lvpp", MFnData::kVectorArray , &st ); mser;
 	tAttr.setStorable(false);
-	st = addAttribute( aLastViewPP ); er;
-	
-	aSpeedPP = tAttr.create("speedPP", "spp", MFnData::kDoubleArray , &st ); er;
+	st = addAttribute( aLastViewPP ); mser;
+
+	aSpeedPP = tAttr.create("speedPP", "spp", MFnData::kDoubleArray , &st ); mser;
 	tAttr.setStorable(false);
-	st = addAttribute( aSpeedPP ); er;
-	
-	aUpPP = tAttr.create("upPP", "upp", MFnData::kVectorArray , &st ); er;
+	st = addAttribute( aSpeedPP ); mser;
+
+	aUpPP = tAttr.create("upPP", "upp", MFnData::kVectorArray , &st ); mser;
 	tAttr.setStorable(false);
-	st = addAttribute( aUpPP ); er;
-	
-	aSpeedInputMax = nAttr.create("speedInputMax", "sim", MFnNumericData::kDouble);	
+	st = addAttribute( aUpPP ); mser;
+
+	aSpeedInputMax = nAttr.create("speedInputMax", "sim", MFnNumericData::kDouble);
 	nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setDefault(1.0);
-	st = addAttribute(aSpeedInputMax);er;
+	nAttr.setStorable(true);
+	nAttr.setDefault(1.0);
+	st = addAttribute(aSpeedInputMax); mser;
 
 	////////////////////////////////////////////////////////////
-	aDoBanking = nAttr.create( "doBanking", "dbn",MFnNumericData::kBoolean);
+	aDoBanking = nAttr.create( "doBanking", "dbn", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(true);
-	addAttribute( aDoBanking ); 
+	addAttribute( aDoBanking );
 
-	aBankingSpeedRamp = MRampAttribute::createCurveRamp("bankingSpeedRamp","bspr");
-	st = addAttribute( aBankingSpeedRamp );er;
-	
-	aBankingStability = nAttr.create("bankingStability", "bst", MFnNumericData::kDouble);	
+	aBankingSpeedRamp = MRampAttribute::createCurveRamp("bankingSpeedRamp", "bspr");
+	st = addAttribute( aBankingSpeedRamp ); mser;
+
+	aBankingStability = nAttr.create("bankingStability", "bst", MFnNumericData::kDouble);
 	nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setDefault(1.0);
-	st = addAttribute(aBankingStability);er;
+	nAttr.setStorable(true);
+	nAttr.setDefault(1.0);
+	st = addAttribute(aBankingStability); mser;
 
-	aBankingWorldUpStability = nAttr.create("bankingWorldStability", "bwst", MFnNumericData::kDouble);	
+	aBankingWorldUpStability = nAttr.create("bankingWorldStability", "bwst",
+	                                        MFnNumericData::kDouble);
 	nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setDefault(1.0);
-	st = addAttribute(aBankingWorldUpStability);er;
+	nAttr.setStorable(true);
+	nAttr.setDefault(1.0);
+	st = addAttribute(aBankingWorldUpStability); mser;
 
 
-	aDoRolling = nAttr.create( "doRolling", "drl",MFnNumericData::kBoolean);
+	aDoRolling = nAttr.create( "doRolling", "drl", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(true);
-	addAttribute( aDoRolling ); 
+	addAttribute( aDoRolling );
 
-	aRollingSpeedRamp = MRampAttribute::createCurveRamp("rollingSpeedRamp","rspr");
-	st = addAttribute( aRollingSpeedRamp );er;
-	
-	aRollingStability = nAttr.create("rollingStability", "rst", MFnNumericData::kDouble);	
+	aRollingSpeedRamp = MRampAttribute::createCurveRamp("rollingSpeedRamp", "rspr");
+	st = addAttribute( aRollingSpeedRamp ); mser;
+
+	aRollingStability = nAttr.create("rollingStability", "rst", MFnNumericData::kDouble);
 	nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setDefault(1.0);
-	st = addAttribute(aRollingStability);er;
-	
-	aRollingWorldUpStability = nAttr.create("rollingWorldStability", "rwst", MFnNumericData::kDouble);	
+	nAttr.setStorable(true);
+	nAttr.setDefault(1.0);
+	st = addAttribute(aRollingStability); mser;
+
+	aRollingWorldUpStability = nAttr.create("rollingWorldStability", "rwst",
+	                                        MFnNumericData::kDouble);
 	nAttr.setKeyable(true);
-    nAttr.setStorable(true);
-    nAttr.setDefault(1.0);
-	st = addAttribute(aRollingWorldUpStability);er;
+	nAttr.setStorable(true);
+	nAttr.setDefault(1.0);
+	st = addAttribute(aRollingWorldUpStability); mser;
 
 
 
 	///////////////////////////////////////////////////////////////////////
 	aCurrentTime = uAttr.create( "currentTime", "ct", MFnUnitAttribute::kTime );
 	uAttr.setStorable(true);
-	st =  addAttribute(aCurrentTime);  er;
+	st =  addAttribute(aCurrentTime);  mser;
 
 	aOutput = tAttr.create("output", "out", MFnData::kVectorArray);
-    tAttr.setStorable(false);
-    tAttr.setReadable(true);
-    tAttr.setWritable(false);
-	st = addAttribute(aOutput);er;
+	tAttr.setStorable(false);
+	tAttr.setReadable(true);
+	tAttr.setWritable(false);
+	st = addAttribute(aOutput); mser;
 
-	st = attributeAffects(aCurrentTime, aOutput );er;
+	st = attributeAffects(aCurrentTime, aOutput ); mser;
 
-	return( MS::kSuccess );
+	return ( MS::kSuccess );
 }
 
 
 
 
-MStatus rollerPP::compute(const MPlug& plug, MDataBlock& data)
+MStatus rollerPP::compute(const MPlug &plug, MDataBlock &data)
 //
 //	Descriptions:
 //		compute output force.
@@ -189,14 +192,14 @@ MStatus rollerPP::compute(const MPlug& plug, MDataBlock& data)
 	MStatus st;
 	//unsigned int counter = 0;
 	MString method("rollerPP::compute");
-	
-	
-	if(!( plug == aOutput ) ) return( MS::kUnknownParameter);
+
+
+	if (!( plug == aOutput ) ) { return ( MS::kUnknownParameter); }
 
 	MObject thisNode = thisMObject();
-	
-	
-	
+
+
+
 
 	MTime cT =  data.inputValue( aCurrentTime).asTime();
 
@@ -211,69 +214,72 @@ MStatus rollerPP::compute(const MPlug& plug, MDataBlock& data)
 	unsigned spl = speed.length();
 	unsigned upl = up.length();
 
-	if ( 
-	(vwl !=  upl) || 
-	(lvl !=  upl) || 
-	(spl !=  upl) ) return MS::kFailure;	
-	
+	if (
+	  (vwl !=  upl) ||
+	  (lvl !=  upl) ||
+	  (spl !=  upl) ) { return MS::kFailure; }
+
 
 	bool doBank = data.inputValue(aDoBanking).asBool();
 	bool doRoll = data.inputValue(aDoRolling).asBool();
-	
+
 	float speedMax = data.inputValue(aSpeedInputMax).asFloat();
 	double bankingStability = data.inputValue(aBankingStability).asDouble();
 	double rollingStability = data.inputValue(aRollingStability).asDouble();
 	double bankingWorldStability = data.inputValue(aBankingWorldUpStability).asDouble();
 	double rollingWorldStability = data.inputValue(aRollingWorldUpStability).asDouble();
-		
+
 
 	MVectorArray  output(vwl);
 
-	if (speedMax == 0.0) speedMax = 1.0;
-	
+	if (speedMax == 0.0) { speedMax = 1.0; }
+
 	MDoubleArray bankSpeedLookup;
-	if (doBank) doRampLookup(thisNode, aBankingSpeedRamp, speed, bankSpeedLookup,0.0f,speedMax,0.0f, 1.0f); 	
+	if (doBank) { doRampLookup(thisNode, aBankingSpeedRamp, speed, bankSpeedLookup, 0.0f, speedMax, 0.0f, 1.0f); }
 
 	MDoubleArray rollSpeedLookup;
-	if (doRoll) st = doRampLookup(thisNode, aRollingSpeedRamp, speed, rollSpeedLookup,0.0f,speedMax,0.0f, 1.0f); 
+	if (doRoll) { st = doRampLookup(thisNode, aRollingSpeedRamp, speed, rollSpeedLookup, 0.0f, speedMax, 0.0f, 1.0f); }
 
 
 	if (doRoll || doBank) {
 
-		// get the view and last view projected onto the plane perpendicular to the up vector 
-		for (unsigned i=0;i<vwl;i++) {
+		// get the view and last view projected onto the plane perpendicular to the up vector
+		for (unsigned i = 0; i < vwl; i++) {
 			MVector &out = 	output[i] ;
 			MVector rollResult = MVector::zero ;
 			MVector bankResult = MVector::zero ;
-		
+
 			if (doRoll) {
-				MVector viewCross = (view[i]^lastView[i]).normal();
-				double dot = viewCross*up[i];	
+				MVector viewCross = (view[i] ^ lastView[i]).normal();
+				double dot = viewCross * up[i];
 				double angle =  view[i].angle(lastView[i]);
-				rollResult = (viewCross * dot * angle * rollSpeedLookup[i]) + (up[i] * rollingStability) + (MVector::yAxis * rollingWorldStability);
+				rollResult = (viewCross * dot * angle * rollSpeedLookup[i]) + (up[i] * rollingStability)
+				             + (MVector::yAxis * rollingWorldStability);
 				rollResult.normalize();
 			}
-		
+
 			if (doBank) {
 				MVector deltaView = view[i] - lastView[i];
-				bankResult = (deltaView * bankSpeedLookup[i]) + (up[i] * bankingStability) + (MVector::yAxis * bankingWorldStability);
+				bankResult = (deltaView * bankSpeedLookup[i]) + (up[i] * bankingStability) +
+				             (MVector::yAxis * bankingWorldStability);
 				bankResult.normalize();
 			}
 
 			out = (rollResult + bankResult);
-			
-			if (doBank && doRoll ) out.normalize();
+
+			if (doBank && doRoll ) { out.normalize(); }
 		}
-	} else {
+	}
+	else {
 		output.copy(up); // pass through
 	}
 
 	MDataHandle hOutput = data.outputValue(aOutput );
 	MFnVectorArrayData fnOutput ;
-	MObject dOutput  = fnOutput .create( output, &st );er;
+	MObject dOutput  = fnOutput .create( output, &st ); mser;
 	hOutput.set( dOutput  );
 	data.setClean( aOutput );
-	
-	return( MS::kSuccess );
+
+	return ( MS::kSuccess );
 }
 

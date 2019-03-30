@@ -65,45 +65,45 @@ MStatus podActuator::initialize () {
 	aInput = tAttr.create("input", "inl",MFnData::kDoubleArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
-	st = addAttribute(aInputLeft);er;
+	st = addAttribute(aInputLeft);mser;
 
 	aInputRight = tAttr.create("inputRight", "inr",MFnData::kDoubleArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
-	st = addAttribute(aInputRight);er;
+	st = addAttribute(aInputRight);mser;
 
 	aInputMin = nAttr.create("inputMin", "imn", MFnNumericData::kFloat);	
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setDefault(0.0);
-	st = addAttribute(aInputMin);er;
+	st = addAttribute(aInputMin);mser;
 	
 	aInputMax = nAttr.create("inputMax", "imx", MFnNumericData::kFloat);	
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setDefault(1.0);
-	st = addAttribute(aInputMax);er;
+	st = addAttribute(aInputMax);mser;
 	
 	aOutputMin = nAttr.create("outputMin", "omn", MFnNumericData::kFloat);	
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setDefault(0.0);
-	st = addAttribute(aOutputMin);er;
+	st = addAttribute(aOutputMin);mser;
 	
 	aOutputMax = nAttr.create("outputMax", "omx", MFnNumericData::kFloat);	
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setDefault(1.0);
-	st = addAttribute(aOutputMax);er;
+	st = addAttribute(aOutputMax);mser;
 
 	aRamp = rAttr.createCurveRamp("ramp","rmp",&st);
-	st = addAttribute(aRamp );er;
+	st = addAttribute(aRamp );mser;
 	
 	aOutput = tAttr.create ("output", "out",MFnData::kDoubleArray);
 	tAttr.setStorable (false);
 	tAttr.setWritable (false);
 	tAttr.setReadable (true);
-	st = addAttribute (aOutput);er;
+	st = addAttribute (aOutput);mser;
 
 	attributeAffects (aInputMin, aOutput);
 	attributeAffects (aInputMax, aOutput);
@@ -127,7 +127,7 @@ MStatus podActuator::compute (const MPlug& plug, MDataBlock& data)
 	
 	//cerr << "about to create ramp attr in compute " << endl;
 //	MObject tob = thisMObject();
-//	MRampAttribute rampAttr(tob, aRamp,  &st);er;
+//	MRampAttribute rampAttr(tob, aRamp,  &st);mser;
 	//cerr << "created ramp attr in compute " << endl;
 	/*
 	MIntArray entries;
@@ -164,7 +164,7 @@ MStatus podActuator::compute (const MPlug& plug, MDataBlock& data)
   //   for (unsigned i = 0;i<nVals;i++) {
   //   	float newVal;
   //   	float f = float(vals[i]);
-  //   	rampAttr.getValueAtPosition(f,newVal, &st);er;
+  //   	rampAttr.getValueAtPosition(f,newVal, &st);mser;
   //   	out.append(double(newVal));
   //   }
   //   //cerr << "done loop" << endl;

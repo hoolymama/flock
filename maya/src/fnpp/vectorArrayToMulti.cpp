@@ -29,7 +29,7 @@ MObject vectorArrayToMulti::aInput;
 MObject vectorArrayToMulti::aOutput;
 
 
-void * vectorArrayToMulti::creator () {
+void *vectorArrayToMulti::creator () {
 	return new vectorArrayToMulti;
 }
 /// Post constructor
@@ -45,46 +45,46 @@ MStatus vectorArrayToMulti::initialize () {
 	MFnTypedAttribute tAttr;
 	MFnNumericAttribute nAttr;
 
-	aInput = tAttr.create("input", "in",MFnData::kVectorArray);
+	aInput = tAttr.create("input", "in", MFnData::kVectorArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 
 
-	aOutput = nAttr.create ("output", "out",MFnNumericData::k3Double);
+	aOutput = nAttr.create ("output", "out", MFnNumericData::k3Double);
 	nAttr.setStorable (false);
 	nAttr.setWritable (false);
 	nAttr.setReadable (true);
 	nAttr.setArray (true);
 	nAttr.setUsesArrayDataBuilder(true);
 
-	
+
 	// add attributes and setup dependencies
 	addAttribute(aInput);
 	addAttribute (aOutput);
 	attributeAffects (aInput, aOutput);
 
-	
-	
+
+
 	return MS::kSuccess;
 }
 
 vectorArrayToMulti::vectorArrayToMulti () {}
 vectorArrayToMulti::~vectorArrayToMulti () {}
 
-MStatus vectorArrayToMulti::compute (const MPlug& plug, MDataBlock& data) 
+MStatus vectorArrayToMulti::compute (const MPlug &plug, MDataBlock &data)
 {
-	if (! (plug == aOutput )) return MS::kUnknownParameter;			
+	if (! (plug == aOutput )) { return MS::kUnknownParameter; }
 	MStatus st = MS::kSuccess;
-	MDataHandle hIn = data.inputValue( aInput, &st );	ert;
+	MDataHandle hIn = data.inputValue( aInput, &st );	msert;
 	MObject objIn  = hIn.data();
 	MVectorArray in = MFnVectorArrayData(objIn).array();
 	const unsigned nLength = in.length();
 
-	MArrayDataHandle  hOutput = data.outputArrayValue( aOutput, &st ); ert;
+	MArrayDataHandle  hOutput = data.outputArrayValue( aOutput, &st ); msert;
 	MArrayDataBuilder bOutput = hOutput.builder();
 
-	for (unsigned i = 0;i< nLength;i++) {
+	for (unsigned i = 0; i < nLength; i++) {
 		MDataHandle h = bOutput.addElement(i);
 
 		double3 &out = h.asDouble3();

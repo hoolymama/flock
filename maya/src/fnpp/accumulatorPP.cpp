@@ -17,12 +17,12 @@ MTypeId accumulatorPP::id(k_accumulatorPP);
 MObject accumulatorPP::aInput;
 MObject accumulatorPP::aOutput;
 
-void * accumulatorPP::creator () {
+void *accumulatorPP::creator () {
 	return new accumulatorPP;
 }
 /// Post constructor
 void
-	accumulatorPP::postConstructor()
+accumulatorPP::postConstructor()
 {
 
 }
@@ -33,17 +33,17 @@ MStatus accumulatorPP::initialize () {
 	MFnNumericAttribute nAttr;
 	MFnTypedAttribute tAttr;
 
-	aInput = tAttr.create ("input", "in",MFnData::kVectorArray);
+	aInput = tAttr.create ("input", "in", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setArray(true);
 	addAttribute(aInput);
 
-	aOutput = tAttr.create ("output", "out",MFnData::kVectorArray);
+	aOutput = tAttr.create ("output", "out", MFnData::kVectorArray);
 	tAttr.setStorable (false);
 	tAttr.setWritable (false);
 	tAttr.setReadable (true);
-	addAttribute (aOutput);	
+	addAttribute (aOutput);
 
 	attributeAffects (aInput, aOutput);
 	return MS::kSuccess;
@@ -52,39 +52,41 @@ MStatus accumulatorPP::initialize () {
 accumulatorPP::accumulatorPP () {}
 accumulatorPP::~accumulatorPP () {}
 
-MStatus accumulatorPP::compute (const MPlug& plug, MDataBlock& data)
+MStatus accumulatorPP::compute (const MPlug &plug, MDataBlock &data)
 {
 
-	if(!(plug == aOutput ) )	return MS::kUnknownParameter;
+	if (!(plug == aOutput ) )	{ return MS::kUnknownParameter; }
 
 
 	MStatus st;
-	MArrayDataHandle hInArray = data.inputArrayValue(aInput, &st);er;
-	const unsigned nStartElement = hInArray.elementIndex();	
-	unsigned canonicalLength = 0;	
+	MArrayDataHandle hInArray = data.inputArrayValue(aInput, &st); mser;
+	const unsigned nStartElement = hInArray.elementIndex();
+	unsigned canonicalLength = 0;
 	MVectorArray out;
-	do{ 
+	do {
 		MDataHandle hIn = hInArray.inputValue(&st);
-		if(st.error()) continue;
+		if (st.error()) { continue; }
 		MObject dIn = hIn.data();
 		MVectorArray in = MFnVectorArrayData(dIn).array();
 		unsigned len = in.length();
-		if (canonicalLength == 0) { 
+		if (canonicalLength == 0) {
 			canonicalLength = len;
 			out.copy(in);
-		} else {
+		}
+		else {
 			if (len == canonicalLength) {
-				for(unsigned i = 0; i < len;i++) out[i] += in[i];
+				for (unsigned i = 0; i < len; i++) { out[i] += in[i]; }
 			}
 		}
 
-	} while(hInArray.next() == MS::kSuccess);
+	}
+	while (hInArray.next() == MS::kSuccess);
 
 	MDataHandle hOut = data.outputValue(aOutput);
 	MFnVectorArrayData fnOut;
 	MObject dOut = fnOut.create(out);
-	hOut.set(dOut);	
+	hOut.set(dOut);
 	data.setClean(plug);
 
-	return MS::kSuccess;															
+	return MS::kSuccess;
 }

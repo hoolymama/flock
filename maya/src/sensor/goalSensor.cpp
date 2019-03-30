@@ -31,7 +31,7 @@ MTypeId     goalSensor::id( k_goalSensor );
 
 MObject     goalSensor::aGoalPositions;
 MObject     goalSensor::aGoalWeights;
-MObject     goalSensor::aDecayRampMax;	
+MObject     goalSensor::aDecayRampMax;
 
 
 goalSensor::goalSensor() {
@@ -41,19 +41,19 @@ goalSensor::~goalSensor() {
 }
 
 
-void* goalSensor::creator()
+void *goalSensor::creator()
 {
 	return new goalSensor();
 }
 
-MStatus goalSensor::compute( const MPlug& plug, MDataBlock& data )
+MStatus goalSensor::compute( const MPlug &plug, MDataBlock &data )
 {
 	MStatus st;
 	MString method("goalSensor::compute");
-	if(plug != aAssessment)	return MS::kUnknownParameter;
+	if (plug != aAssessment)	{ return MS::kUnknownParameter; }
 
-	
-	
+
+
 	short int nodeState = data.inputValue( state).asShort();
 	if (nodeState)  {
 		// just clear any data on the output
@@ -62,49 +62,52 @@ MStatus goalSensor::compute( const MPlug& plug, MDataBlock& data )
 		MFnVectorArrayData fnOut;
 		MObject dOut = fnOut.create(empty);
 		hOut.set(dOut);
-		st = data.setClean( sensor::aAssessment);er;
-		return( MS::kSuccess );
+		st = data.setClean( sensor::aAssessment); mser;
+		return ( MS::kSuccess );
 	}
-	
-	
-	unsigned len = MFnVectorArrayData(data.inputValue(sensor::aPositionPP).data()).length();
-	MVectorArray assessment(len,MVector::zero);
 
-	st = assess(data,assessment);
+
+	unsigned len = MFnVectorArrayData(data.inputValue(sensor::aPositionPP).data()).length();
+	MVectorArray assessment(len, MVector::zero);
+
+	st = assess(data, assessment);
 	// always output an assessment array the same length as points input
-	st = outputAssessment(data,assessment);
-	return st;	
+	st = outputAssessment(data, assessment);
+	return st;
 
 
 }
 
-MStatus goalSensor::assess( MDataBlock& data,  MVectorArray &assessment )
+MStatus goalSensor::assess( MDataBlock &data,  MVectorArray &assessment )
 {
 	MStatus st;
 	MString method(" goalSensor::assess");
 	const double epsilon = 1e-6;
 	// get the 3 main required vector arrays
-	////////////////////////////////////////////////////	
+	////////////////////////////////////////////////////
 	MVectorArray  points;
 	MVectorArray  velocities;
 	MVectorArray  viewVectors;
-	st = getRequiredSensorData(data, points, velocities, viewVectors); 
-	if (st.error()) return MS::kUnknownParameter;
-	
+	st = getRequiredSensorData(data, points, velocities, viewVectors);
+	if (st.error()) { return MS::kUnknownParameter; }
 
 
-	MDoubleArray maxDistPP = MFnDoubleArrayData(data.inputValue(sensor::aMaxDistancePP).data()).array();
-	bool doMaxDistPP = false;	
+
+	MDoubleArray maxDistPP = MFnDoubleArrayData(data.inputValue(
+	                           sensor::aMaxDistancePP).data()).array();
+	bool doMaxDistPP = false;
 	unsigned len = points.length();
-	if ((maxDistPP.length() == len) && data.inputValue(aUseMaxDistancePP).asBool())	 doMaxDistPP = true;
+	if ((maxDistPP.length() == len) && data.inputValue(aUseMaxDistancePP).asBool())	 { doMaxDistPP = true; }
 	////////////////////////////////////////////////////
-	
 
-	MVectorArray goalPositions = MFnVectorArrayData(data.inputValue(aGoalPositions).data()).array();
-	MDoubleArray goalWeights = MFnDoubleArrayData(data.inputValue(aGoalWeights).data()).array();
+
+	MVectorArray goalPositions = MFnVectorArrayData(data.inputValue(
+	                               aGoalPositions).data()).array();
+	MDoubleArray goalWeights = MFnDoubleArrayData(data.inputValue(
+	                             aGoalWeights).data()).array();
 
 	// get double arrays from the other sensor attributes
-	////////////////////////////////////////////////////	
+	////////////////////////////////////////////////////
 	////////////////////////////////////////////////////
 	double fov = data.inputValue(aFov).asDouble();
 	double drp = data.inputValue(aDropOff).asDouble();
@@ -113,61 +116,62 @@ MStatus goalSensor::assess( MDataBlock& data,  MVectorArray &assessment )
 	double radius = data.inputValue(aMaxDistance).asDouble();
 
 	double decayRampMax = data.inputValue(aDecayRampMax).asDouble();
-	
+
 	bool   useRamps = data.inputValue(aUseRampAttenuation).asBool();
 
-	if (acuity == 0.0) return MS::kSuccess;
+	if (acuity == 0.0) { return MS::kSuccess; }
 
-	
+
 	unsigned i;
 
-	MRampAttribute fovRamp( thisMObject() , aFovProfile, &st ); er;
-	MRampAttribute decRamp( thisMObject() , aDecayProfile, &st ); er;
+	MRampAttribute fovRamp( thisMObject() , aFovProfile, &st ); mser;
+	MRampAttribute decRamp( thisMObject() , aDecayProfile, &st ); mser;
 
 	unsigned glen = goalPositions.length();
-	if (glen < 1 ) return MS::kSuccess;
-	if (glen != len ) return MS::kSuccess;
+	if (glen < 1 ) { return MS::kSuccess; }
+	if (glen != len ) { return MS::kSuccess; }
 	bool doGwPP = (goalWeights.length() == glen);
 	double goalWeight = 1;
- 
 
-	for (i=0; i<len; i++ ) {
+
+	for (i = 0; i < len; i++ ) {
 		// unsigned i = i%glen;
-		if (doGwPP) goalWeight = goalWeights[i];
+		if (doGwPP) { goalWeight = goalWeights[i]; }
 
-		if (goalWeight < epsilon) continue;
+		if (goalWeight < epsilon) { continue; }
 		////////////////////////////////
 		MVector signal(MVector::zero);
-		const MVector viewVectorN = viewVectors[i].normal(); 
+		const MVector viewVectorN = viewVectors[i].normal();
 		////////////////////////////////
-		if (doMaxDistPP) radius = maxDistPP[i];
-		const MVector & p =  points[i];
-		const MVector & g = goalPositions[i];
+		if (doMaxDistPP) { radius = maxDistPP[i]; }
+		const MVector &p =  points[i];
+		const MVector &g = goalPositions[i];
 
-		MVector diff = g-p;
+		MVector diff = g - p;
 		double dist = diff.length();
 
-		if (dist > radius) continue;
+		if (dist > radius) { continue; }
 
 
 		double atten;
 		if (useRamps) {
 			atten = attenuateSense(
-				p,viewVectorN,fovRamp,decRamp,
-				g, dist, decayRampMax
-				);
-		} else {
+			          p, viewVectorN, fovRamp, decRamp,
+			          g, dist, decayRampMax
+			        );
+		}
+		else {
 			atten = attenuateSense(
-				p,viewVectorN,fov,drp,dec,
-				g,dist,radius
-				);
+			          p, viewVectorN, fov, drp, dec,
+			          g, dist, radius
+			        );
 		}
 
 		if (fabs(atten) > epsilon) {
 			signal = diff.normal() * atten * acuity * goalWeight ;
-			assessment.set(signal,i);
+			assessment.set(signal, i);
 		}
-	}	
+	}
 
 	return st;
 
@@ -179,31 +183,32 @@ MStatus goalSensor::assess( MDataBlock& data,  MVectorArray &assessment )
 MStatus goalSensor::initialize()
 {
 	MStatus st;
-	
+
 	MFnTypedAttribute tAttr;
 	MFnNumericAttribute nAttr;
-	
+
 	inheritAttributesFrom("sensor");
 
 
 
 
-	aDecayRampMax	= nAttr.create("decayRampMax","drmx", MFnNumericData::kDouble, 1, &st); er;
+	aDecayRampMax	= nAttr.create("decayRampMax", "drmx", MFnNumericData::kDouble, 1, &st);
+	mser;
 	nAttr.setHidden(false);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setWritable(true);
-	st = addAttribute(aDecayRampMax); er;
+	st = addAttribute(aDecayRampMax); mser;
 
-	aGoalPositions = tAttr.create("goalPositions", "gpos", MFnData::kVectorArray, &st ); er;
+	aGoalPositions = tAttr.create("goalPositions", "gpos", MFnData::kVectorArray, &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
-	st = addAttribute(aGoalPositions); er;
+	st = addAttribute(aGoalPositions); mser;
 
-	aGoalWeights = tAttr.create("goalWeights", "gwt", MFnData::kDoubleArray, &st ); er;
+	aGoalWeights = tAttr.create("goalWeights", "gwt", MFnData::kDoubleArray, &st ); mser;
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
-	st = addAttribute(aGoalWeights); er;
+	st = addAttribute(aGoalWeights); mser;
 
 
 
@@ -211,9 +216,9 @@ MStatus goalSensor::initialize()
 
 
 
-	attributeAffects( aGoalWeights       , aAssessment	);  
-	attributeAffects( aDecayRampMax       , aAssessment	);  
-	attributeAffects( aGoalPositions	, aAssessment	);  
+	attributeAffects( aGoalWeights       , aAssessment	);
+	attributeAffects( aDecayRampMax       , aAssessment	);
+	attributeAffects( aGoalPositions	, aAssessment	);
 
 
 	return MS::kSuccess;

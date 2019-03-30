@@ -15,7 +15,7 @@
 
 
 //	static
-void* delightOutputFlock::creator()
+void *delightOutputFlock::creator()
 {
 	return new delightOutputFlock();
 }
@@ -26,15 +26,15 @@ MSyntax delightOutputFlock::newSyntax()
 
 	syn.setObjectType(MSyntax::kSelectionList, 0, 1);
 	syn.useSelectionAsDefault(false);
-	
+
 	return syn;
 }
 
-MStatus delightOutputFlock::doIt( const MArgList& args )
+MStatus delightOutputFlock::doIt( const MArgList &args )
 {
 	MStatus st;
 	MString method("delightOutputFlock::doIt");
-	
+
 	// get the node if one is specified
 	MSelectionList list;
 	MArgDatabase  argData(syntax(), args);
@@ -43,29 +43,29 @@ MStatus delightOutputFlock::doIt( const MArgList& args )
 	MObject  rigInstObject;
 	MDagPath rigInstDagPath;
 	MFnDependencyNode rigInstFn;
-	flockShape * flockShapeNode = 0;
+	flockShape *flockShapeNode = 0;
 	MString fullPathName;
-	
-	for (;! iter.isDone() ; iter.next()) {
+
+	for (; ! iter.isDone() ; iter.next()) {
 		iter.getDependNode( rigInstObject );
 		rigInstFn.setObject( rigInstObject );
 		if (rigInstFn.typeId() == flockShape::id) {
 			iter.getDagPath( rigInstDagPath );
 			fullPathName = rigInstDagPath.fullPathName();
-			flockShapeNode =  (flockShape*)rigInstFn.userNode();
+			flockShapeNode =  (flockShape *)rigInstFn.userNode();
 			break;
 		}
 	}
-	
+
 	if (!(flockShapeNode)) {
 		displayError("No flockShape node specified");
 		return MS::kUnknownParameter;
 	}
 
-	st = flockShapeNode->removeCache();	er;
-	st = flockShapeNode->addSlice(1.0f);er;
-	st = flockShapeNode->emitCache();er;
-	st = flockShapeNode->removeCache();	er;
+	st = flockShapeNode->removeCache();	mser;
+	st = flockShapeNode->addSlice(1.0f); mser;
+	st = flockShapeNode->emitCache(); mser;
+	st = flockShapeNode->removeCache();	mser;
 
 	return MS::kSuccess;
 }

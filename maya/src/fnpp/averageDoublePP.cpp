@@ -7,8 +7,8 @@
 
 #include <maya/MFnNumericAttribute.h>
 
-#include <maya/MDoubleArray.h> 
-#include <maya/MAnimControl.h> 
+#include <maya/MDoubleArray.h>
+#include <maya/MAnimControl.h>
 
 #include "errorMacros.h"
 #include "averageDoublePP.h"
@@ -16,19 +16,19 @@
 
 
 MTypeId averageDoublePP::id(k_averageDoublePP);
-MObject averageDoublePP::aInput;	  
-MObject averageDoublePP::aFrames ;   
+MObject averageDoublePP::aInput;
+MObject averageDoublePP::aFrames ;
 MObject averageDoublePP::aOutput;
 MObject averageDoublePP::aCurrentTime;
 MObject averageDoublePP::aStartTime;
 
 averageDoublePP::averageDoublePP():
-m_q()
+	m_q()
 {	m_lastTimeIEvaluated = MAnimControl::currentTime(); }
 
 averageDoublePP::~averageDoublePP() {}
 
-void * averageDoublePP::creator () {
+void *averageDoublePP::creator () {
 	return new averageDoublePP;
 }
 
@@ -51,34 +51,34 @@ MStatus averageDoublePP::initialize () {
 	MFnNumericAttribute nAttr;
 	MFnUnitAttribute	uAttr;
 
-	aInput = tAttr.create("input", "in",MFnData::kDoubleArray);
+	aInput = tAttr.create("input", "in", MFnData::kDoubleArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
-	st =  addAttribute(aInput);  er;
-	
-	aFrames = nAttr.create("frames", "fms",MFnNumericData::kInt);
+	st =  addAttribute(aInput);  mser;
+
+	aFrames = nAttr.create("frames", "fms", MFnNumericData::kInt);
 	nAttr.setWritable(true);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setDefault(3);
-	st =  addAttribute(aFrames);  er;
-	
+	st =  addAttribute(aFrames);  mser;
+
 	aCurrentTime = uAttr.create( "currentTime", "ct", MFnUnitAttribute::kTime );
 	uAttr.setStorable(true);
-	st =  addAttribute(aCurrentTime);  er;
+	st =  addAttribute(aCurrentTime);  mser;
 
 	aStartTime = uAttr.create( "startTime", "st", MFnUnitAttribute::kTime );
 	uAttr.setStorable(true);
-	st =  addAttribute(aStartTime);  er;
-	
-	aOutput = tAttr.create ("output", "out",MFnData::kDoubleArray);
+	st =  addAttribute(aStartTime);  mser;
+
+	aOutput = tAttr.create ("output", "out", MFnData::kDoubleArray);
 	tAttr.setStorable (false);
 	tAttr.setWritable (false);
 	tAttr.setReadable (true);
-	st =  addAttribute(aOutput);  er;
-	
+	st =  addAttribute(aOutput);  mser;
+
 	attributeAffects (aInput, aOutput);
 	attributeAffects (aFrames, aOutput);
 	attributeAffects (aCurrentTime, aOutput);
@@ -91,9 +91,9 @@ MStatus averageDoublePP::initialize () {
 }
 
 
-MStatus averageDoublePP::compute(const MPlug& plug, MDataBlock& data) {
+MStatus averageDoublePP::compute(const MPlug &plug, MDataBlock &data) {
 
-	if (!(plug == aOutput)) 	return MS::kUnknownParameter;			
+	if (!(plug == aOutput)) 	{ return MS::kUnknownParameter; }
 	MStatus st;
 
 	MTime sT =  data.inputValue( aStartTime).asTime();
@@ -105,9 +105,9 @@ MStatus averageDoublePP::compute(const MPlug& plug, MDataBlock& data) {
 
 
 	int frames = data.inputValue(aFrames).asInt();
-	if (frames < 1) frames=1;
+	if (frames < 1) { frames = 1; }
 
-		// Get inputs
+	// Get inputs
 	MDataHandle hIn = data.inputValue(aInput);
 	MObject objIn = hIn.data();
 	MDoubleArray in = MFnDoubleArrayData(objIn).array();
@@ -116,10 +116,11 @@ MStatus averageDoublePP::compute(const MPlug& plug, MDataBlock& data) {
 
 	MDoubleArray out(len);
 
-	if (dt < 0 || cT<sT) {
+	if (dt < 0 || cT < sT) {
 		// cerr << "time backwards or before start" << endl;
 		m_q.clear();
-	} else {
+	}
+	else {
 		if (m_q.size() > 0) {
 			if (m_q.front().length() != len) {
 				// cerr << "clearing because length difference" << endl;
@@ -133,7 +134,7 @@ MStatus averageDoublePP::compute(const MPlug& plug, MDataBlock& data) {
 		if (m_q.size() > frames) {
 			m_q.pop_back();
 		}
- 
+
 		if (m_q.size() > 0) {
 			const double recip =  1.0 / m_q.size();
 
@@ -158,9 +159,9 @@ MStatus averageDoublePP::compute(const MPlug& plug, MDataBlock& data) {
 
 	MDataHandle hOut = data.outputValue(aOutput);
 	MFnDoubleArrayData fnOut;
-	MObject objOut = fnOut.create(out);		
+	MObject objOut = fnOut.create(out);
 	hOut.set(objOut);
-	data.setClean(plug);				
+	data.setClean(plug);
 	return MS::kSuccess;
 
 

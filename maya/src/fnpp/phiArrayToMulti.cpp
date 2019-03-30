@@ -38,7 +38,7 @@ MObject phiArrayToMulti::aOutputZ;
 
 
 
-void * phiArrayToMulti::creator () {
+void *phiArrayToMulti::creator () {
 	return new phiArrayToMulti;
 }
 /// Post constructor
@@ -57,7 +57,7 @@ MStatus phiArrayToMulti::initialize () {
 	MFnUnitAttribute uAttr;
 
 
-	aInput = tAttr.create("input", "in",MFnData::kVectorArray);
+	aInput = tAttr.create("input", "in", MFnData::kVectorArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
@@ -72,21 +72,21 @@ MStatus phiArrayToMulti::initialize () {
 	eAttr.addField("zyx",  MEulerRotation::kZYX);
 	eAttr.setKeyable(true);
 	eAttr.setHidden(false);
-	st = addAttribute( aRotateOrder );er;
+	st = addAttribute( aRotateOrder ); mser;
 
 
 	// Joint Rotation output
 	///////////////////////////////////////////////////////////////////////
-	aOutputX = uAttr.create("outputX","orox", MFnUnitAttribute::kAngle);
-	aOutputY = uAttr.create("outputY","oroy", MFnUnitAttribute::kAngle);
-	aOutputZ = uAttr.create("outputZ","oroz", MFnUnitAttribute::kAngle);
-	aOutput = nAttr.create("output","orot",aOutputX, aOutputY, aOutputZ);
+	aOutputX = uAttr.create("outputX", "orox", MFnUnitAttribute::kAngle);
+	aOutputY = uAttr.create("outputY", "oroy", MFnUnitAttribute::kAngle);
+	aOutputZ = uAttr.create("outputZ", "oroz", MFnUnitAttribute::kAngle);
+	aOutput = nAttr.create("output", "orot", aOutputX, aOutputY, aOutputZ);
 	nAttr.setReadable( true );
 	nAttr.setStorable( false );
 	nAttr.setArray( true );
 	nAttr.setUsesArrayDataBuilder( true );
-	st = addAttribute( aOutput );er;
-	
+	st = addAttribute( aOutput ); mser;
+
 
 
 	// add attributes and setup dependencies
@@ -101,31 +101,32 @@ MStatus phiArrayToMulti::initialize () {
 	attributeAffects (aRotateOrder, aOutputX);
 	attributeAffects (aRotateOrder, aOutputY);
 	attributeAffects (aRotateOrder, aOutputZ);
-	
-	
+
+
 	return MS::kSuccess;
 }
 
 phiArrayToMulti::phiArrayToMulti () {}
 phiArrayToMulti::~phiArrayToMulti () {}
 
-MStatus phiArrayToMulti::compute (const MPlug& plug, MDataBlock& data) 
+MStatus phiArrayToMulti::compute (const MPlug &plug, MDataBlock &data)
 {
-	if (! (plug == aOutput ) ) return MS::kUnknownParameter;	
+	if (! (plug == aOutput ) ) { return MS::kUnknownParameter; }
 	// cerr << 	"phiArrayToMulti::compute: plug="	 << plug.name() << endl;
 	MStatus st = MS::kSuccess;
-	MDataHandle hIn = data.inputValue( aInput, &st );	ert;
+	MDataHandle hIn = data.inputValue( aInput, &st );	msert;
 	MObject objIn  = hIn.data();
 	MVectorArray in = MFnVectorArrayData(objIn).array();
 	const unsigned nLength = in.length();
 
-	MArrayDataHandle  hOutput = data.outputArrayValue( aOutput, &st ); ert;
+	MArrayDataHandle  hOutput = data.outputArrayValue( aOutput, &st ); msert;
 	MArrayDataBuilder bOutput = hOutput.builder();
 
 
-  MEulerRotation::RotationOrder order = MEulerRotation::RotationOrder(data.inputValue(aRotateOrder).asShort());
+	MEulerRotation::RotationOrder order = MEulerRotation::RotationOrder(data.inputValue(
+	                                        aRotateOrder).asShort());
 
-	for (unsigned i = 0;i< nLength;i++) {
+	for (unsigned i = 0; i < nLength; i++) {
 
 		MEulerRotation euler = mayaMath::phiToEuler(in[i], order);
 

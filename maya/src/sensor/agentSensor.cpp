@@ -27,9 +27,9 @@
 
 //
 MTypeId     agentSensor::id( k_agentSensor );
-		
 
-MObject     agentSensor::aPool;				// 
+
+MObject     agentSensor::aPool;				//
 MObject     agentSensor::aMaxNeighbors;
 
 agentSensor::agentSensor() {
@@ -39,20 +39,20 @@ agentSensor::~agentSensor() {
 }
 
 
-void* agentSensor::creator()
+void *agentSensor::creator()
 {
 	return new agentSensor();
 }
 
-MStatus agentSensor::compute( const MPlug& plug, MDataBlock& data )
+MStatus agentSensor::compute( const MPlug &plug, MDataBlock &data )
 
 {
-	
+
 	MStatus st;
 	MString method("agentSensor::compute");
-	if(plug != aAssessment)	return MS::kUnknownParameter;
+	if (plug != aAssessment)	{ return MS::kUnknownParameter; }
 
-		
+
 	short int nodeState = data.inputValue( state).asShort();
 
 	if (nodeState)  {
@@ -63,67 +63,69 @@ MStatus agentSensor::compute( const MPlug& plug, MDataBlock& data )
 		MFnVectorArrayData fnOut;
 		MObject dOut = fnOut.create(empty);
 		hOut.set(dOut);
-		st = data.setClean( sensor::aAssessment);er;
-		return( MS::kSuccess );
+		st = data.setClean( sensor::aAssessment); mser;
+		return ( MS::kSuccess );
 	}
-	
-	
-	
+
+
+
 	// always output an assessment array the same length as points input
 	unsigned len = MFnVectorArrayData(data.inputValue(sensor::aPositionPP).data()).length();
-	MVectorArray assessment(len,MVector::zero);		
-	
-	
+	MVectorArray assessment(len, MVector::zero);
+
+
 	// get the pool
 	////////////////////////////////////////////////////
-	poolData * pd = 0;
+	poolData *pd = 0;
 	MDataHandle h = data.inputValue(agentSensor::aPool, &st);
 	if (! st.error()) {
 		MObject d = h.data();
-		MFnPluginData fn( d , &st); 
+		MFnPluginData fn( d , &st);
 		if (! st.error()) {
-			pd =  (poolData*)fn.data();
-			if ( pd->size() ) st = assess(data, pd, assessment);
+			pd =  (poolData *)fn.data();
+			if ( pd->size() ) { st = assess(data, pd, assessment); }
 		}
 	}
 	////////////////////////////////////////////////////
-	st = sensor::outputAssessment(data,assessment);
+	st = sensor::outputAssessment(data, assessment);
 	return st;
 
 }
 
-MStatus agentSensor::assess( MDataBlock& data, const poolData * pd , MVectorArray &assessment)
+MStatus agentSensor::assess( MDataBlock &data, const poolData *pd ,
+                             MVectorArray &assessment)
 {
 	return MS::kSuccess;
 }
 
 MStatus agentSensor::initialize()
 
-//		
+//
 {
 	MStatus st;
 
 	MFnTypedAttribute tAttr;
 	MFnNumericAttribute nAttr;
-	
+
 	//IN//////////////////////////////////////
 	inheritAttributesFrom("sensor");
-	
-	aPool = tAttr.create("pool", "pl", poolData::id ) ; er;
+
+	aPool = tAttr.create("pool", "pl", poolData::id ) ; mser;
 	tAttr.setStorable(false);
 	tAttr.setCached(false);
-	st = addAttribute( aPool ); er;
-	
-	aMaxNeighbors	= nAttr.create("maxNeighbors","mxn", MFnNumericData::kShort, 5, &st ); er;
+	st = addAttribute( aPool ); mser;
+
+	aMaxNeighbors	= nAttr.create("maxNeighbors", "mxn", MFnNumericData::kShort, 5, &st );
+	mser;
 	nAttr.setHidden(false);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setWritable(true);
-	st = addAttribute(aMaxNeighbors); er;
+	st = addAttribute(aMaxNeighbors); mser;
 
 
-	attributeAffects( aPool				, aAssessment	);  
-	attributeAffects( aMaxNeighbors 	, aAssessment	);  
+	attributeAffects( aPool				, aAssessment	);
+	attributeAffects( aMaxNeighbors 	, aAssessment	);
 
 	return MS::kSuccess;
 }

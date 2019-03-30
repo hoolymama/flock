@@ -34,7 +34,7 @@ splinePool::~splinePool() {
 	m_pd = 0;
 }
 
-void * splinePool::creator()
+void *splinePool::creator()
 {
 	return new splinePool();
 }
@@ -44,9 +44,9 @@ MStatus splinePool::initialize()
 //
 {
 	MStatus st;
-	
+
 	MFnTypedAttribute tAttr;
-	
+
 	// GEOMETRY
 	aInput = tAttr.create("input", "in", MFnData::kDynSweptGeometry);
 	tAttr.setReadable(false);
@@ -54,50 +54,50 @@ MStatus splinePool::initialize()
 	tAttr.setIndexMatters(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
 	tAttr.setCached(false);
-	st = addAttribute( aInput ); er
-		
-		
+	st = addAttribute( aInput ); mser
+
+
 	aOutput = tAttr.create("output", "out", splinePoolData::id);
 	tAttr.setReadable(true);
 	tAttr.setStorable(false);
 	tAttr.setCached(false);
-	
+
 	addAttribute(aOutput);
-	
-	st = attributeAffects(aInput, aOutput ); er;
-	
+
+	st = attributeAffects(aInput, aOutput ); mser;
+
 	return MS::kSuccess;
 }
 
 
-MStatus splinePool::compute( const MPlug& plug, MDataBlock& data )
+MStatus splinePool::compute( const MPlug &plug, MDataBlock &data )
 
 {
-	if( plug != aOutput) return( MS::kUnknownParameter );
-	
- 	MStatus st;
-	
+	if ( plug != aOutput) { return ( MS::kUnknownParameter ); }
+
+	MStatus st;
+
 	MArrayDataHandle hIn = data.inputArrayValue( aInput );
-	
+
 	m_pd->create(hIn);
-	
+
 	////////////////////////////////////////////////////////////////
-	
+
 	MDataHandle hOutput = data.outputValue(aOutput);
 	MFnPluginData fnOut;
 	MTypeId kdid(splinePoolData::id);
-	
-  	MObject dOut = fnOut.create(kdid , &st );er;
-  	splinePoolData* outTree = (splinePoolData*)fnOut.data(&st);er;
-  	// cerr << "data is copied here in preparation for the output " << endl;
+
+	MObject dOut = fnOut.create(kdid , &st ); mser;
+	splinePoolData *outTree = (splinePoolData *)fnOut.data(&st); mser;
+	// cerr << "data is copied here in preparation for the output " << endl;
 	if (m_pd) {
-  		*outTree=(*m_pd);
-	} 
-  	//// cerr << "just setting the output data now" << endl;
-  	MDataHandle outputHandle = data.outputValue(splinePool::aOutput, &st ); er;
-  	st = outputHandle.set(outTree); er;
-  	data.setClean( plug );
-	
+		*outTree = (*m_pd);
+	}
+	//// cerr << "just setting the output data now" << endl;
+	MDataHandle outputHandle = data.outputValue(splinePool::aOutput, &st ); mser;
+	st = outputHandle.set(outTree); mser;
+	data.setClean( plug );
+
 	return MS::kSuccess;
 }
 

@@ -21,12 +21,12 @@ MObject addPP::aOutputV;
 MObject addPP::aCompute;
 
 
-void * addPP::creator () {
+void *addPP::creator () {
 	return new addPP;
 }
 /// Post constructor
 void
-	addPP::postConstructor()
+addPP::postConstructor()
 {
 
 }
@@ -55,19 +55,19 @@ MStatus addPP::initialize () {
 	nAttr.setStorable (true);
 	nAttr.setWritable(true);
 	nAttr.setKeyable(true);
-	nAttr.setDefault(0.0,0.0,0.0);
+	nAttr.setDefault(0.0, 0.0, 0.0);
 
-	aOutputD = tAttr.create ("outputD", "outd",MFnData::kDoubleArray);
+	aOutputD = tAttr.create ("outputD", "outd", MFnData::kDoubleArray);
 	tAttr.setStorable (false);
 	tAttr.setWritable (false);
 	tAttr.setReadable (true);
 
-	aOutputV = tAttr.create ("outputV", "outv",MFnData::kVectorArray);
+	aOutputV = tAttr.create ("outputV", "outv", MFnData::kVectorArray);
 	tAttr.setStorable (false);
 	tAttr.setWritable (false);
 	tAttr.setReadable (true);
 	/*
-	aCompute = eAttr.create( "compute", "cpt", COMPUTE_SUCCESS  , &st ); ert;
+	aCompute = eAttr.create( "compute", "cpt", COMPUTE_SUCCESS  , &st ); msert;
 	eAttr.addField( "success",	 COMPUTE_SUCCESS);
 	eAttr.addField( "badInput",	 COMPUTE_INVALID_INPUT_DATA);
 	eAttr.addField( "badOutput", COMPUTE_INVALID_OUTPUT_PLUG);
@@ -96,33 +96,33 @@ MStatus addPP::initialize () {
 addPP::addPP () {}
 addPP::~addPP () {}
 
-MStatus addPP::compute (const MPlug& plug, MDataBlock& data)
+MStatus addPP::compute (const MPlug &plug, MDataBlock &data)
 {
 
 	// cerr << "in addPP compute" << endl;
-	if(!((plug == aOutputD ) || (plug == aOutputV)))	return MS::kUnknownParameter;
+	if (!((plug == aOutputD ) || (plug == aOutputV)))	{ return MS::kUnknownParameter; }
 
 	MVector vD = data.inputValue(aDefault).asVector();
 
 	MStatus st;
-	MArrayDataHandle hInArray = data.inputArrayValue(aInput, &st);er;
-	const unsigned nStartElement = hInArray.elementIndex();	
+	MArrayDataHandle hInArray = data.inputArrayValue(aInput, &st); mser;
+	const unsigned nStartElement = hInArray.elementIndex();
 	MFn::Type type = MFn::kInvalid;
-	unsigned nLength = 0;	
+	unsigned nLength = 0;
 	bool gotData = false;
 
-	if(plug == aOutputD )  {
+	if (plug == aOutputD )  {
 		double defVal = vD.x;
 		MDoubleArray out;
 		MDataHandle hOut = data.outputValue(aOutputD);
 		do
-		{ 
+		{
 			MDataHandle hIn = hInArray.inputValue(&st);
-			if(st.error()) continue;
+			if (st.error()) { continue; }
 
 			MObject objIn = hIn.data();
-			if(objIn.hasFn(MFn::kDoubleArrayData))
-			{	
+			if (objIn.hasFn(MFn::kDoubleArrayData))
+			{
 				MDoubleArray in = MFnDoubleArrayData(objIn).array();
 
 				unsigned inLength = in.length();
@@ -131,31 +131,34 @@ MStatus addPP::compute (const MPlug& plug, MDataBlock& data)
 					gotData = true;
 					out.copy(in);
 					// add in the default val
-					for(unsigned i = 0; i < nLength;i++) out[i] += defVal;
-				} else {
+					for (unsigned i = 0; i < nLength; i++) { out[i] += defVal; }
+				}
+				else {
 					if (nLength == inLength) {
-						for(unsigned i = 0; i < nLength;i++) out[i] += in[i];
+						for (unsigned i = 0; i < nLength; i++) { out[i] += in[i]; }
 					}
 				}
 
-			} 
-		} while(hInArray.next() == MS::kSuccess);
-		
+			}
+		}
+		while (hInArray.next() == MS::kSuccess);
+
 		MFnDoubleArrayData fnOut;
 		MObject objOut = fnOut.create(out);
 		hOut.set(objOut);
 
-	} else if (plug == aOutputV )  {
+	}
+	else if (plug == aOutputV )  {
 		MVectorArray out;
 		MDataHandle hOut = data.outputValue(aOutputV);
 		do
-		{ 
+		{
 			MDataHandle hIn = hInArray.inputValue(&st);
-			if(st.error()) continue;
+			if (st.error()) { continue; }
 
 			MObject objIn = hIn.data();
-			if(objIn.hasFn(MFn::kVectorArrayData))
-			{	
+			if (objIn.hasFn(MFn::kVectorArrayData))
+			{
 				MVectorArray in = MFnVectorArrayData(objIn).array();
 
 				unsigned inLength = in.length();
@@ -163,21 +166,23 @@ MStatus addPP::compute (const MPlug& plug, MDataBlock& data)
 					nLength = inLength;
 					gotData = true;
 					out.copy(in);
-					for(unsigned i = 0; i < nLength;i++) out[i] += vD;
-				} else {
+					for (unsigned i = 0; i < nLength; i++) { out[i] += vD; }
+				}
+				else {
 					if (nLength == inLength) {
-						for(unsigned i = 0; i < nLength;i++) out[i] += in[i];
+						for (unsigned i = 0; i < nLength; i++) { out[i] += in[i]; }
 					}
 				}
-			} 
-		} while(hInArray.next() == MS::kSuccess);
+			}
+		}
+		while (hInArray.next() == MS::kSuccess);
 		MFnVectorArrayData fnOut;
 		MObject objOut = fnOut.create(out);
-		hOut.set(objOut);	
+		hOut.set(objOut);
 	}
 
 	data.setClean(plug);
 	// cerr << "out addPP compute" << endl;
 
-	return MS::kSuccess;															
+	return MS::kSuccess;
 }

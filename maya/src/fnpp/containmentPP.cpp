@@ -9,8 +9,8 @@
 #include <maya/MFnMesh.h>
 
 #include <maya/MFnNumericAttribute.h>
-#include <maya/MVectorArray.h> 
-#include <maya/MDoubleArray.h> 
+#include <maya/MVectorArray.h>
+#include <maya/MDoubleArray.h>
 
 #include "errorMacros.h"
 #include "containmentPP.h"
@@ -20,17 +20,17 @@
 MTypeId containmentPP::id(k_containmentPP);
 
 MObject containmentPP::aPosition;
-MObject containmentPP::aMesh;	
+MObject containmentPP::aMesh;
 MObject containmentPP::aSide ;
-MObject containmentPP::aOutput;	  
+MObject containmentPP::aOutput;
 
-void * containmentPP::creator () {
+void *containmentPP::creator () {
 	return new containmentPP;
 }
 
 /// Post constructor
 void
-	containmentPP::postConstructor()
+containmentPP::postConstructor()
 {
 	MPxNode::postConstructor();
 
@@ -47,7 +47,7 @@ MStatus containmentPP::initialize () {
 	MFnNumericAttribute nAttr;
 	MFnEnumAttribute eAttr;
 
-	aPosition = tAttr.create("positions", "pos",MFnData::kVectorArray);
+	aPosition = tAttr.create("positions", "pos", MFnData::kVectorArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
@@ -55,18 +55,18 @@ MStatus containmentPP::initialize () {
 	tAttr.setCached(false);
 	addAttribute(aPosition);
 
-	aMesh = tAttr.create( "mesh", "msh", MFnData::kMesh, &st );er
+	aMesh = tAttr.create( "mesh", "msh", MFnData::kMesh, &st ); mser
 	tAttr.setReadable(false);
-	st = addAttribute(aMesh);	er;
-	
+	st = addAttribute(aMesh);	mser;
+
 	aSide = eAttr.create( "side", "sd", containmentPP::kInside);
 	eAttr.addField("inside", containmentPP::kInside);
 	eAttr.addField("outside", containmentPP::kOutside);
 	eAttr.setKeyable(true);
 	eAttr.setHidden(false);
-	st = addAttribute( aSide );er;
+	st = addAttribute( aSide ); mser;
 
-	aOutput = tAttr.create ("output", "out",MFnData::kDoubleArray);
+	aOutput = tAttr.create ("output", "out", MFnData::kDoubleArray);
 	tAttr.setStorable (false);
 	tAttr.setWritable (false);
 	tAttr.setReadable (true);
@@ -82,15 +82,15 @@ MStatus containmentPP::initialize () {
 containmentPP::containmentPP () {}
 containmentPP::~containmentPP () {}
 
-MStatus containmentPP::compute(const MPlug& plug, MDataBlock& data) {
+MStatus containmentPP::compute(const MPlug &plug, MDataBlock &data) {
 	//DBG;
-	if (!(plug == aOutput)) 	return MS::kUnknownParameter;			
+	if (!(plug == aOutput)) 	{ return MS::kUnknownParameter; }
 
 	MStatus st;
 	MFn::Type type = MFn::kInvalid;
 	//DBG;
 
-		// Get inputs
+	// Get inputs
 	MDataHandle hIn = data.inputValue(aPosition);
 	MObject dIn = hIn.data();
 	MVectorArray in = MFnVectorArrayData(dIn).array();
@@ -104,10 +104,10 @@ MStatus containmentPP::compute(const MPlug& plug, MDataBlock& data) {
 	MDoubleArray out(len, 0.0);
 	//DBG;
 	if (len > 0) {
- 		MObject dMesh =  data.inputValue(aMesh).asMeshTransformed();
-    	MFnMesh meshFn(dMesh, &st);
-    	if (st.error()) return MS::kUnknownParameter;
-	////DBG;
+		MObject dMesh =  data.inputValue(aMesh).asMeshTransformed();
+		MFnMesh meshFn(dMesh, &st);
+		if (st.error()) { return MS::kUnknownParameter; }
+		////DBG;
 
 		MMeshIsectAccelParams ap = meshFn.autoUniformGridParams();
 
@@ -117,37 +117,37 @@ MStatus containmentPP::compute(const MPlug& plug, MDataBlock& data) {
 		bool hit;
 		// bool isInside = false;
 		MFloatVector rayDirection(MFloatVector::yAxis);
-	////DBG;
-		for (int i = 0;i<len;i++) {
-			MFloatPoint rayOrigin(in[i].x,in[i].y,in[i].z);
+		////DBG;
+		for (int i = 0; i < len; i++) {
+			MFloatPoint rayOrigin(in[i].x, in[i].y, in[i].z);
 
 			hit = meshFn.allIntersections(
-				rayOrigin,rayDirection,
-				0,0,false,MSpace::kWorld,99999999.0f,false,
-				&ap,false,hitPoints,0,0,0,0,0);
+			        rayOrigin, rayDirection,
+			        0, 0, false, MSpace::kWorld, 99999999.0f, false,
+			        &ap, false, hitPoints, 0, 0, 0, 0, 0);
 			if (hit) {
 				if (hitPoints.length() % 2 == 1 ) {
 					out[i] = 1.0;
 				}
 			}
 		}
-		if (side ==containmentPP::kOutside) {
+		if (side == containmentPP::kOutside) {
 			for (int i = 0; i < len; ++i)
 			{
 				out[i] = 1.0 - out[i];
 			}
 		}
 	}
- 	//DBG;
+	//DBG;
 
 
 
 
 	MDataHandle hOut = data.outputValue(aOutput);
 	MFnDoubleArrayData fnOut;
-	MObject objOut = fnOut.create(out);		
+	MObject objOut = fnOut.create(out);
 	hOut.set(objOut);
-	data.setClean(plug);				
+	data.setClean(plug);
 	return MS::kSuccess;
 
 

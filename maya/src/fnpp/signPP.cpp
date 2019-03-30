@@ -2,7 +2,7 @@
 #include <maya/MFnDoubleArrayData.h>
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MFnNumericAttribute.h>
-#include <maya/MDoubleArray.h> 
+#include <maya/MDoubleArray.h>
 #include "errorMacros.h"
 #include "signPP.h"
 #include "jMayaIds.h"
@@ -16,13 +16,13 @@ MObject signPP::aOutput;
 
 
 
-void * signPP::creator () {
+void *signPP::creator () {
 	return new signPP;
 }
 
 /// Post constructor
 void
-	signPP::postConstructor()
+signPP::postConstructor()
 {
 	MPxNode::postConstructor();
 
@@ -39,7 +39,7 @@ MStatus signPP::initialize () {
 	MFnNumericAttribute nAttr;
 
 
-	aInput = tAttr.create("input", "in",MFnData::kDoubleArray);
+	aInput = tAttr.create("input", "in", MFnData::kDoubleArray);
 	tAttr.setWritable(true);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
@@ -49,21 +49,21 @@ MStatus signPP::initialize () {
 
 
 
-	aOutputIfPositive = nAttr.create("outputIfPositive", "oip", MFnNumericData::kDouble);	
+	aOutputIfPositive = nAttr.create("outputIfPositive", "oip", MFnNumericData::kDouble);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setDefault(1.0);
-	st = addAttribute(aOutputIfPositive);er;
-	
-	
-	aOutputIfNegative = nAttr.create("outputIfNegative", "oin", MFnNumericData::kDouble);	
+	st = addAttribute(aOutputIfPositive); mser;
+
+
+	aOutputIfNegative = nAttr.create("outputIfNegative", "oin", MFnNumericData::kDouble);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);
 	nAttr.setDefault(-1.0);
-	st = addAttribute(aOutputIfNegative);er;
+	st = addAttribute(aOutputIfNegative); mser;
 
 
-	aOutput = tAttr.create ("output", "out",MFnData::kDoubleArray);
+	aOutput = tAttr.create ("output", "out", MFnData::kDoubleArray);
 	tAttr.setStorable (false);
 	tAttr.setWritable (false);
 	tAttr.setReadable (true);
@@ -81,9 +81,9 @@ MStatus signPP::initialize () {
 signPP::signPP () {}
 signPP::~signPP () {}
 
-MStatus signPP::compute(const MPlug& plug, MDataBlock& data) {
+MStatus signPP::compute(const MPlug &plug, MDataBlock &data) {
 
-	if (!(plug == aOutput)) 	return MS::kUnknownParameter;			
+	if (!(plug == aOutput)) 	{ return MS::kUnknownParameter; }
 
 	MStatus st;
 	MFn::Type type = MFn::kInvalid;
@@ -98,16 +98,16 @@ MStatus signPP::compute(const MPlug& plug, MDataBlock& data) {
 
 	int len = in.length();
 
-	MDoubleArray out(len);	
+	MDoubleArray out(len);
 
-	for (int i = 0;i<len;i++) out[i] =  (in[i] > 0.0) ? oPos : oNeg ;
+	for (int i = 0; i < len; i++) { out[i] =  (in[i] > 0.0) ? oPos : oNeg ; }
 
 
 	MDataHandle hOut = data.outputValue(aOutput);
 	MFnDoubleArrayData fnOut;
-	MObject objOut = fnOut.create(out);		
+	MObject objOut = fnOut.create(out);
 	hOut.set(objOut);
-	data.setClean(plug);				
+	data.setClean(plug);
 	return MS::kSuccess;
 
 

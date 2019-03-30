@@ -15,7 +15,7 @@ rankData::rankData() {}
 rankData::rankData(const MObject &node, MString rank)
 {
 	MStatus st;
-	MFnDependencyNode dn(node, &st);er;
+	MFnDependencyNode dn(node, &st); mser;
 
 	MObject att;
 
@@ -23,23 +23,23 @@ rankData::rankData(const MObject &node, MString rank)
 	MString homeN("home");
 	MString radiusN("radius");
 
-	rankN+=rank;
-	homeN+=rank;
-	radiusN+=rank;
+	rankN += rank;
+	homeN += rank;
+	radiusN += rank;
 
-	MString homeNX(homeN+"X");
-	MString homeNZ(homeN+"Z");
-	MString radiusNMin("radiusMin"+rank);
-	MString radiusNMax("radiusMax"+rank);
+	MString homeNX(homeN + "X");
+	MString homeNZ(homeN + "Z");
+	MString radiusNMin("radiusMin" + rank);
+	MString radiusNMax("radiusMax" + rank);
 
 
-	MObject aRank = dn.attribute(rankN); 
-	MObject aHome = dn.attribute(homeN); 
-	MObject aHomeX = dn.attribute(homeNX); 
-	MObject aHomeZ = dn.attribute(homeNZ); 
-	MObject aRadius  = dn.attribute(radiusN); 
-	MObject aRadiusMin = dn.attribute(radiusNMin); 
-	MObject aRadiusMax = dn.attribute(radiusNMax); 
+	MObject aRank = dn.attribute(rankN);
+	MObject aHome = dn.attribute(homeN);
+	MObject aHomeX = dn.attribute(homeNX);
+	MObject aHomeZ = dn.attribute(homeNZ);
+	MObject aRadius  = dn.attribute(radiusN);
+	MObject aRadiusMin = dn.attribute(radiusNMin);
+	MObject aRadiusMax = dn.attribute(radiusNMax);
 
 
 
@@ -50,29 +50,29 @@ rankData::rankData(const MObject &node, MString rank)
 	MPlug radiusMaxPlug = rankPlug.child(aRadius).child(aRadiusMax);
 
 
-	MString childstr = MString(homeN+"X");
+	MString childstr = MString(homeN + "X");
 	MObject childatt = dn.attribute(childstr);
-	st	= homeXPlug.getValue(homeX);er;
-	st	= homeZPlug.getValue(homeZ);er;
-	st	= radiusMinPlug.getValue(radiusMin);er;
-	st	= radiusMaxPlug.getValue(radiusMax);er;
+	st	= homeXPlug.getValue(homeX); mser;
+	st	= homeZPlug.getValue(homeZ); mser;
+	st	= radiusMinPlug.getValue(radiusMin); mser;
+	st	= radiusMaxPlug.getValue(radiusMax); mser;
 
- // 	cerr << "radiusMin: " << radiusMin << endl;
+	// 	cerr << "radiusMin: " << radiusMin << endl;
 	// cerr << "radiusMax: " << radiusMax <<  endl;
 
 
-	childstr = ("stepIncrementRamp"+rank);
+	childstr = ("stepIncrementRamp" + rank);
 	att = dn.attribute(childstr);
-	stepIncrementRamp = MRampAttribute( node , att  ); 
+	stepIncrementRamp = MRampAttribute( node , att  );
 
-	childstr = ("slideProfileRamp"+rank);
+	childstr = ("slideProfileRamp" + rank);
 	att = dn.attribute(childstr);
-	slideProfileRamp = MRampAttribute( node , att  ); 
+	slideProfileRamp = MRampAttribute( node , att  );
 
-	childstr = ("liftProfileRamp"+rank);
+	childstr = ("liftProfileRamp" + rank);
 	att = dn.attribute(childstr);
-	liftProfileRamp = MRampAttribute( node , att  ); 
+	liftProfileRamp = MRampAttribute( node , att  );
 
 }
 
-rankData::~rankData(){}
+rankData::~rankData() {}
