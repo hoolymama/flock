@@ -1,5 +1,5 @@
 ---
-configuration: debug
+configuration: ${FLAK_CONFIGURATION}
 product_name: flock
 product_description: Artificial Life Toolkit
 configuration_debug:
