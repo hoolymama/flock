@@ -3,7 +3,7 @@ configuration: ${FLAK_CONFIGURATION}
 product_name: flock
 product_description: Artificial Life Toolkit
 configuration_debug:
-  product_revision: ${FLAK_DEBUG_REVISION}
+  product_revision: ${FLAK_DEBUG_VERSION}
 configuration_release:
   product_revision: 0.1.4
 author_name: Julian Mann
