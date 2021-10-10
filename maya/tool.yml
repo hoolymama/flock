@@ -34,7 +34,8 @@ templates:
 - maya_plugin
 - gl
 source_files:
-- src/**/*.cpp
+- src/hexapod/*.cpp
+- src/flockShape/*.cpp
 - ../../kettle/src/maya/lookup.cpp
 - ../../kettle/src/maya/mayaMath.cpp
 - ../../kettle/src/JFloatMatrix.cpp

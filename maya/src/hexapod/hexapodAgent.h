@@ -16,7 +16,6 @@
 #include "rankData.h"
 
 #include  "actuator.h"
-#include  "Ground.h"
 
 class hexapodFoot;
 

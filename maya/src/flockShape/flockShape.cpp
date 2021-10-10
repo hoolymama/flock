@@ -283,7 +283,7 @@ MStatus flockShape::initialize() {
 	addAttribute(aScaleTarget);
 
 
-	aTargetId = nAttr.create("targetId", "tid", MFnNumericData::kLong);
+	aTargetId = nAttr.create("targetId", "tid", MFnNumericData::kInt);
 	nAttr.setWritable(true);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
@@ -506,65 +506,65 @@ MStatus flockShape::initialize() {
 
 }
 
-void flockShape::drawABox(const MVector &bmin, const MVector &bmax) {
-	glBegin( GL_LINES );
+// void flockShape::drawABox(const MVector &bmin, const MVector &bmax) {
+// 	glBegin( GL_LINES );
 
-	////////////////// BASE
-	glVertex3f(float(bmin.x), float(bmin.y), float(bmin.z));
-	glVertex3f(float(bmin.x), float(bmin.y), float(bmax.z));
+// 	////////////////// BASE
+// 	glVertex3f(float(bmin.x), float(bmin.y), float(bmin.z));
+// 	glVertex3f(float(bmin.x), float(bmin.y), float(bmax.z));
 
-	glVertex3f(float(bmin.x), float(bmin.y), float(bmax.z));
-	glVertex3f(float(bmax.x), float(bmin.y), float(bmax.z));
+// 	glVertex3f(float(bmin.x), float(bmin.y), float(bmax.z));
+// 	glVertex3f(float(bmax.x), float(bmin.y), float(bmax.z));
 
-	glVertex3f(float(bmax.x), float(bmin.y), float(bmax.z));
-	glVertex3f(float(bmax.x), float(bmin.y), float(bmin.z));
+// 	glVertex3f(float(bmax.x), float(bmin.y), float(bmax.z));
+// 	glVertex3f(float(bmax.x), float(bmin.y), float(bmin.z));
 
-	glVertex3f(float(bmax.x), float(bmin.y), float(bmin.z));
-	glVertex3f(float(bmin.x), float(bmin.y), float(bmin.z));
+// 	glVertex3f(float(bmax.x), float(bmin.y), float(bmin.z));
+// 	glVertex3f(float(bmin.x), float(bmin.y), float(bmin.z));
 
-	////////////////// TOP
-	glVertex3f(float(bmin.x), float(bmax.y), float(bmin.z));
-	glVertex3f(float(bmin.x), float(bmax.y), float(bmax.z));
+// 	////////////////// TOP
+// 	glVertex3f(float(bmin.x), float(bmax.y), float(bmin.z));
+// 	glVertex3f(float(bmin.x), float(bmax.y), float(bmax.z));
 
-	glVertex3f(float(bmin.x), float(bmax.y), float(bmax.z));
-	glVertex3f(float(bmax.x), float(bmax.y), float(bmax.z));
+// 	glVertex3f(float(bmin.x), float(bmax.y), float(bmax.z));
+// 	glVertex3f(float(bmax.x), float(bmax.y), float(bmax.z));
 
-	glVertex3f(float(bmax.x), float(bmax.y), float(bmax.z));
-	glVertex3f(float(bmax.x), float(bmax.y), float(bmin.z));
+// 	glVertex3f(float(bmax.x), float(bmax.y), float(bmax.z));
+// 	glVertex3f(float(bmax.x), float(bmax.y), float(bmin.z));
 
-	glVertex3f(float(bmax.x), float(bmax.y), float(bmin.z));
-	glVertex3f(float(bmin.x), float(bmax.y), float(bmin.z));
+// 	glVertex3f(float(bmax.x), float(bmax.y), float(bmin.z));
+// 	glVertex3f(float(bmin.x), float(bmax.y), float(bmin.z));
 
-	/////////////////// LEGS
-	glVertex3f(float(bmin.x), float(bmin.y), float(bmin.z));
-	glVertex3f(float(bmin.x), float(bmax.y), float(bmin.z));
+// 	/////////////////// LEGS
+// 	glVertex3f(float(bmin.x), float(bmin.y), float(bmin.z));
+// 	glVertex3f(float(bmin.x), float(bmax.y), float(bmin.z));
 
-	glVertex3f(float(bmin.x), float(bmin.y), float(bmax.z));
-	glVertex3f(float(bmin.x), float(bmax.y), float(bmax.z));
+// 	glVertex3f(float(bmin.x), float(bmin.y), float(bmax.z));
+// 	glVertex3f(float(bmin.x), float(bmax.y), float(bmax.z));
 
-	glVertex3f(float(bmax.x), float(bmin.y), float(bmax.z));
-	glVertex3f(float(bmax.x), float(bmax.y), float(bmax.z));
+// 	glVertex3f(float(bmax.x), float(bmin.y), float(bmax.z));
+// 	glVertex3f(float(bmax.x), float(bmax.y), float(bmax.z));
 
-	glVertex3f(float(bmax.x), float(bmin.y), float(bmin.z));
-	glVertex3f(float(bmax.x), float(bmax.y), float(bmin.z));
-	glEnd();
+// 	glVertex3f(float(bmax.x), float(bmin.y), float(bmin.z));
+// 	glVertex3f(float(bmax.x), float(bmax.y), float(bmin.z));
+// 	glEnd();
 
-	// make the corners big points
-	glPushAttrib(GL_CURRENT_BIT);
-	glPointSize(5);
-	glBegin( GL_POINTS );
-	glVertex3f(float(bmin.x), float(bmin.y), float(bmin.z));
-	glVertex3f(float(bmin.x), float(bmin.y), float(bmax.z));
-	glVertex3f(float(bmin.x), float(bmax.y), float(bmin.z));
-	glVertex3f(float(bmin.x), float(bmax.y), float(bmax.z));
-	glVertex3f(float(bmax.x), float(bmin.y), float(bmin.z));
-	glVertex3f(float(bmax.x), float(bmin.y), float(bmax.z));
-	glVertex3f(float(bmax.x), float(bmax.y), float(bmin.z));
-	glVertex3f(float(bmax.x), float(bmax.y), float(bmax.z));
-	glEnd();
-	glPopAttrib();
+// 	// make the corners big points
+// 	glPushAttrib(GL_CURRENT_BIT);
+// 	glPointSize(5);
+// 	glBegin( GL_POINTS );
+// 	glVertex3f(float(bmin.x), float(bmin.y), float(bmin.z));
+// 	glVertex3f(float(bmin.x), float(bmin.y), float(bmax.z));
+// 	glVertex3f(float(bmin.x), float(bmax.y), float(bmin.z));
+// 	glVertex3f(float(bmin.x), float(bmax.y), float(bmax.z));
+// 	glVertex3f(float(bmax.x), float(bmin.y), float(bmin.z));
+// 	glVertex3f(float(bmax.x), float(bmin.y), float(bmax.z));
+// 	glVertex3f(float(bmax.x), float(bmax.y), float(bmin.z));
+// 	glVertex3f(float(bmax.x), float(bmax.y), float(bmax.z));
+// 	glEnd();
+// 	glPopAttrib();
 
-}
+// }
 
 
 
@@ -574,23 +574,15 @@ void flockShape::draw(
   M3dView::DisplayStyle style,
   M3dView::DisplayStatus status )
 {
-	MStatus st;
+	// MStatus st;
 
-	MObject thisNode = thisMObject();
-	MPlug ptsPlug( thisNode, aPointsBB );
-	//MPlug lodPlug( thisNode, aLodBB );
-	MVector pbmin, pbmax;
-	//MVector lbmin,lbmax;
-	st = bbValue(ptsPlug, pbmin, pbmax) ;
-	//st= bbValue(lodPlug, lbmin, lbmax) ;
-
-	view.beginGL();
-	//drawABox(lbmin, lbmax);
-	drawABox(pbmin, pbmax);
-	// drawABox(pbmin+lbmin, pbmax+lbmax);
-	// drawBoxCorners(pbmin,pbmax);
-	view.endGL();
-
+	// MObject thisNode = thisMObject();
+	// MPlug ptsPlug( thisNode, aPointsBB );
+	// MVector pbmin, pbmax;
+	// st = bbValue(ptsPlug, pbmin, pbmax) ;
+	// view.beginGL();
+	// drawABox(pbmin, pbmax);
+	// view.endGL();
 }
 
 
@@ -677,7 +669,7 @@ MStatus flockShape::computeTarget(MDataBlock &data) {
 
 	// short rotateOrder = data.inputValue(aRotateOrder).asShort();
 	// MTransformationMatrix::RotationOrder ord = mayaMath::mtmRotOrder(rotateOrder);
-	unsigned targetId = data.inputValue(aTargetId).asLong();
+	unsigned targetId = data.inputValue(aTargetId).asInt();
 
 	//	tracer;
 

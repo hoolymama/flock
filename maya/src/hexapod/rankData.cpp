@@ -43,7 +43,7 @@ rankData::rankData(const MObject &node, MString rank)
 
 
 
-	MPlug rankPlug = dn.findPlug(aRank);
+	MPlug rankPlug = dn.findPlug(aRank, true);
 	MPlug homeXPlug = rankPlug.child(aHome).child(aHomeX);
 	MPlug homeZPlug = rankPlug.child(aHome).child(aHomeZ);
 	MPlug radiusMinPlug = rankPlug.child(aRadius).child(aRadiusMin);

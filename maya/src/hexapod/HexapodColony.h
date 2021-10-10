@@ -41,7 +41,6 @@ public:
 
 
 
-	const Ground & ground() const  ; 
 
 
 	void getOutputData(
@@ -84,9 +83,7 @@ private:
 	/* use a std::list because random inserts */
 	std::list<HexapodAgent*> m_agents;
 
-
-	//////////
-	// Ground m_ground;
+ 
 
 };
 
