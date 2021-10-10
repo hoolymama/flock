@@ -27,7 +27,6 @@ public:
 	hexUtil::ActuatorAxis axis() const;
 	hexUtil::ActuatorChannel channel() const;
 	
-	// MRampAttribute ramp;
 	bool mirror() const ;
 
 	MVector lookup(float val, hexUtil::Side side);
@@ -46,11 +45,6 @@ private:
 	hexUtil::ActuatorChannel m_channel;
 	double	m_outputMin;
 	double	m_outputMax;
-
-	// MFloatArray m_positions;
-	// MFloatArray m_values;
-	// MIntArray m_interps;
-
 
 
 
