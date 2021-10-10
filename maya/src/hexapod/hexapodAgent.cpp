@@ -1,6 +1,6 @@
 
 #include "hexapodAgent.h"
-#include "HexapodFoot.h"
+#include "hexapodFoot.h"
 
 
 #include <maya/MEulerRotation.h>
@@ -43,22 +43,22 @@ m_feedBlend(0)
 	/* build the feet. Give them a pointer to this object 
 	so they can use matrices to maintain the foot positions in world space
 	*/
-	m_footLA = HexapodFoot(rankA.homeX, rankA.homeZ, rankA.radiusMin,  
+	m_footLA = hexapodFoot(rankA.homeX, rankA.homeZ, rankA.radiusMin,  
 		rankA.radiusMax,  this , hexUtil::kAnterior, hexUtil::kLeft);
 	
-	m_footLB = HexapodFoot(rankB.homeX, rankB.homeZ, rankB.radiusMin,  
+	m_footLB = hexapodFoot(rankB.homeX, rankB.homeZ, rankB.radiusMin,  
 		rankB.radiusMax,  this , hexUtil::kMedial, hexUtil::kLeft);
 	
-	m_footLC = HexapodFoot(rankC.homeX, rankC.homeZ, rankC.radiusMin,  
+	m_footLC = hexapodFoot(rankC.homeX, rankC.homeZ, rankC.radiusMin,  
 		rankC.radiusMax,  this , hexUtil::kPosterior, hexUtil::kLeft);
 	
-	m_footRA = HexapodFoot(rankA.homeX, -rankA.homeZ, rankA.radiusMin, 
+	m_footRA = hexapodFoot(rankA.homeX, -rankA.homeZ, rankA.radiusMin, 
 		rankA.radiusMax, this, hexUtil::kAnterior, hexUtil::kRight);
 	
-	m_footRB = HexapodFoot(rankB.homeX, -rankB.homeZ, rankB.radiusMin, 
+	m_footRB = hexapodFoot(rankB.homeX, -rankB.homeZ, rankB.radiusMin, 
 		rankB.radiusMax, this, hexUtil::kMedial, hexUtil::kRight);
 	
-	m_footRC = HexapodFoot(rankC.homeX, -rankC.homeZ, rankC.radiusMin, 
+	m_footRC = hexapodFoot(rankC.homeX, -rankC.homeZ, rankC.radiusMin, 
 		rankC.radiusMax, this, hexUtil::kPosterior, hexUtil::kRight);
 
 
@@ -91,35 +91,9 @@ void HexapodAgent::buildMatrices(
 
 
 
-
-
-
-
-
-
-// void HexapodAgent::applyActuator (
-// 	const HexapodFoot &leftFoot, 
-// 	const HexapodFoot &rightFoot, 
-// 	 actuator &actuator)
-// {
-// 	float inputValue;
-// 	MVector v = leftFoot.actuatorValue(actuator);
-// 	v += rightFoot.actuatorValue(actuator);
-
-// 	hexUtil::ActuatorChannel channel = actuator.channel();
-// 	if (channel ==  hexUtil::kTX ||  channel  ==  hexUtil::kTY ||  channel  ==  hexUtil::kTZ ) {
-// 		m_body_position += v;
-// 	} else {
-// 		m_body_phi += v;
-// 	}
-// }
-
-
-
-
 void HexapodAgent::applyActuator (
-	const HexapodFoot &leftFoot, 
-	const HexapodFoot &rightFoot,
+	const hexapodFoot &leftFoot, 
+	const hexapodFoot &rightFoot,
 	actuator &actuator)
 {
 
@@ -181,8 +155,8 @@ void HexapodAgent::update(
 	MRampAttribute &posteriorRadiusRamp,
 	const MVector &leftFootFeed, 
 	const MVector &rightFootFeed,
-	double feedBlend,
-	Ground & ground
+	double feedBlend
+	// Ground & ground
 	)
 {
 	m_position = pos;
@@ -242,12 +216,12 @@ void HexapodAgent::update(
 		m_footRB.stepParam(),m_footLC.stepParam(),m_footRA.stepParam(),
 		anteriorRadiusRamp, lateralRadiusRamp, posteriorRadiusRamp, true);
 
-	m_footLA.update(dt, maxSpeed, rankA, plantSpeedBiasRamp, ground);
-	m_footLB.update(dt, maxSpeed, rankB, plantSpeedBiasRamp, ground);
-	m_footLC.update(dt, maxSpeed, rankC, plantSpeedBiasRamp, ground);
-	m_footRA.update(dt, maxSpeed, rankA, plantSpeedBiasRamp, ground);
-	m_footRB.update(dt, maxSpeed, rankB, plantSpeedBiasRamp, ground);
-	m_footRC.update(dt, maxSpeed, rankC, plantSpeedBiasRamp, ground);
+	m_footLA.update(dt, maxSpeed, rankA, plantSpeedBiasRamp);
+	m_footLB.update(dt, maxSpeed, rankB, plantSpeedBiasRamp);
+	m_footLC.update(dt, maxSpeed, rankC, plantSpeedBiasRamp);
+	m_footRA.update(dt, maxSpeed, rankA, plantSpeedBiasRamp);
+	m_footRB.update(dt, maxSpeed, rankB, plantSpeedBiasRamp);
+	m_footRC.update(dt, maxSpeed, rankC, plantSpeedBiasRamp);
 
 	MPoint avgPos(MPoint::origin);
 	if (m_bodyFootAverageBias > 0) {
@@ -350,55 +324,57 @@ void HexapodAgent::getOutputData(
 // s
 
 
-void HexapodAgent::draw(
-	M3dView & view, 
-	const DisplayMask & mask 
-	) const {
-	double d44[4][4];
-	m_matrix.get(d44);
-	MFloatMatrix fmat(d44);
+// void HexapodAgent::draw(
+// 	M3dView & view, 
+// 	const DisplayMask & mask 
+// 	) const {
 
-	m_footLA.draw(view, fmat, mask);
-	m_footLB.draw(view, fmat, mask);
-	m_footLC.draw(view, fmat, mask);
-	m_footRA.draw(view, fmat, mask);
-	m_footRB.draw(view, fmat, mask);
-	m_footRC.draw(view, fmat, mask);
+	
+// 	double d44[4][4];
+// 	m_matrix.get(d44);
+// 	MFloatMatrix fmat(d44);
 
-	MFloatVector pos(float(m_position.x), float(m_position.y),float(m_position.z));
-	if (mask.displayId) {
-		MString pid;
-		pid += m_particleId;
-		view.setDrawColor( MColor( MColor::kRGB, 0.0, 1.0,1.0 ) );
-		view.drawText(pid, pos, M3dView::kLeft);		
-	}
+// 	m_footLA.draw(view, fmat, mask);
+// 	m_footLB.draw(view, fmat, mask);
+// 	m_footLC.draw(view, fmat, mask);
+// 	m_footRA.draw(view, fmat, mask);
+// 	m_footRB.draw(view, fmat, mask);
+// 	m_footRC.draw(view, fmat, mask);
 
-	if (mask.displayAgentMatrix) {
-		MFloatVector x = MFloatPoint(MFloatVector::xAxis) * fmat;
-		MFloatVector y = MFloatPoint(MFloatVector::yAxis) * fmat;
-		MFloatVector z = MFloatPoint(MFloatVector::zAxis) * fmat;
+// 	MFloatVector pos(float(m_position.x), float(m_position.y),float(m_position.z));
+// 	if (mask.displayId) {
+// 		MString pid;
+// 		pid += m_particleId;
+// 		view.setColor( MColor( MColor::kRGB, 0.0, 1.0,1.0 ) );
+// 		view.drawText(pid, pos, M3dView::kLeft);		
+// 	}
 
-
-
-		glBegin( GL_LINES );
-		view.setDrawColor( MColor( MColor::kRGB, 1.0,0.0,0.0 ) );
-		glVertex3f( pos.x , pos.y , pos.z );
-		glVertex3f( x.x , x.y , x.z );
-
-		view.setDrawColor( MColor( MColor::kRGB, 0.0,1.0,0.0 ) );
-		glVertex3f( pos.x , pos.y , pos.z );
-		glVertex3f( y.x , y.y , y.z );
-
-		view.setDrawColor( MColor( MColor::kRGB, 0.0,0.0,1.0 ) );
-		glVertex3f( pos.x , pos.y , pos.z );
-		glVertex3f( z.x , z.y , z.z );
-
-		glEnd();
+// 	if (mask.displayAgentMatrix) {
+// 		MFloatVector x = MFloatPoint(MFloatVector::xAxis) * fmat;
+// 		MFloatVector y = MFloatPoint(MFloatVector::yAxis) * fmat;
+// 		MFloatVector z = MFloatPoint(MFloatVector::zAxis) * fmat;
 
 
-	}
 
-}
+// 		glBegin( GL_LINES );
+// 		view.setDrawColor( MColor( MColor::kRGB, 1.0,0.0,0.0 ) );
+// 		glVertex3f( pos.x , pos.y , pos.z );
+// 		glVertex3f( x.x , x.y , x.z );
+
+// 		view.setDrawColor( MColor( MColor::kRGB, 0.0,1.0,0.0 ) );
+// 		glVertex3f( pos.x , pos.y , pos.z );
+// 		glVertex3f( y.x , y.y , y.z );
+
+// 		view.setDrawColor( MColor( MColor::kRGB, 0.0,0.0,1.0 ) );
+// 		glVertex3f( pos.x , pos.y , pos.z );
+// 		glVertex3f( z.x , z.y , z.z );
+
+// 		glEnd();
+
+
+// 	}
+
+// }
 
 
 const MVector & HexapodAgent::position()  const {return m_position; } 

@@ -14,7 +14,7 @@ This is the main Maya locator node for hexapod.
 #include <maya/MPxLocatorNode.h>
 
 #include <maya/MGlobal.h>
-#include "HexapodColony.h"
+#include "hexapodColony.h"
 
 #define LEAD_COLOR        18  // green
 #define ACTIVE_COLOR      15  // white
@@ -74,13 +74,6 @@ public:
 	static MObject	aOmega;	
 	static MObject	aScale;
 
-	/*ground detection*/
-	static MObject aFloorMesh;
-	static MObject aAnimatedFloor;
-	static MObject aFloorThickness;
-	static MObject aUseMeshFloor;
-	// static MObject aSnapWhenPlanted;
-	
 /* time attribs for the simulation*/
 	static MObject	aCurrentTime; 
 	static MObject	aStartTime;
@@ -171,10 +164,6 @@ public:
 	static MObject	aLeftFootFeed;
 	static MObject	aRightFootFeed;
 	static MObject	aFeedBlend;
-	// static MObject	aFeedCenter;
- //  static MObject	aFeedLateralOffset;
-		
-
 
 	static MObject	aActuatorActive;
 	static MObject	aActuatorRank;
@@ -229,17 +218,11 @@ public:
 	static MObject	aOutPhi;
 	static MObject	aOutScale;
 
-	// enum Rank { kAnterior, kMedial, kPosterior };
-	// enum ActuatorAxis { kStepParam, kX, kY, kZ};
-	// enum ActuatorChannel { kTX, kTY, kTZ, kRX, kRY, kRZ };
-	
-
-
 private:
 
 	MTime m_lastTimeIEvaluated;
 
-	HexapodColony * m_colony;
+	hexapodColony * m_colony;
 
 	MStatus checkArrayLength(unsigned alen, unsigned len, const MString &name);
 	MStatus checkArrayLength(const MVectorArray &arr, unsigned len, const MString &name);

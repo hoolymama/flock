@@ -1,5 +1,5 @@
-#ifndef HexapodFoot_H
-#define HexapodFoot_H
+#ifndef hexapodFoot_H
+#define hexapodFoot_H
 
 #include <maya/MObject.h>
 #include <maya/M3dView.h>
@@ -10,17 +10,16 @@
 #include "rankData.h"
 #include "hexUtil.h"
 #include "actuator.h"
-#include  "Ground.h"
-// #include "HexapodAgent.h"
-
+// #include  "Ground.h"
+ 
 class HexapodAgent;
 
-class HexapodFoot{
+class hexapodFoot{
 public:
 
-	HexapodFoot();
+	hexapodFoot();
 
-	HexapodFoot(	
+	hexapodFoot(	
 		double homeX, 
 		double homeZ, 
 		double minRadius, 
@@ -29,7 +28,7 @@ public:
 		hexUtil::Rank rank,
 		hexUtil::Side side
 		);
-	HexapodFoot(	
+	hexapodFoot(	
 		const rankData &rankData,
 		const HexapodAgent * pAgent,
 		hexUtil::Rank rank,
@@ -38,7 +37,7 @@ public:
 
 
 
-	~HexapodFoot();
+	~hexapodFoot();
 
 	bool needsNewPlant(const MVector &localVelocity) const;
 
@@ -48,8 +47,9 @@ public:
 		double dt, 
 		float increment, 
 		const MVector localVelocity,
-		float plantBias,
-		 Ground & ground) const ;
+		float plantBias
+		//  Ground & ground
+		 ) const ;
 
 
 	void  updateHomeCircles(	
@@ -65,11 +65,7 @@ public:
 
 	MVector actuatorValue(actuator& actuator) const;
 
-	// void update(
-	// 	double dt, double maxSpeed,
-	// 	MRampAttribute &incRamp,
-	// 	MRampAttribute &plantSpeedBiasRamp);
-
+ 
 	void  cacheLocalFootPosition();
 
 	MPoint calcFootPosition(rankData& rank) const;
@@ -77,22 +73,23 @@ public:
 	void update(
 		double dt, double maxSpeed,
 		rankData & rank,
-		MRampAttribute &plantSpeedBiasRamp,
-		 Ground & ground);
+		MRampAttribute &plantSpeedBiasRamp
+		//  Ground & ground
+		 );
 
 
-	void draw(M3dView & view, MFloatMatrix & matrix,  const DisplayMask & mask) const;
+	// void draw(M3dView & view, MFloatMatrix & matrix,  const DisplayMask & mask) const;
 
-	void drawCircleAtHome(
-		M3dView & view, 
-		const MFloatMatrix & agentMatrix, 
-		float radius,
-		const MColor& color) const ;
+	// void drawCircleAtHome(
+	// 	M3dView & view, 
+	// 	const MFloatMatrix & agentMatrix, 
+	// 	float radius,
+	// 	const MColor& color) const ;
 
-	void  drawFootAndPlants( M3dView & view,  const DisplayMask & mask ) const ;
+	// void  drawFootAndPlants( M3dView & view,  const DisplayMask & mask ) const ;
 
-	void  drawDoubleValue(M3dView & view, double value) const;
-	void  drawFootLocal(M3dView & view) const ;
+	// void  drawDoubleValue(M3dView & view, double value) const;
+	// void  drawFootLocal(M3dView & view) const ;
 
 	float stepParam() const;
 

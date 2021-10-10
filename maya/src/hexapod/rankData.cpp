@@ -57,9 +57,6 @@ rankData::rankData(const MObject &node, MString rank)
 	st	= radiusMinPlug.getValue(radiusMin); mser;
 	st	= radiusMaxPlug.getValue(radiusMax); mser;
 
-	// 	cerr << "radiusMin: " << radiusMin << endl;
-	// cerr << "radiusMax: " << radiusMax <<  endl;
-
 
 	childstr = ("stepIncrementRamp" + rank);
 	att = dn.attribute(childstr);
