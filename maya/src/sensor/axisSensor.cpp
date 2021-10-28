@@ -38,7 +38,7 @@ axisSensor::initialize()
 	MFnTypedAttribute tAttr;
 	MFnNumericAttribute nAttr;
 	MStatus st;
-	aAxisPP = tAttr.create("axisPP", "axpp", MFnData::kVectorArray, &st ); mser;
+	aAxisPP = tAttr.create("axisPP", "axpp", MFnData::kVectorArray); 
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
 	st = addAttribute(aAxisPP); mser;

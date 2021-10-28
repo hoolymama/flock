@@ -43,8 +43,8 @@ MStatus lookupPP::initialize () {
 	MFnEnumAttribute eAttr;
 
 	aInput = gAttr.create("input", "in");
-	gAttr.addAccept(MFnData::kDoubleArray);
-	gAttr.addAccept(MFnData::kVectorArray);
+	gAttr.addDataAccept(MFnData::kDoubleArray);
+	gAttr.addDataAccept(MFnData::kVectorArray);
 	gAttr.setWritable(true);
 	gAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	gAttr.setStorable(false);
@@ -52,7 +52,7 @@ MStatus lookupPP::initialize () {
 	gAttr.setWritable(true);
 	gAttr.setCached(false);
 
-	aCurveResolution = nAttr.create("curveResolution", "crs", MFnNumericData::kLong);
+	aCurveResolution = nAttr.create("curveResolution", "crs", MFnNumericData::kInt);
 	nAttr.setStorable(true);
 	nAttr.setWritable(true);
 	nAttr.setKeyable(true);
@@ -111,7 +111,7 @@ MStatus lookupPP::compute (const MPlug &plug, MDataBlock &data)
 
 	//////////////////////////////////////////////////////////////
 
-	unsigned cRes = data.inputValue(aCurveResolution).asLong();
+	unsigned cRes = data.inputValue(aCurveResolution).asInt();
 
 
 	MFnAnimCurve mAniFn;

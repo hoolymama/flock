@@ -47,13 +47,13 @@ MStatus collisionSensor::initialize()
 	MFnUnitAttribute uAttr;
 	MStatus st;
 
-	aRadius = tAttr.create("radius", "rad", MFnData::kDoubleArray, &st ); mser;
+	aRadius = tAttr.create("radius", "rad", MFnData::kDoubleArray ); 
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
 	st = addAttribute(aRadius); mser;
 
 
-	aPushOutPP = tAttr.create("pushOutMultPP", "pumpp", MFnData::kDoubleArray, &st ); mser;
+	aPushOutPP = tAttr.create("pushOutMultPP", "pumpp", MFnData::kDoubleArray ); 
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
 	st = addAttribute(aPushOutPP); mser;

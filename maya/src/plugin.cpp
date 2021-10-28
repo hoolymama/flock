@@ -3,20 +3,17 @@
 #include <maya/MGlobal.h>
 
 #include "errorMacros.h"
+#include <maya/MDrawRegistry.h>
 
+#include <maya/MEventMessage.h>
 #include "flockShape.h"
-#include "fishDeform.h"
-
 #include "prioritize.h"
-
 #include "steer_remap.h"
-
-
-// #include "legacySteerRemap.h"
+ 
 #include "rollerPP.h"
 #include "tumbler.h"
 #include "legacyTumbler.h"
-#include "articulate.h"
+// #include "articulate.h"
 
 #include <poolData.h>
 #include <pool.h>
@@ -84,6 +81,7 @@
 #include "averageVectorPP.h"
 
 #include "averageDoublePP.h"
+#include "hexapodDrawOverride.h"
 
 
 
@@ -107,16 +105,16 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "tumbler", tumbler::id, tumbler::creator, tumbler::initialize );
 	mser;
 
-	st = plugin.registerNode( "fishDeform", fishDeform::id, fishDeform::creator,
-	                          fishDeform::initialize); mser;
+	// st = plugin.registerNode( "fishDeform", fishDeform::id, fishDeform::creator,
+	//                           fishDeform::initialize); mser;
 
 
 
 	st = plugin.registerNode( "legacyTumbler", legacyTumbler::id, legacyTumbler::creator,
 	                          legacyTumbler::initialize); mser;
 
-	st = plugin.registerNode( "articulate", articulate::id, articulate::creator,
-	                          articulate::initialize); mser;
+	// st = plugin.registerNode( "articulate", articulate::id, articulate::creator,
+	//                           articulate::initialize); mser;
 
 	st = plugin.registerData( "poolData", poolData::id, poolData::creator ); mser;
 	st = plugin.registerNode( "pool", pool::id, pool::creator, pool::initialize ); mser;
@@ -241,6 +239,14 @@ MStatus initializePlugin( MObject obj)
 
 	st = plugin.registerNode( "hexapod", hexapod::id, hexapod::creator, hexapod::initialize,
 	                          MPxNode::kLocatorNode); mser;
+
+	st = MHWRender::MDrawRegistry::registerDrawOverrideCreator(
+		hexapod::drawDbClassification,
+		hexapod::drawRegistrantId,
+		hexapodDrawOverride::Creator);
+	mser;
+
+
 	// st = plugin.registerNode( "hexapodLocatorShape", hexapodLocator::id, hexapodLocator::creator,hexapodLocator::initialize, MPxNode::kLocatorNode  );mser;
 
 	st = plugin.registerNode( "hungerState", hungerState::id, hungerState::creator,
@@ -264,6 +270,12 @@ MStatus uninitializePlugin( MObject obj)
 	st = plugin.deregisterNode( hungerState::id ); mser;
 
 	// st = plugin.deregisterNode( hexapodLocator::id );mser;
+
+	st = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator(
+	hexapod::drawDbClassification,
+	hexapod::drawRegistrantId);
+	mser;
+
 	st = plugin.deregisterNode( hexapod::id ); mser;
 	// st = plugin.deregisterNode( curvePoints::id );mser;
 	st = plugin.deregisterNode( averageDoublePP::id ); mser;
@@ -334,7 +346,7 @@ MStatus uninitializePlugin( MObject obj)
 	st = plugin.deregisterNode( pool::id ); mser;
 	st = plugin.deregisterData( poolData::id ); mser;
 
-	st = plugin.deregisterNode( articulate::id ); mser;
+	// st = plugin.deregisterNode( articulate::id ); mser;
 	st = plugin.deregisterNode( legacyTumbler::id ); mser;
 	st = plugin.deregisterNode( tumbler::id ); mser;
 	st = plugin.deregisterNode( rollerPP::id ); mser;
@@ -344,7 +356,7 @@ MStatus uninitializePlugin( MObject obj)
 	st = plugin.deregisterNode( steerRemap::id ); mser;
 
 	st = plugin.deregisterNode( prioritize::id ); mser;
-	st = plugin.deregisterNode( fishDeform::id ); mser;
+	// st = plugin.deregisterNode( fishDeform::id ); mser;
 	st = plugin.deregisterNode( flockShape::id ); mser;
 
 	// deregister your plugin's nodes, commands, or whetever here.

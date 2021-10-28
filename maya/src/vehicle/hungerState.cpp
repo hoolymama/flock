@@ -88,35 +88,35 @@ MStatus hungerState::initialize()
 	nAttr.setKeyable(true);
 	addAttribute(aDefaultSpend);
 
-	aFeed = tAttr.create("feed", "fed", MFnData::kDoubleArray, &st ); mser;
+	aFeed = tAttr.create("feed", "fed", MFnData::kDoubleArray);
 	tAttr.setStorable(false);
 	addAttribute(aFeed);
 
-	aSpend = tAttr.create("spend", "spd", MFnData::kDoubleArray, &st ); mser;
+	aSpend = tAttr.create("spend", "spd", MFnData::kDoubleArray);
 	tAttr.setReadable(true);
 	tAttr.setStorable(false);
 	addAttribute(aSpend);
 
-	aFoodLevel = tAttr.create("foodLevel", "fl", MFnData::kDoubleArray, &st ); mser;
+	aFoodLevel = tAttr.create("foodLevel", "fl", MFnData::kDoubleArray);
 	tAttr.setStorable(false);
 	addAttribute(aFoodLevel);
 
-	aUpdatedFoodLevel = tAttr.create("updatedFoodLevel", "ufl", MFnData::kDoubleArray, &st );
+	aUpdatedFoodLevel = tAttr.create("updatedFoodLevel", "ufl", MFnData::kDoubleArray);
 	mser;
 	tAttr.setReadable(true);
 	tAttr.setStorable(false);
 	addAttribute(aUpdatedFoodLevel);
 
-	aHungry = tAttr.create("hungry", "hg", MFnData::kDoubleArray, &st ); mser;
+	aHungry = tAttr.create("hungry", "hg", MFnData::kDoubleArray);
 	tAttr.setStorable(false);
 	addAttribute(aHungry);
 
-	aUpdatedHungry = tAttr.create("updatedHungry", "uhg", MFnData::kDoubleArray, &st ); mser;
+	aUpdatedHungry = tAttr.create("updatedHungry", "uhg", MFnData::kDoubleArray);
 	tAttr.setReadable(true);
 	tAttr.setStorable(false);
 	addAttribute(aUpdatedHungry);
 
-	aHungryFullCycle = tAttr.create("hungryFullCycle", "hfc", MFnData::kDoubleArray, &st );
+	aHungryFullCycle = tAttr.create("hungryFullCycle", "hfc", MFnData::kDoubleArray);
 	mser;
 	tAttr.setReadable(true);
 	tAttr.setStorable(false);

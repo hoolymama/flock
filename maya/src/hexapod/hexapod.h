@@ -52,7 +52,8 @@ public:
 
 
 	static MTypeId	id;
-
+	static MString drawDbClassification;
+	static MString drawRegistrantId;
 	/*
 	aParticleId, aSortedId, aIdIndex
 	Int arrays to help us determine which agents are: 

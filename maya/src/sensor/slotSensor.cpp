@@ -60,16 +60,10 @@ slotSensor::initialize()
 	nAttr.setWritable(true);
 	st = addAttribute(aSlotRadius); mser;
 
-	aSlotImportancePP = tAttr.create("slotImportancePP", "sipp", MFnData::kDoubleArray, &st );
-	mser;
+	aSlotImportancePP = tAttr.create("slotImportancePP", "sipp", MFnData::kDoubleArray );
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
 	st = addAttribute(aSlotImportancePP); mser;
-
-	// aSlotPositionPP = tAttr.create("slotPositionPP", "sppp", MFnData::kVectorArray, &st ); mser;
-	// tAttr.setStorable(false);
-	// tAttr.setConnectable(true);
-	// st = addAttribute(aSlotPositionPP); mser;
 
 	aImportanceMargin	= nAttr.create("importanceMargin", "imm", MFnNumericData::kDouble, 0.1,
 	                                 &st); mser;

@@ -39,6 +39,7 @@ os_linux64:
     - '-pthread'
     - '-c'
     - '-std=c++1y' # c++14 - unique_ptr and make_unique
+    - '-Werror=deprecated-declarations'
     configuration_debug:
         compiler_options:
         -                   '-g3'
@@ -84,6 +85,7 @@ os_darwin64:
     -                       '-Wno-trigraphs'
     -                       '-c'
     -                       '-std=c++1y' # c++14 - unique_ptr and make_unique
+    -                       '-Werror=deprecated-declarations'
     configuration_debug:
         compiler_options:
         -                   '-g3'

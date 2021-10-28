@@ -28,6 +28,7 @@ libs:
 - OpenMayaAnim
 - OpenMayaUI
 - OpenMayaFX
+- OpenMayaRender
 templates:
 - cpp
 - maya
@@ -36,7 +37,15 @@ templates:
 source_files:
 - src/hexapod/*.cpp
 - src/flockShape/*.cpp
+- src/fnpp/*.cpp
+- src/sensor/*.cpp
+- src/priority/*.cpp
+- src/vehicle/*.cpp
+- src/tumble/*.cpp
+
+
 - ../../kettle/src/maya/lookup.cpp
 - ../../kettle/src/maya/mayaMath.cpp
 - ../../kettle/src/JFloatMatrix.cpp
 - ../../kettle/src/JFloatVector.cpp
+- src/plugin.cpp

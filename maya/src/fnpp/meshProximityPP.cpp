@@ -60,7 +60,7 @@ MStatus meshProximityPP::initialize () {
 	tAttr.setCached(false);
 	addAttribute(aPosition);
 
-	aMesh = tAttr.create( "mesh", "msh", MFnData::kMesh, &st ); mser
+	aMesh = tAttr.create( "mesh", "msh", MFnData::kMesh ); 
 	tAttr.setReadable(false);
 	st = addAttribute(aMesh);	mser;
 

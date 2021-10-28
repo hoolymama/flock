@@ -92,20 +92,20 @@ MStatus rollerPP::initialize()
 	MFnUnitAttribute	uAttr;
 
 
-	aCurrentViewPP = tAttr.create("currentViewPP", "cvpp", MFnData::kVectorArray , &st );
+	aCurrentViewPP = tAttr.create("currentViewPP", "cvpp", MFnData::kVectorArray);
 	mser;
 	tAttr.setStorable(false);
 	st = addAttribute( aCurrentViewPP ); mser;
 
-	aLastViewPP = tAttr.create("lastViewPP", "lvpp", MFnData::kVectorArray , &st ); mser;
+	aLastViewPP = tAttr.create("lastViewPP", "lvpp", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	st = addAttribute( aLastViewPP ); mser;
 
-	aSpeedPP = tAttr.create("speedPP", "spp", MFnData::kDoubleArray , &st ); mser;
+	aSpeedPP = tAttr.create("speedPP", "spp", MFnData::kDoubleArray);
 	tAttr.setStorable(false);
 	st = addAttribute( aSpeedPP ); mser;
 
-	aUpPP = tAttr.create("upPP", "upp", MFnData::kVectorArray , &st ); mser;
+	aUpPP = tAttr.create("upPP", "upp", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	st = addAttribute( aUpPP ); mser;
 

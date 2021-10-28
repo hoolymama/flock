@@ -130,14 +130,17 @@ MObject hexapod::aOutLeftC;
 MObject hexapod::aOutRightA;
 MObject hexapod::aOutRightB;
 MObject hexapod::aOutRightC;
+
 MObject hexapod::aOutPosition;
 MObject hexapod::aOutPhi;
-
 MObject hexapod::aOutScale;
+
 MObject hexapod::aOutIdIndex;
 MObject hexapod::aOutSortedId;
 
 MTypeId hexapod::id(k_hexapod);
+MString hexapod::drawDbClassification("drawdb/geometry/paletteNode");
+MString hexapod::drawRegistrantId("paletteNodePlugin");
 
 hexapod::hexapod()
 {

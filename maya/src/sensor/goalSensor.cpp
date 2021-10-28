@@ -200,12 +200,12 @@ MStatus goalSensor::initialize()
 	nAttr.setWritable(true);
 	st = addAttribute(aDecayRampMax); mser;
 
-	aGoalPositions = tAttr.create("goalPositions", "gpos", MFnData::kVectorArray, &st ); mser;
+	aGoalPositions = tAttr.create("goalPositions", "gpos", MFnData::kVectorArray ); 
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
 	st = addAttribute(aGoalPositions); mser;
 
-	aGoalWeights = tAttr.create("goalWeights", "gwt", MFnData::kDoubleArray, &st ); mser;
+	aGoalWeights = tAttr.create("goalWeights", "gwt", MFnData::kDoubleArray );
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
 	st = addAttribute(aGoalWeights); mser;

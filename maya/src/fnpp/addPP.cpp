@@ -40,8 +40,8 @@ MStatus addPP::initialize () {
 	MFnEnumAttribute eAttr;
 
 	aInput = gAttr.create("input", "in");
-	gAttr.addAccept(MFnData::kDoubleArray);
-	gAttr.addAccept(MFnData::kVectorArray);
+	gAttr.addDataAccept(MFnData::kDoubleArray);
+	gAttr.addDataAccept(MFnData::kVectorArray);
 	gAttr.setWritable(true);
 	gAttr.setArray(true);
 	gAttr.setIndexMatters(false);
