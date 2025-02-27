@@ -350,24 +350,18 @@ MStatus splineSensor::initialize()
 	nAttr.setWritable(true);
 	st = addAttribute(aOrbitalParam); mser;
 
-
-
-
-
-
-
 	aSplinePool = tAttr.create("splinePool", "spl", splinePoolData::id ) ; mser;
 	tAttr.setStorable(false);
 	tAttr.setCached(false);
 	st = addAttribute( aSplinePool ); mser;
 
-	attributeAffects( aSplinePool       , aAssessment	);
-	attributeAffects( aTangent	, aAssessment	);
-	attributeAffects( aNormal		, aAssessment	);
-	attributeAffects( aOrbital		, aAssessment	);
-	attributeAffects( aTangentFalloff	, aAssessment	);
-	attributeAffects( aNormalFalloff	, aAssessment	);
-	attributeAffects( aOrbitalFalloff	, aAssessment	);
+	attributeAffects( aSplinePool, aAssessment	);
+	attributeAffects( aTangent, aAssessment	);
+	attributeAffects( aNormal, aAssessment	);
+	attributeAffects( aOrbital, aAssessment	);
+	attributeAffects( aTangentFalloff, aAssessment	);
+	attributeAffects( aNormalFalloff, aAssessment	);
+	attributeAffects( aOrbitalFalloff, aAssessment	);
 
 	return MS::kSuccess;
 }

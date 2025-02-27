@@ -2,8 +2,7 @@
 
 
 
-hexapodDrawData::hexapodDrawData()
-	: MUserData(false) {}
+hexapodDrawData::hexapodDrawData() {}
 
 hexapodDrawData::~hexapodDrawData() {}
-
+ 
