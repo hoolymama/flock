@@ -25,7 +25,7 @@
 
 #include "mayaMath.h"
 #include "errorMacros.h"
-#include "HexapodFoot.h"
+#include "hexapodFoot.h"
 #include "hexapodAgent.h"
 #include "actuator.h"
 
@@ -35,31 +35,31 @@ const double  PI  = 3.141592653;
 const double  TAU = 2.0 * PI;
 const double  epsilon = 0.000001;
 
-static int circleVertexCount = 16;
-const float gap = TAU / circleVertexCount;
+// static int circleVertexCount = 16;
+// const float gap = TAU / circleVertexCount;
 
-static float circle[][4] = {
-	{sin(gap * 0), 0.0f, cos(gap * 0), 1.0f},
-	{sin(gap * 1), 0.0f, cos(gap * 1), 1.0f},
-	{sin(gap * 2), 0.0f, cos(gap * 2), 1.0f},
-	{sin(gap * 3), 0.0f, cos(gap * 3), 1.0f},
-	{sin(gap * 4), 0.0f, cos(gap * 4), 1.0f},
-	{sin(gap * 5), 0.0f, cos(gap * 5), 1.0f},
-	{sin(gap * 6), 0.0f, cos(gap * 6), 1.0f},
-	{sin(gap * 7), 0.0f, cos(gap * 7), 1.0f},
-	{sin(gap * 8), 0.0f, cos(gap * 8), 1.0f},
-	{sin(gap * 9), 0.0f, cos(gap * 9), 1.0f},
-	{sin(gap * 10), 0.0f, cos(gap * 10), 1.0f},
-	{sin(gap * 11), 0.0f, cos(gap * 11), 1.0f},
-	{sin(gap * 12), 0.0f, cos(gap * 12), 1.0f},
-	{sin(gap * 13), 0.0f, cos(gap * 13), 1.0f},
-	{sin(gap * 14), 0.0f, cos(gap * 14), 1.0f},
-	{sin(gap * 15), 0.0f, cos(gap * 15), 1.0f}
-};
+// static float circle[][4] = {
+// 	{sin(gap * 0), 0.0f, cos(gap * 0), 1.0f},
+// 	{sin(gap * 1), 0.0f, cos(gap * 1), 1.0f},
+// 	{sin(gap * 2), 0.0f, cos(gap * 2), 1.0f},
+// 	{sin(gap * 3), 0.0f, cos(gap * 3), 1.0f},
+// 	{sin(gap * 4), 0.0f, cos(gap * 4), 1.0f},
+// 	{sin(gap * 5), 0.0f, cos(gap * 5), 1.0f},
+// 	{sin(gap * 6), 0.0f, cos(gap * 6), 1.0f},
+// 	{sin(gap * 7), 0.0f, cos(gap * 7), 1.0f},
+// 	{sin(gap * 8), 0.0f, cos(gap * 8), 1.0f},
+// 	{sin(gap * 9), 0.0f, cos(gap * 9), 1.0f},
+// 	{sin(gap * 10), 0.0f, cos(gap * 10), 1.0f},
+// 	{sin(gap * 11), 0.0f, cos(gap * 11), 1.0f},
+// 	{sin(gap * 12), 0.0f, cos(gap * 12), 1.0f},
+// 	{sin(gap * 13), 0.0f, cos(gap * 13), 1.0f},
+// 	{sin(gap * 14), 0.0f, cos(gap * 14), 1.0f},
+// 	{sin(gap * 15), 0.0f, cos(gap * 15), 1.0f}
+// };
 
-HexapodFoot::HexapodFoot() {}
+hexapodFoot::hexapodFoot() {}
 
-HexapodFoot::HexapodFoot(
+hexapodFoot::hexapodFoot(
   double homeX,
   double homeZ,
   double minRadius,
@@ -97,7 +97,7 @@ HexapodFoot::HexapodFoot(
 }
 
 
-HexapodFoot::HexapodFoot(
+hexapodFoot::hexapodFoot(
   const rankData &rankData,
   const HexapodAgent *pAgent,
   hexUtil::Rank rank,
@@ -131,9 +131,9 @@ HexapodFoot::HexapodFoot(
 
 
 
-HexapodFoot::~HexapodFoot() {}
+hexapodFoot::~hexapodFoot() {}
 
-MVector HexapodFoot::actuatorValue(actuator &actuator) const
+MVector hexapodFoot::actuatorValue(actuator &actuator) const
 {
 	float inputValue;
 	hexUtil::ActuatorAxis axis = actuator.axis();
@@ -159,9 +159,9 @@ MVector HexapodFoot::actuatorValue(actuator &actuator) const
 
 }
 
-float HexapodFoot::stepParam() const { return float(m_stepParam);}
+float hexapodFoot::stepParam() const { return float(m_stepParam);}
 
-MVector HexapodFoot::position(hexUtil::Space space) const
+MVector hexapodFoot::position(hexUtil::Space space) const
 {
 	if (space == hexUtil::kLocal) {
 		return MVector(m_footPositionLocal);
@@ -188,7 +188,7 @@ To know whether the foot will actually be in the radius in the future
 we should test the sweep of the circle along the velocity.
 */
 
-bool HexapodFoot::needsNewPlant(const MVector &localVelocity) const {
+bool hexapodFoot::needsNewPlant(const MVector &localVelocity) const {
 
 	double dmat[4][4] = {
 		{m_radius, 0.0, 0.0, 0.0},
@@ -210,7 +210,7 @@ We use the agents matrix and matrixNext to figure out where
 this foot's home will be at dt in the future. We then calc
 the velocity from that
 */
-MVector HexapodFoot::getLocalVelocity(double dt) const {
+MVector hexapodFoot::getLocalVelocity(double dt) const {
 	MStatus st;
 	MPoint  localHome(m_homeX, 0, m_homeZ);
 	MMatrix localNextMatrix = m_pAgent->matrixNext() *  m_pAgent->matrixInverse();
@@ -225,12 +225,13 @@ at the time when the foot will land. Then, using the plant bias,
 we set the plant to be either at the home, or on the far edge of the circle,
 or at some point between. Plant bias is based on speed
 */
-MPoint HexapodFoot::planNextPlant(
+MPoint hexapodFoot::planNextPlant(
   double dt,
   float increment,
   const MVector localVelocity,
-  float plantBias,
-  Ground &ground) const
+  float plantBias
+//   Ground &ground
+  ) const
 {
 
 	// cerr << "planning plant" << endl;
@@ -244,7 +245,7 @@ MPoint HexapodFoot::planNextPlant(
 
 	MMatrix agentMatrix =  m_pAgent->matrix();
 	result = result * agentMatrix; /* put plant position in world space*/
-	result = ground.project(result, agentMatrix);
+	// result = ground.project(result, agentMatrix);
 
 
 
@@ -267,7 +268,7 @@ step, this foot will almost definitely stay on the ground.
 
 
 
-void HexapodFoot::updateHomeCircles(
+void hexapodFoot::updateHomeCircles(
   const rankData &rank,
   float anteriorStepParam,
   float lateralStepParam,
@@ -295,56 +296,7 @@ void HexapodFoot::updateHomeCircles(
 }
 
 
-/*
-run the update - effectively a sim step
-If the stepParam is less than 1.0, then the foot is in mid step.
-In that case we add some increment to the stepParam, and move the
-foot accrordingly towards the planned plant position.
-
-If step param is at 1.0, then the foot is stationary on the ground.
-We check to see if it needs to be repositioned, and if so we plan
-a new plant and launch into a step. If not, then it stays where
-it is for another frame.
-// */
-// void HexapodFoot::update(
-// 	double dt, double maxSpeed,
-// 	MRampAttribute &incRamp,
-// 	MRampAttribute &plantSpeedBiasRamp
-// 	)
-// {
-
-// 	MStatus st;
-
-// 	/* prep velocity, increment, speed */
-// 	MVector localVelocity = getLocalVelocity(dt);
-// 	m_speed = localVelocity.length();
-// 	float normalizedSpeed = float(m_speed / maxSpeed);
-// 	float increment;
-// 	incRamp.getValueAtPosition( normalizedSpeed, increment, &st ); mser;
-
-
-// 		/* is foot in a step */
-// 	if (m_stepParam < (1.0-epsilon)) {
-// 		/* advance the foot a bit*/
-// 		m_stepParam = std::min((m_stepParam + increment), 1.0);
-// 		m_footPosition = (m_lastPlant*(1.0 - m_stepParam)) +(m_nextPlant * m_stepParam);
-// 	} else {
-// 		/* not in a step - so check if a plant is needed */
-// 		if (needsNewPlant(localVelocity)) {
-// 			float  plantBias;
-// 			plantSpeedBiasRamp.getValueAtPosition( normalizedSpeed, plantBias, &st ); mser;
-// 			m_lastPlant = m_footPosition;
-// 			m_nextPlant = planNextPlant(dt, increment, localVelocity, plantBias);
-// 			m_stepParam = 0;
-// 		}
-// 		// else nothing - leave it where it is
-// 	}
-// }
-
-/*
-
-*/
-MPoint HexapodFoot::calcFootPosition(rankData &rank) const {
+MPoint hexapodFoot::calcFootPosition(rankData &rank) const {
 	MStatus st;
 	float height;
 	rank.liftProfileRamp.getValueAtPosition( float(m_stepParam), height, &st ); mser;
@@ -360,7 +312,7 @@ MPoint HexapodFoot::calcFootPosition(rankData &rank) const {
 
 
 
-void HexapodFoot::cacheLocalFootPosition() {
+void hexapodFoot::cacheLocalFootPosition() {
 
 	double homeMat[4][4] = {
 		{1, 0.0, 0.0, 0.0},
@@ -375,11 +327,11 @@ void HexapodFoot::cacheLocalFootPosition() {
 
 }
 
-void HexapodFoot::update(
+void hexapodFoot::update(
   double dt, double maxSpeed,
   rankData &rank,
-  MRampAttribute &plantSpeedBiasRamp,
-  Ground &ground
+  MRampAttribute &plantSpeedBiasRamp
+//   Ground &ground
 )
 {
 
@@ -391,9 +343,7 @@ void HexapodFoot::update(
 	float normalizedSpeed = float(m_speed / maxSpeed);
 	float increment;
 
-	// 	MRampAttribute stepIncrementRamp;
-	// MRampAttribute slideProfileRamp;
-	// MRampAttribute liftProfileRamp;
+ 
 
 	rank.stepIncrementRamp.getValueAtPosition( normalizedSpeed, increment, &st ); mser;
 
@@ -411,7 +361,10 @@ void HexapodFoot::update(
 			plantSpeedBiasRamp.getValueAtPosition( normalizedSpeed, plantBias, &st ); mser;
 			m_lastPlant = m_footPosition;
 			// m_lastPlant = m_nextPlant;
-			m_nextPlant = planNextPlant(dt, increment, localVelocity, plantBias, ground);
+			m_nextPlant = planNextPlant(
+				dt, increment, localVelocity, plantBias
+				// , ground
+				);
 			m_stepParam = 0;
 		}
 
@@ -424,11 +377,11 @@ void HexapodFoot::update(
 		 */
 
 
-		if (ground.isAnimated()) {
-			MPoint localPos = m_footPosition * m_pAgent->matrixInverse();
-			localPos.y = 0;
-			m_footPosition = localPos * m_pAgent->matrix();
-		}
+		// if (ground.isAnimated()) {
+		// 	MPoint localPos = m_footPosition * m_pAgent->matrixInverse();
+		// 	localPos.y = 0;
+		// 	m_footPosition = localPos * m_pAgent->matrix();
+		// }
 		// snap to home rig
 		// else nothing - leave it where it is
 
@@ -443,131 +396,131 @@ void HexapodFoot::update(
 
 }
 
-// draw functions
-void HexapodFoot::drawCircleAtHome(
-  M3dView &view,
-  const MFloatMatrix &agentMatrix,
-  float radius,
-  const MColor &color) const {
+// // draw functions
+// void hexapodFoot::drawCircleAtHome(
+//   M3dView &view,
+//   const MFloatMatrix &agentMatrix,
+//   float radius,
+//   const MColor &color) const {
 
-	float fmat[4][4] = {
-		{radius, 0.0f, 0.0f, 0.0f},
-		{0.0f, radius, 0.0f, 0.0f},
-		{0.0f, 0.0f, radius, 0.0f},
-		{float(m_homeX), 0.0f, float(m_homeZ), 1.0f}
-	};
+// 	float fmat[4][4] = {
+// 		{radius, 0.0f, 0.0f, 0.0f},
+// 		{0.0f, radius, 0.0f, 0.0f},
+// 		{0.0f, 0.0f, radius, 0.0f},
+// 		{float(m_homeX), 0.0f, float(m_homeZ), 1.0f}
+// 	};
 
-	MFloatMatrix circleMatrix(fmat);
-	circleMatrix = circleMatrix * agentMatrix;
+// 	MFloatMatrix circleMatrix(fmat);
+// 	circleMatrix = circleMatrix * agentMatrix;
 
-	MFloatPointArray c(circleVertexCount);
-	for (int i = 0; i < circleVertexCount; ++i) {
-		c[i] = MFloatPoint(circle[i]) * circleMatrix;
-	}
+// 	MFloatPointArray c(circleVertexCount);
+// 	for (int i = 0; i < circleVertexCount; ++i) {
+// 		c[i] = MFloatPoint(circle[i]) * circleMatrix;
+// 	}
 
-	view.setDrawColor(color);
-	glBegin( GL_LINES );
-	for (int i = 0; i < circleVertexCount; ++i)
-	{
-		int next = (i + 1) % circleVertexCount;
-		glVertex3f( c[i].x , c[i].y , c[i].z );
-		glVertex3f( c[next].x , c[next].y , c[next].z );
-	}
-	glEnd();
-};
-
-
-void HexapodFoot::drawFootAndPlants( M3dView &view,  const DisplayMask &mask ) const {
-
-	glPushAttrib(GL_CURRENT_BIT);
-
-	glPointSize(4);
-
-	glBegin( GL_POINTS );
-	if (mask.displayPlants) {
-		view.setDrawColor( MColor( MColor::kRGB, 0.0, 0.0, 0.0 ) );
-		glVertex3d( m_lastPlant.x , m_lastPlant.y , m_lastPlant.z );
-		view.setDrawColor( MColor( MColor::kRGB, 1.0, 1.0, 1.0 ) );
-		glVertex3d( m_nextPlant.x , m_nextPlant.y , m_nextPlant.z );
-	}
-	if (mask.displayFootPosition) {
-
-		view.setDrawColor( MColor( MColor::kRGB, 0.0, 1.0, 0.0 ) );
-		glVertex3d( m_footPosition.x , m_footPosition.y , m_footPosition.z );
-	}
-	glEnd();
-
-	glPopAttrib();
-
-}
-
-void HexapodFoot::drawDoubleValue(M3dView &view, double value) const {
-	MPoint dpos = MPoint(m_homeX, 0, m_homeZ) * m_pAgent->matrix();
-	MFloatVector pos(float(dpos.x), float(dpos.y) , float(dpos.z));
-
-	MString val;
-	val.set (value, 4);
-	view.setDrawColor( MColor( MColor::kRGB, 1.0, 0.5, 0.0 ) );
-	view.drawText(val, pos, M3dView::kLeft);
-
-}
-
-void HexapodFoot::drawFootLocal(M3dView &view) const {
-	MPoint dpos = MPoint(m_homeX, 0, m_homeZ) * m_pAgent->matrix();
-	MFloatVector pos(float(dpos.x), float(dpos.y) , float(dpos.z));
-
-	MString result("X:");
-
-	MString val;
-	val.set (m_footPositionLocal.x, 4); result += val;	result += "\nY:";
-	val.set (m_footPositionLocal.y, 4); result += val;	result += "\nZ:";
-	val.set (m_footPositionLocal.z, 4); result += val;	result += "\nP:";
-	val.set (m_stepParam, 4); result += val;
-
-	view.setDrawColor( MColor( MColor::kRGB, 1.0, 1.0, 1.0 ) );
-	view.drawText(result, pos, M3dView::kLeft);
-
-}
+// 	view.setDrawColor(color);
+// 	glBegin( GL_LINES );
+// 	for (int i = 0; i < circleVertexCount; ++i)
+// 	{
+// 		int next = (i + 1) % circleVertexCount;
+// 		glVertex3f( c[i].x , c[i].y , c[i].z );
+// 		glVertex3f( c[next].x , c[next].y , c[next].z );
+// 	}
+// 	glEnd();
+// };
 
 
+// void hexapodFoot::drawFootAndPlants( M3dView &view,  const DisplayMask &mask ) const {
+
+// 	glPushAttrib(GL_CURRENT_BIT);
+
+// 	glPointSize(4);
+
+// 	glBegin( GL_POINTS );
+// 	if (mask.displayPlants) {
+// 		view.setDrawColor( MColor( MColor::kRGB, 0.0, 0.0, 0.0 ) );
+// 		glVertex3d( m_lastPlant.x , m_lastPlant.y , m_lastPlant.z );
+// 		view.setDrawColor( MColor( MColor::kRGB, 1.0, 1.0, 1.0 ) );
+// 		glVertex3d( m_nextPlant.x , m_nextPlant.y , m_nextPlant.z );
+// 	}
+// 	if (mask.displayFootPosition) {
+
+// 		view.setDrawColor( MColor( MColor::kRGB, 0.0, 1.0, 0.0 ) );
+// 		glVertex3d( m_footPosition.x , m_footPosition.y , m_footPosition.z );
+// 	}
+// 	glEnd();
+
+// 	glPopAttrib();
+
+// }
+
+// void hexapodFoot::drawDoubleValue(M3dView &view, double value) const {
+// 	MPoint dpos = MPoint(m_homeX, 0, m_homeZ) * m_pAgent->matrix();
+// 	MFloatVector pos(float(dpos.x), float(dpos.y) , float(dpos.z));
+
+// 	MString val;
+// 	val.set (value, 4);
+// 	view.setDrawColor( MColor( MColor::kRGB, 1.0, 0.5, 0.0 ) );
+// 	view.drawText(val, pos, M3dView::kLeft);
+
+// }
+
+// void hexapodFoot::drawFootLocal(M3dView &view) const {
+// 	MPoint dpos = MPoint(m_homeX, 0, m_homeZ) * m_pAgent->matrix();
+// 	MFloatVector pos(float(dpos.x), float(dpos.y) , float(dpos.z));
+
+// 	MString result("X:");
+
+// 	MString val;
+// 	val.set (m_footPositionLocal.x, 4); result += val;	result += "\nY:";
+// 	val.set (m_footPositionLocal.y, 4); result += val;	result += "\nZ:";
+// 	val.set (m_footPositionLocal.z, 4); result += val;	result += "\nP:";
+// 	val.set (m_stepParam, 4); result += val;
+
+// 	view.setDrawColor( MColor( MColor::kRGB, 1.0, 1.0, 1.0 ) );
+// 	view.drawText(result, pos, M3dView::kLeft);
+
+// }
 
 
-void HexapodFoot::draw(M3dView &view,
-                       MFloatMatrix &agentMatrix,
-                       const DisplayMask &mask) const {
-
-	if (mask.displayHome) {
-		HexapodFoot::drawCircleAtHome(view,
-		                              agentMatrix,
-		                              float(m_minRadius),
-		                              MColor(0.0, 0.0, 1.0)
-		                             );
-
-		HexapodFoot::drawCircleAtHome(view,
-		                              agentMatrix,
-		                              float(m_maxRadius),
-		                              MColor(1.0, 0.0, 0.0)
-		                             );
 
 
-		HexapodFoot::drawCircleAtHome(view,
-		                              agentMatrix,
-		                              float(m_radius),
-		                              MColor(1.0, 1.0, 1.0)
-		                             );
-	}
-	/* world space */
-	HexapodFoot::drawFootAndPlants(view, mask);
+// void hexapodFoot::draw(M3dView &view,
+//                        MFloatMatrix &agentMatrix,
+//                        const DisplayMask &mask) const {
 
-	if (mask.displaySpeed) {
-		HexapodFoot::drawDoubleValue(view, m_speed);
-	}
+// 	if (mask.displayHome) {
+// 		hexapodFoot::drawCircleAtHome(view,
+// 		                              agentMatrix,
+// 		                              float(m_minRadius),
+// 		                              MColor(0.0, 0.0, 1.0)
+// 		                             );
 
-	if (mask.displayFootLocal) {
-		HexapodFoot::drawFootLocal(view);
-	}
+// 		hexapodFoot::drawCircleAtHome(view,
+// 		                              agentMatrix,
+// 		                              float(m_maxRadius),
+// 		                              MColor(1.0, 0.0, 0.0)
+// 		                             );
 
 
-};
+// 		hexapodFoot::drawCircleAtHome(view,
+// 		                              agentMatrix,
+// 		                              float(m_radius),
+// 		                              MColor(1.0, 1.0, 1.0)
+// 		                             );
+// 	}
+// 	/* world space */
+// 	hexapodFoot::drawFootAndPlants(view, mask);
+
+// 	if (mask.displaySpeed) {
+// 		hexapodFoot::drawDoubleValue(view, m_speed);
+// 	}
+
+// 	if (mask.displayFootLocal) {
+// 		hexapodFoot::drawFootLocal(view);
+// 	}
+
+
+// };
 
 

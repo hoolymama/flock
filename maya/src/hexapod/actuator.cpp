@@ -14,22 +14,6 @@
 #include "hexUtil.h"
 
 
-/*
-
-	hexUtil::Rank rank,
-	hexUtil::ActuatorAxis axis,
-	hexUtil::ActuatorChannel channel,
-	bool mirror,
-	bool active,
-	MRampAttribute & ramp,
-	double	inputMin,
-	double	inputMax,
-	double	outputMin,
-	double	outputMax
-
-
-*/
-
 
 const double epsilon = 0.0000001;
 actuator::actuator() {}
@@ -108,10 +92,6 @@ void actuator::set(	MDataHandle &handle, const MObject &node, const MPlug &rampP
 	values.setLength(nEl);
 	interps.setLength(nEl);
 
-	// MObject posatt = dn.attribute("actuatorRamp_Position", &st); mser;
-	// MObject valatt = dn.attribute("actuatorRamp_FloatValue", &st); mser;
-	// MObject intatt = dn.attribute("actuatorRamp_Interp", &st); mser;
-
 
 
 	for (int i = 0; i < nEl; ++i)
@@ -123,22 +103,11 @@ void actuator::set(	MDataHandle &handle, const MObject &node, const MPlug &rampP
 		MPlug interpPlug = elPlug.child(2);
 
 
-		// cerr << "posPlug.name()" << posPlug.name() << endl;
-		// cerr << "valPlug.name()" << valPlug.name() << endl;
-		// cerr << "interpPlug.name()" << interpPlug.name() << endl;
-
-
 		posPlug.getValue(positions[i]);
 		valPlug.getValue(values[i]);
 		interpPlug.getValue(interps[i]);
 
 	}
-	// 		cerr << "----------: " << endl;
-
-	// cerr << "positions: "<< positions << endl;
-	// cerr << "values: "<< values << endl;
-	// cerr << "interps: "<< interps << endl;
-	// 		cerr << "~~~~~~~~~~~~: " << endl;
 
 	m_ramp.addEntries(positions , values , interps, &st); mser;
 
@@ -146,114 +115,10 @@ void actuator::set(	MDataHandle &handle, const MObject &node, const MPlug &rampP
 	m_ramp.deleteEntries(indicesToDelete);
 
 
-	// m_ramp.getEntries(indices, positions, values,interps, &st); mser;
-	// cerr << "indices: "<< indices << endl;
-	// cerr << "positions: "<< positions << endl;
-	// cerr << "values: "<< values << endl;
-	// cerr << "interps: "<< interps << endl;
-	// 		cerr << "----------: " << endl;
-
-
-	// 		float result;
-	// 		m_ramp.getValueAtPosition(0.56f, result);
-
-	// cerr << "result: " << result << endl;
-
 
 }
 
 
-// actuator::actuator(	MDataHandle &handle, const MObject &node, const MPlug &rampPlug)
-// {
-// 	MObject att, patt;
-// 	MStatus st;
-// 	MFnDependencyNode dn(node, &st);mser;
-
-// 	att = dn.attribute( "actuatorRank", &st);mser;
-// 	m_rank = (hexUtil::Rank)handle.child(att).asShort();
-
-// 	att = dn.attribute( "actuatorInputAxis", &st);mser;
-// 	m_axis = (hexUtil::ActuatorAxis)handle.child(att).asShort();
-
-// 	att = dn.attribute( "actuatorOutputChannel", &st);mser;
-// 	m_channel = (hexUtil::ActuatorChannel)handle.child(att).asShort();
-
-// 	att = dn.attribute( "actuatorInputMirror", &st);mser;
-// 	m_mirror = handle.child(att).asBool();
-
-// 	patt = dn.attribute("actuatorInputRange", &st); mser;
-
-// 	att = dn.attribute("actuatorInputMin", &st); mser;
-// 	m_inputMin = handle.child(patt).child(att).asDouble();
-
-// 	att = dn.attribute("actuatorInputMax", &st); mser;
-// 	m_inputMax = handle.child(patt).child(att).asDouble();
-
-// 	if (m_inputMin > m_inputMax) {
-// 		double tmp = m_inputMin;
-// 		m_inputMin = m_inputMax;
-// 		m_inputMax = tmp;
-// 	}
-// 	if (m_inputMin >= m_inputMax-epsilon) {
-// 		m_inputMax += epsilon;
-// 	}
-
-
-// 	patt = dn.attribute("actuatorOutputRange", &st); mser;
-
-// 	att = dn.attribute("actuatorOutputMin", &st); mser;
-// 	m_outputMin = handle.child(patt).child(att).asDouble();
-
-// 	att = dn.attribute("actuatorOutputMax", &st); mser;
-// 	m_outputMax = handle.child(patt).child(att).asDouble();
-
-
-
-// 	unsigned nEl = rampPlug.numElements(&st); mser;
-// 	m_positions.setLength(nEl);
-// 	m_values.setLength(nEl);
-// 	m_interps.setLength(nEl);
-
-
-// 	for (int i = 0; i < nEl; ++i)
-// 	{
-// 		MPlug elPlug = rampPlug.elementByPhysicalIndex(i);
-// 		unsigned numChildren = elPlug.numChildren(&st); mser;
-
-// 		MPlug posPlug = elPlug.child(0);
-// 		MPlug valPlug = elPlug.child(1);
-// 		MPlug interpPlug = elPlug.child(2);
-
-// 		posPlug.getValue(positions[i]);
-// 		valPlug.getValue(values[i]);
-// 		interpPlug.getValue(interps[i]);
-
-// 	}
-
-
-// 	// cerr << "positions: " << positions << endl;
-// 	// cerr << "values: " << values << endl;
-// 	// cerr << "interps: " << interps << endl;
-
-// 	// m_ramp = MRampAttribute();
-
-// 	// m_ramp.addEntries(positions ,values ,interps, &st); mser;
-
-// 	// MObject plugAtt = plug.attribute(&st); mser;
-//  // 	MObject plugNode = plug.node(&st); mser;
-// 	// MString name = plug.name(&st);mser;
-// 	// cerr << "plug name: " << name << endl;
-
-// 	// att = dn.attribute("actuatorRamp", &st);mser;
-// 	// MPlug rampPlug = plug.child(att);
-// 	// MString rname = rampPlug.name(&st);mser;
-// 	// cerr << "plug rname: " << rname << endl;
-
-
-
-// 	// m_ramp = MRampAttribute( rampPlug , &st);mser;
-
-// }
 
 hexUtil::Rank actuator::rank() const {return m_rank;}
 hexUtil::ActuatorAxis actuator::axis() const {return m_axis;}

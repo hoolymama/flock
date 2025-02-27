@@ -25,9 +25,9 @@
 #include <maya/MRampAttribute.h>
 #include "mayaMath.h"
 
-#include "Ground.h"
+// #include "Ground.h"
 #include "rankData.h"
-#include "HexapodColony.h"
+#include "hexapodColony.h"
 #include  "actuator.h"
 
 #if defined(OSMac_MachO_)
@@ -38,20 +38,19 @@
 
 
 /*
-HexapodColony is concerned with maintaining the correct list of agents
+hexapodColony is concerned with maintaining the correct list of agents
 based on input arrays of dta from particles.
 
 It uses a kind of zipping up algorithm to add new agents, delete dead
 agents, and update existing agents
 */
-HexapodColony::HexapodColony( )
-	: m_agents(),
-	  m_ground()
+hexapodColony::hexapodColony( )
+	: m_agents()
 {}
 
 
 
-void HexapodColony::clear() {
+void hexapodColony::clear() {
 	std::list<HexapodAgent *>::iterator iter = m_agents.begin();
 	while (iter != m_agents.end()) {
 		delete *iter;
@@ -61,19 +60,19 @@ void HexapodColony::clear() {
 	m_agents.clear();
 }
 
-bool HexapodColony::hasMesh() const
-{
-	return m_ground.valid();
-}
+// bool hexapodColony::hasMesh() const
+// {
+// 	return m_ground.valid();
+// }
 
-const Ground &HexapodColony::ground() const {return m_ground;}
+// const Ground &hexapodColony::ground() const {return m_ground;}
 
 
-MStatus HexapodColony::setMesh(const  MObject &node,  MDataBlock &data) {
-	return m_ground.setMesh(node, data);
-}
+// MStatus hexapodColony::setMesh(const  MObject &node,  MDataBlock &data) {
+// 	return m_ground.setMesh(node, data);
+// }
 
-void HexapodColony::getDefaultOutputData(
+void hexapodColony::getDefaultOutputData(
   const  MObject &node,
   MDataBlock &data,
   MVectorArray &outLA,
@@ -112,7 +111,7 @@ void HexapodColony::getDefaultOutputData(
 
 }
 
-void HexapodColony::getOutputData(
+void hexapodColony::getOutputData(
   const MIntArray &idIndex,
   MVectorArray &outLA,
   MVectorArray &outLB,
@@ -171,12 +170,12 @@ void HexapodColony::getOutputData(
  so we need to build actuators one at a time using a dummy
 
 */
-void HexapodColony::applyActuators(	const  MObject &node,	MDataBlock &data)
+void hexapodColony::applyActuators(	const  MObject &node,	MDataBlock &data)
 {
 	MStatus st;
 	MFnDependencyNode dn(node, &st); mser;
 
-	// std::vector<actuator*> actuatorStack;
+ 
 	MObject actuatorAtt =  dn.attribute( "bodyActuator" );
 	MArrayDataHandle  hActuator = data.inputArrayValue(actuatorAtt);
 	MPlug actuatorPlug(node, actuatorAtt);
@@ -209,18 +208,18 @@ void HexapodColony::applyActuators(	const  MObject &node,	MDataBlock &data)
 			}
 		}
 	}
-	// for (int i = 0; i < actuatorStack.size(); i++){ cerr << (*actuatorStack[i]) << endl ; }
+ 
 	/////////////////////////////////////
 	delete pActuator;
 }
 
 
-MStatus HexapodColony::update(
+MStatus hexapodColony::update(
   double dt ,
   const  MObject &node,
   MDataBlock &data
 ) {
-	// cerr << "HexapodColony::update....." << endl;
+	// cerr << "hexapodColony::update....." << endl;
 
 	MStatus st;
 	MFnDependencyNode dn(node, &st); mser;
@@ -245,13 +244,11 @@ MStatus HexapodColony::update(
 	MVectorArray rightFootFeed =  getVectorArray("rightFootFeed", node, data, len, &st); mser;
 	MDoubleArray feedBlend =  getDoubleArray("feedBlend", node, data, len, &st); mser;
 
-	// cerr << "create rankDatas" << endl;
-
+ 
 	rankData rankA(node, "A");
 	rankData rankB(node, "B");
 	rankData rankC(node, "C");
-	// cerr << "done createing rankData" << endl;
-
+ 
 	att = dn.attribute	( "maxSpeed", &st); mser;
 	double	maxSpeed	= data.inputValue(att).asDouble();
 	if (maxSpeed < 0.00001) {
@@ -336,10 +333,7 @@ MStatus HexapodColony::update(
 			  rankA, rankB, rankC, bodyOffset, floorThickness, bodyFootAverageBias,
 			  plantSpeedBiasRamp, anteriorRadiusRamp,
 			  lateralRadiusRamp,  posteriorRadiusRamp,
-			  leftFootFeed[index], rightFootFeed[index], feedBlend[index],
-			  m_ground
-
-
+			  leftFootFeed[index], rightFootFeed[index], feedBlend[index]
 			);
 
 			rPeg++;
@@ -364,27 +358,27 @@ MStatus HexapodColony::update(
 }
 
 
-HexapodColony::~HexapodColony() {
+hexapodColony::~hexapodColony() {
 	clear();
 }
 
 
-void HexapodColony::draw(
-  M3dView &view, const DisplayMask &mask	) const {
+// void hexapodColony::draw(
+//   M3dView &view, const DisplayMask &mask	) const {
 
-	view.beginGL();
-	glPushAttrib(GL_CURRENT_BIT);
+// 	view.beginGL();
+// 	glPushAttrib(GL_CURRENT_BIT);
 
-	std::list<HexapodAgent *>::const_iterator agent = m_agents.begin();
-	double d44[4][4];
-	while (agent != m_agents.end()) {
-		(*agent)->draw(view, mask);
-		agent++;
-	}
+// 	std::list<HexapodAgent *>::const_iterator agent = m_agents.begin();
+// 	double d44[4][4];
+// 	while (agent != m_agents.end()) {
+// 		(*agent)->draw(view, mask);
+// 		agent++;
+// 	}
 
-	glPopAttrib();
-	view.endGL();
-}
+// 	glPopAttrib();
+// 	view.endGL();
+// }
 
 
 

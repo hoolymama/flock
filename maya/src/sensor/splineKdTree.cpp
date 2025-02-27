@@ -133,7 +133,7 @@ void splineKdTree::wirthSelect(  int left,  int right,  int k, mayaMath::axis cu
 {
 	int n = (right - left) + 1;
 	if (n <= 1) { return; }
-	register int i, j, l, m;
+	int i, j, l, m;
 	splineData *x;
 	splineData *tmp;
 

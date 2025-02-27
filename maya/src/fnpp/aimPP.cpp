@@ -277,13 +277,13 @@ MStatus aimPP::initialize()
 	MFnUnitAttribute uAttr;
 	MFnEnumAttribute eAttr;
 
-	aFront = tAttr.create("frontVector", "fnt", MFnData::kVectorArray , &st ); mser;
+	aFront = tAttr.create("frontVector", "fnt", MFnData::kVectorArray);
 	tAttr.setStorable(false);
-	st = addAttribute( aFront ); mser;
+	addAttribute( aFront ); 
 
-	aUp = tAttr.create("up", "upVector", MFnData::kVectorArray , &st ); mser;
+	aUp = tAttr.create("up", "upVector", MFnData::kVectorArray);
 	tAttr.setStorable(false);
-	st = addAttribute( aUp ); mser;
+	addAttribute( aUp );
 
 	aRotateOrder = eAttr.create( "rotateOrder", "ro", ROTATE_ORDER_XYZ);
 	eAttr.addField("xyz", ROTATE_ORDER_XYZ);
@@ -294,7 +294,7 @@ MStatus aimPP::initialize()
 	eAttr.addField("zyx", ROTATE_ORDER_ZYX);
 	eAttr.setKeyable(true);
 	eAttr.setHidden(false);
-	st = addAttribute( aRotateOrder ); mser;
+	addAttribute( aRotateOrder );
 
 	aFrontAxis = eAttr.create( "frontAxis", "fa", X_AXIS);
 	eAttr.addField("x", X_AXIS);
@@ -339,7 +339,7 @@ MStatus aimPP::initialize()
 	st = addAttribute( aOutputType ); mser;
 
 
-	aOut = tAttr.create("out", "o", MFnData::kVectorArray , &st ); mser;
+	aOut = tAttr.create("out", "o", MFnData::kVectorArray ); 
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	st = addAttribute( aOut ); mser;

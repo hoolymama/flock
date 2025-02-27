@@ -146,7 +146,7 @@ void agentKdTree::wirthSelect(  int left,  int right,  int k, mayaMath::axis cut
 {
 	int n = (right - left) + 1;
 	if (n <= 1) return;
-	register int i,j,l,m;
+	int i,j,l,m;
 	agent *x;
 	agent *tmp;
 	

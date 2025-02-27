@@ -178,26 +178,25 @@ MStatus legacyTumbler::initialize()
   eAttr.setHidden(false);
   st = addAttribute( aUpAxis ); mser;
 
-  aGoalFront = tAttr.create("goalFrontVector", "gfnt", MFnData::kVectorArray , &st ); mser;
+  aGoalFront = tAttr.create("goalFrontVector", "gfnt", MFnData::kVectorArray);
   tAttr.setStorable(false);
   st = addAttribute( aGoalFront ); mser;
 
-  aGoalUp = tAttr.create("goalUpVector", "gup", MFnData::kVectorArray , &st ); mser;
+  aGoalUp = tAttr.create("goalUpVector", "gup", MFnData::kVectorArray);
   tAttr.setStorable(false);
   st = addAttribute( aGoalUp ); mser;
 
-  aGoalWeightPP = tAttr.create("goalWeightPP", "gwpp", MFnData::kDoubleArray , &st ); mser;
+  aGoalWeightPP = tAttr.create("goalWeightPP", "gwpp", MFnData::kDoubleArray);
   tAttr.setDisconnectBehavior(MFnAttribute::kReset);
   tAttr.setStorable(false);
   st = addAttribute( aGoalWeightPP ); mser;
 
-  aImpulse = tAttr.create("impulse", "ii", MFnData::kVectorArray, &st); mser;
+  aImpulse = tAttr.create("impulse", "ii", MFnData::kVectorArray);
   tAttr.setStorable(false);
   tAttr.setReadable(false);
   st = addAttribute( aImpulse ); mser;
 
-  aCollisionImpulse = tAttr.create("collisionImpulse", "cim", MFnData::kVectorArray, &st);
-  mser;
+  aCollisionImpulse = tAttr.create("collisionImpulse", "cim", MFnData::kVectorArray);
   tAttr.setStorable(false);
   tAttr.setReadable(false);
   st = addAttribute( aCollisionImpulse ); mser;
@@ -224,7 +223,6 @@ MStatus legacyTumbler::initialize()
   aImpulseGoalWeightMap = MRampAttribute::createCurveRamp("impulseGoalWeightMap", "igwt");
   st = addAttribute( aImpulseGoalWeightMap ); mser;
 
-
   aVelocityGoalRange = nAttr.create("velocityGoalRange", "vgr", MFnNumericData::kDouble);
   nAttr.setKeyable(true);
   nAttr.setStorable(true);
@@ -233,11 +231,6 @@ MStatus legacyTumbler::initialize()
 
   aVelocityGoalWeightMap = MRampAttribute::createCurveRamp("velocityGoalWeightMap", "vgwt");
   st = addAttribute( aVelocityGoalWeightMap ); mser;
-
-
-
-
-  ///////////////////////////////////////////////////////////////////////
 
   ////////////////////////////////////////////////////////////
   aLocalImpulse = nAttr.create( "localImpulse", "lim", MFnNumericData::kBoolean);
@@ -310,17 +303,17 @@ MStatus legacyTumbler::initialize()
   tAttr.setReadable(true);
   tAttr.setWritable(false);
 
-  aOutRotation = tAttr.create("outRotation", "orot", MFnData::kVectorArray , &st ); mser;
+  aOutRotation = tAttr.create("outRotation", "orot", MFnData::kVectorArray );
   tAttr.setStorable(false);
   tAttr.setReadable(true);
   tAttr.setWritable(false);
 
-  aOutPoints = tAttr.create("outPoints", "opns", MFnData::kVectorArray , &st ); mser;
+  aOutPoints = tAttr.create("outPoints", "opns", MFnData::kVectorArray );
   tAttr.setStorable(false);
   tAttr.setReadable(true);
   tAttr.setWritable(false);
 
-  aOutRotationData = cAttr.create("outRotationData", "ord", &st ); mser;
+  aOutRotationData = cAttr.create("outRotationData", "ord");
   cAttr.addChild(aOutPhi);
   cAttr.addChild(aOutOmega);
   cAttr.addChild(aOutFront);

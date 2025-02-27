@@ -34,12 +34,12 @@ MStatus ellipsoidSensor::initialize()
 	MFnNumericAttribute nAttr;
 	MStatus st;
 
-	aPhi = tAttr.create("phi", "phi", MFnData::kVectorArray, &st ); mser;
+	aPhi = tAttr.create("phi", "phi", MFnData::kVectorArray ); 
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
 	st = addAttribute(aPhi); mser;
 
-	aScale = tAttr.create("scale", "scl", MFnData::kVectorArray, &st ); mser;
+	aScale = tAttr.create("scale", "scl", MFnData::kVectorArray ); 
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
 	st = addAttribute(aScale); mser;

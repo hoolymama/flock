@@ -67,7 +67,7 @@ MStatus clonerStack::conform(const MObject &node, MArrayDataHandle & ah, unsigne
 	
 	unsigned n = ah.elementCount();
 	MFnDependencyNode nodeFn(node);
-	MPlug inMeshesPlug = nodeFn.findPlug(flockShape::aInMeshes);
+	MPlug inMeshesPlug = nodeFn.findPlug(flockShape::aInMeshes, true);
 
 	for(unsigned i = 0;i < n; i++, ah.next()) {
 		

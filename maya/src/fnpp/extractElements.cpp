@@ -50,8 +50,8 @@ MStatus extractElements::initialize () {
 	MFnEnumAttribute eAttr;
 
 	aInput = gAttr.create("rInputPP", "ripp");
-	gAttr.addAccept(MFnData::kDoubleArray);
-	gAttr.addAccept(MFnData::kVectorArray);
+	gAttr.addDataAccept(MFnData::kDoubleArray);
+	gAttr.addDataAccept(MFnData::kVectorArray);
 	gAttr.setWritable(true);
 	gAttr.setStorable(false);
 	gAttr.setReadable(false);

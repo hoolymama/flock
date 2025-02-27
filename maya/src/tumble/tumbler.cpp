@@ -154,20 +154,20 @@ MStatus tumbler::initialize()
 	eAttr.setHidden(false);
 	st = addAttribute( aUpAxis ); mser;
 
-	aGoalFront = tAttr.create("goalFrontVector", "gfnt", MFnData::kVectorArray , &st ); mser;
+	aGoalFront = tAttr.create("goalFrontVector", "gfnt", MFnData::kVectorArray );
 	tAttr.setStorable(false);
 	st = addAttribute( aGoalFront ); mser;
 
-	aGoalUp = tAttr.create("goalUpVector", "gup", MFnData::kVectorArray , &st ); mser;
+	aGoalUp = tAttr.create("goalUpVector", "gup", MFnData::kVectorArray );
 	tAttr.setStorable(false);
 	st = addAttribute( aGoalUp ); mser;
 
-	aGoalWeightPP = tAttr.create("goalWeightPP", "gwpp", MFnData::kDoubleArray , &st ); mser;
+	aGoalWeightPP = tAttr.create("goalWeightPP", "gwpp", MFnData::kDoubleArray );
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	tAttr.setStorable(false);
 	st = addAttribute( aGoalWeightPP ); mser;
 
-	aImpulse = tAttr.create("impulse", "ii", MFnData::kVectorArray, &st); mser;
+	aImpulse = tAttr.create("impulse", "ii", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setReadable(false);
 	st = addAttribute( aImpulse ); mser;
@@ -243,17 +243,17 @@ MStatus tumbler::initialize()
 	tAttr.setReadable(true);
 	tAttr.setWritable(false);
 
-	aOutRotation = tAttr.create("outRotation", "orot", MFnData::kVectorArray , &st ); mser;
+	aOutRotation = tAttr.create("outRotation", "orot", MFnData::kVectorArray );
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	tAttr.setWritable(false);
 
-	aOutPoints = tAttr.create("outPoints", "opns", MFnData::kVectorArray , &st ); mser;
+	aOutPoints = tAttr.create("outPoints", "opns", MFnData::kVectorArray );
 	tAttr.setStorable(false);
 	tAttr.setReadable(true);
 	tAttr.setWritable(false);
 
-	aOutRotationData = cAttr.create("outRotationData", "ord", &st ); mser;
+	aOutRotationData = cAttr.create("outRotationData", "ord");
 	cAttr.addChild(aOutPhi);
 	cAttr.addChild(aOutOmega);
 	cAttr.addChild(aOutFront);

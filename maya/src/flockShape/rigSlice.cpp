@@ -361,7 +361,7 @@ const particleStack &rigSlice::stack() const {return m_stack;}
 
 
 // plugging gaps works like this
-// every time-slice in the map must be the same length for motoion blur to work.
+// every time-slice in the map must be the same length for motion blur to work.
 // however, some particles may die or be born within the motion block.
 // this can leave gaps in this slice or the previous slices respectfully
 // therefore we need to plug gaps in this slice with respect to the most recent slice,

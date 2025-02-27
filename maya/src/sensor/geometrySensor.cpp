@@ -171,7 +171,7 @@ MStatus geometrySensor::assess( MDataBlock &data, MVectorArray &assessment )
 	double radius = data.inputValue(aMaxDistance).asDouble();
 
 	short samples = data.inputValue(aNumSamples).asShort();
-	int seed = data.inputValue(aSeed).asLong();
+	int seed = data.inputValue(aSeed).asInt();
 	double stan = data.inputValue(aSurfaceTangent).asDouble();
 	double snor = data.inputValue(aSurfaceNormal).asDouble();
 	double vdir = data.inputValue(aViewDirection).asDouble();
@@ -352,7 +352,7 @@ MStatus geometrySensor::initialize()
 	nAttr.setWritable(true);
 	st = addAttribute(aNumSamples); mser;
 
-	aSeed	= nAttr.create("seed", "sd", MFnNumericData::kLong, 1.0, &st); mser;
+	aSeed	= nAttr.create("seed", "sd", MFnNumericData::kInt, 1.0); 
 	nAttr.setHidden(false);
 	nAttr.setKeyable(true);
 	nAttr.setStorable(true);

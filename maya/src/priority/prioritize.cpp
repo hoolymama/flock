@@ -186,298 +186,298 @@ void prioritize::draw( M3dView &view, const MDagPath &path,
                        M3dView::DisplayStyle style,
                        M3dView::DisplayStatus status )
 {
-	// JPMDBG;
-	MStatus st;
+	// // JPMDBG;
+	// MStatus st;
 
-	MObject thisNode = thisMObject();
+	// MObject thisNode = thisMObject();
 
-	MPlug barsPlug( thisNode, aDrawBarChart );
-	bool drawBars;
-	st = barsPlug.getValue (drawBars ); mser;
+	// MPlug barsPlug( thisNode, aDrawBarChart );
+	// bool drawBars;
+	// st = barsPlug.getValue (drawBars ); mser;
 
-	MPlug glyphsPlug( thisNode, aDrawGlyphs );
-	bool drawGlyphs;
-	st = glyphsPlug.getValue (drawGlyphs ); mser;
+	// MPlug glyphsPlug( thisNode, aDrawGlyphs );
+	// bool drawGlyphs;
+	// st = glyphsPlug.getValue (drawGlyphs ); mser;
 
-	MPlug resultPlug( thisNode, aDrawResultGlyph );
-	bool drawResultGlyphs;
-	st = resultPlug.getValue (drawResultGlyphs ); mser;
+	// MPlug resultPlug( thisNode, aDrawResultGlyph );
+	// bool drawResultGlyphs;
+	// st = resultPlug.getValue (drawResultGlyphs ); mser;
 
-	MPlug gPlug( thisNode, aGlyphScale );
-	double glyphScale;
-	st = gPlug.getValue (glyphScale ); mser;
+	// MPlug gPlug( thisNode, aGlyphScale );
+	// double glyphScale;
+	// st = gPlug.getValue (glyphScale ); mser;
 
-	MPlug mPlug( thisNode, aMaxForce );
-	double maxForce;
-	st = mPlug.getValue (maxForce ); mser;
+	// MPlug mPlug( thisNode, aMaxForce );
+	// double maxForce;
+	// st = mPlug.getValue (maxForce ); mser;
 
-	MPlug sPlug( thisNode, aSampleBy );
-	short sampleBy;
-	st = sPlug.getValue (sampleBy ); mser;
+	// MPlug sPlug( thisNode, aSampleBy );
+	// short sampleBy;
+	// st = sPlug.getValue (sampleBy ); mser;
 
-	MPlug hPlug( thisNode, aHeight );
-	double height;
-	st = hPlug.getValue (height ); mser;
+	// MPlug hPlug( thisNode, aHeight );
+	// double height;
+	// st = hPlug.getValue (height ); mser;
 
-	MPlug wPlug( thisNode, aWidth );
-	double width;
-	st = wPlug.getValue (width ); mser;
+	// MPlug wPlug( thisNode, aWidth );
+	// double width;
+	// st = wPlug.getValue (width ); mser;
 
-	MPlug xPlug( thisNode, aXOffset );
-	double xOffset;
-	st = xPlug.getValue (xOffset ); mser;
+	// MPlug xPlug( thisNode, aXOffset );
+	// double xOffset;
+	// st = xPlug.getValue (xOffset ); mser;
 
-	MPlug yPlug( thisNode, aYOffset );
-	double yOffset;
-	st = yPlug.getValue (yOffset ); mser;
+	// MPlug yPlug( thisNode, aYOffset );
+	// double yOffset;
+	// st = yPlug.getValue (yOffset ); mser;
 
 
 
-	/////////////////////////////////////////
+	// /////////////////////////////////////////
 
 
-	if (sampleBy < 1)  { sampleBy = 1; }
+	// if (sampleBy < 1)  { sampleBy = 1; }
 
 
-	if (xOffset < 0) { xOffset = 0; }
-	if (yOffset < 0) { yOffset = 0; }
-	if (width  < 0.01 ) { width = 0.01; }
-	if (height  < 0.01 ) { height = 0.01; }
-	if (xOffset > 0.99) { xOffset = 0.99; }
-	if (yOffset > 0.99) { yOffset = 0.99; }
-	if ((xOffset + width) > 1) { width = 1 - xOffset; }
-	if ((yOffset + height) > 1) { height = 1 - yOffset; }
+	// if (xOffset < 0) { xOffset = 0; }
+	// if (yOffset < 0) { yOffset = 0; }
+	// if (width  < 0.01 ) { width = 0.01; }
+	// if (height  < 0.01 ) { height = 0.01; }
+	// if (xOffset > 0.99) { xOffset = 0.99; }
+	// if (yOffset > 0.99) { yOffset = 0.99; }
+	// if ((xOffset + width) > 1) { width = 1 - xOffset; }
+	// if ((yOffset + height) > 1) { height = 1 - yOffset; }
 
-	int pw = view.portWidth();
-	int ph = view.portHeight();
-	int x0, x1, y0, y1;
-	int yStart;
-	int yEnd;
-	x0 = int(xOffset * pw);
-	y0 = int(yOffset * ph);
-	x1 = int((xOffset + width) * pw);
-	y1 = int((yOffset + height) * ph);
+	// int pw = view.portWidth();
+	// int ph = view.portHeight();
+	// int x0, x1, y0, y1;
+	// int yStart;
+	// int yEnd;
+	// x0 = int(xOffset * pw);
+	// y0 = int(yOffset * ph);
+	// x1 = int((xOffset + width) * pw);
+	// y1 = int((yOffset + height) * ph);
 
 
-	MString msg = MFnDependencyNode(thisNode).name();
-	msg += " cannot draw unless you connect an array of positions";
+	// MString msg = MFnDependencyNode(thisNode).name();
+	// msg += " cannot draw unless you connect an array of positions";
 
 
-	MPlug positionPlug( thisNode, aPositions );
-	MObject dPositions;
-	st = positionPlug.getValue(dPositions);
-	if (st.error()) {
-		MGlobal::displayWarning(msg);
-		// cerr << msg << endl;
-		return;
-	}
-	MFnVectorArrayData fnV(dPositions);
-	MVectorArray position = fnV.array(&st);
-	if (st.error()) {
-		MGlobal::displayWarning(msg);
-		return;
-	}
-	unsigned len = position.length();
-
-
-	MObject thisObj = thisMObject();
-	MPlug inDataPlug(thisObj, aInData);
-	MPlug outForcePlug(thisObj, aOutForces);
-
-	unsigned numIn =  inDataPlug.numElements();
-
-	view.beginGL();
-	glPushAttrib(GL_CURRENT_BIT);
-	glClear(GL_CURRENT_BIT);
-
-	// draw the graph
-
-
-	if (drawBars) {
-		// JPMDBG;
-		if ((pw * width) < (len / sampleBy)) {
-			sampleBy = short((len / (pw * width)) + 1);
-		}
-		int numSamples =  short(len / sampleBy );
-
-		MIntArray xPositions(numSamples);
-		MIntArray yPositions(numSamples);
-
-		double range = width * pw;
-		double spacing = 1.0 / numSamples;
-		for (unsigned i = 0; i < numSamples; i++) {
-			xPositions[i] = int((xOffset * pw) + (  range * i * spacing ));
-		}
-		yPositions = MIntArray(numSamples, int(yOffset * ph));
-
-		double graphHeight =  ph * height ;
-		double normalizer = 	graphHeight	/ maxForce;
-		int tmp ;
-
-
-
-		// 	// setup projection
-		// 	////////////////////////////
-		glMatrixMode( GL_MODELVIEW );
-		glPushMatrix();
-		glLoadIdentity();
-		glMatrixMode( GL_PROJECTION );
-		glPushMatrix();
-		glLoadIdentity();
-
-		gluOrtho2D(
-		  0.0, (GLdouble) pw,
-		  0.0, (GLdouble) ph
-		);
-		glMatrixMode( GL_MODELVIEW );
-		glShadeModel(GL_SMOOTH);
+	// MPlug positionPlug( thisNode, aPositions );
+	// MObject dPositions;
+	// st = positionPlug.getValue(dPositions);
+	// if (st.error()) {
+	// 	MGlobal::displayWarning(msg);
+	// 	// cerr << msg << endl;
+	// 	return;
+	// }
+	// MFnVectorArrayData fnV(dPositions);
+	// MVectorArray position = fnV.array(&st);
+	// if (st.error()) {
+	// 	MGlobal::displayWarning(msg);
+	// 	return;
+	// }
+	// unsigned len = position.length();
+
+
+	// MObject thisObj = thisMObject();
+	// MPlug inDataPlug(thisObj, aInData);
+	// MPlug outForcePlug(thisObj, aOutForces);
+
+	// unsigned numIn =  inDataPlug.numElements();
+
+	// view.beginGL();
+	// glPushAttrib(GL_CURRENT_BIT);
+	// glClear(GL_CURRENT_BIT);
+
+	// // draw the graph
+
+
+	// if (drawBars) {
+	// 	// JPMDBG;
+	// 	if ((pw * width) < (len / sampleBy)) {
+	// 		sampleBy = short((len / (pw * width)) + 1);
+	// 	}
+	// 	int numSamples =  short(len / sampleBy );
+
+	// 	MIntArray xPositions(numSamples);
+	// 	MIntArray yPositions(numSamples);
+
+	// 	double range = width * pw;
+	// 	double spacing = 1.0 / numSamples;
+	// 	for (unsigned i = 0; i < numSamples; i++) {
+	// 		xPositions[i] = int((xOffset * pw) + (  range * i * spacing ));
+	// 	}
+	// 	yPositions = MIntArray(numSamples, int(yOffset * ph));
+
+	// 	double graphHeight =  ph * height ;
+	// 	double normalizer = 	graphHeight	/ maxForce;
+	// 	int tmp ;
+
+
+
+	// 	// 	// setup projection
+	// 	// 	////////////////////////////
+	// 	glMatrixMode( GL_MODELVIEW );
+	// 	glPushMatrix();
+	// 	glLoadIdentity();
+	// 	glMatrixMode( GL_PROJECTION );
+	// 	glPushMatrix();
+	// 	glLoadIdentity();
+
+	// 	gluOrtho2D(
+	// 	  0.0, (GLdouble) pw,
+	// 	  0.0, (GLdouble) ph
+	// 	);
+	// 	glMatrixMode( GL_MODELVIEW );
+	// 	glShadeModel(GL_SMOOTH);
 
-		// draw the outline
-		////////////////////////////
-		glBegin( GL_LINE_LOOP );
-		glVertex2i(x0, y0);
-		glVertex2i(x0, y1);
-		glVertex2i(x1, y1);
-		glVertex2i(x1, y0);
-		glEnd();
+	// 	// draw the outline
+	// 	////////////////////////////
+	// 	glBegin( GL_LINE_LOOP );
+	// 	glVertex2i(x0, y0);
+	// 	glVertex2i(x0, y1);
+	// 	glVertex2i(x1, y1);
+	// 	glVertex2i(x1, y0);
+	// 	glEnd();
 
-		MPoint posTopRight, farClp;
-		view.viewToWorld( x1, y1,  posTopRight, farClp ) ;
-		view.drawText(MFnDependencyNode(thisNode).name(), posTopRight,  M3dView::kRight);
+	// 	MPoint posTopRight, farClp;
+	// 	view.viewToWorld( x1, y1,  posTopRight, farClp ) ;
+	// 	view.drawText(MFnDependencyNode(thisNode).name(), posTopRight,  M3dView::kRight);
 
 
-		glBegin(GL_LINES);
+	// 	glBegin(GL_LINES);
 
-		for (int i = 0; i < numIn; ++i)
-		{
-			MPlug inPlug = inDataPlug.elementByPhysicalIndex(i);
-			unsigned logicalIndex = inPlug.logicalIndex();
+	// 	for (int i = 0; i < numIn; ++i)
+	// 	{
+	// 		MPlug inPlug = inDataPlug.elementByPhysicalIndex(i);
+	// 		unsigned logicalIndex = inPlug.logicalIndex();
 
-			MPlug colorPlug  = inPlug.child(aDrawColor) ;
-			float colorRed, colorGreen, colorBlue;
-			colorPlug.child(0).getValue(colorRed);
-			colorPlug.child(1).getValue(colorGreen);
-			colorPlug.child(2).getValue(colorBlue);
+	// 		MPlug colorPlug  = inPlug.child(aDrawColor) ;
+	// 		float colorRed, colorGreen, colorBlue;
+	// 		colorPlug.child(0).getValue(colorRed);
+	// 		colorPlug.child(1).getValue(colorGreen);
+	// 		colorPlug.child(2).getValue(colorBlue);
 
-			MPlug outPlug = outForcePlug.elementByLogicalIndex(logicalIndex);
-			MObject o;
-			st = outPlug.getValue(o); mser;
-			MFnVectorArrayData fnV(o, &st); mser;
-			MVectorArray dir = fnV.array();
+	// 		MPlug outPlug = outForcePlug.elementByLogicalIndex(logicalIndex);
+	// 		MObject o;
+	// 		st = outPlug.getValue(o); mser;
+	// 		MFnVectorArrayData fnV(o, &st); mser;
+	// 		MVectorArray dir = fnV.array();
 
-			view.setDrawColor( MColor( MColor::kRGB, colorRed, colorGreen, colorBlue ) );
+	// 		view.setDrawColor( MColor( MColor::kRGB, colorRed, colorGreen, colorBlue ) );
 
-			for (unsigned i = 0, j = 0; ((i < len) && (j < numSamples)) ; i += sampleBy, j++) {
-				int screenMag =  int(dir[i].length() * normalizer) ;
-				glVertex2i(xPositions[j], yPositions[j]);
-				tmp = yPositions[j] + screenMag;
-				glVertex2i(xPositions[j], tmp);
-				yPositions[j] = tmp;
-			}
-		}
-		glEnd();
-		glMatrixMode( GL_PROJECTION );
-		glPopMatrix();
-		glMatrixMode( GL_MODELVIEW );
-		glPopMatrix();
-		// JPMDBG;
-	}
+	// 		for (unsigned i = 0, j = 0; ((i < len) && (j < numSamples)) ; i += sampleBy, j++) {
+	// 			int screenMag =  int(dir[i].length() * normalizer) ;
+	// 			glVertex2i(xPositions[j], yPositions[j]);
+	// 			tmp = yPositions[j] + screenMag;
+	// 			glVertex2i(xPositions[j], tmp);
+	// 			yPositions[j] = tmp;
+	// 		}
+	// 	}
+	// 	glEnd();
+	// 	glMatrixMode( GL_PROJECTION );
+	// 	glPopMatrix();
+	// 	glMatrixMode( GL_MODELVIEW );
+	// 	glPopMatrix();
+	// 	// JPMDBG;
+	// }
 
 
 
 
-	if (drawGlyphs) {
-		// JPMDBG;
-		glBegin(GL_LINES);
+	// if (drawGlyphs) {
+	// 	// JPMDBG;
+	// 	glBegin(GL_LINES);
 
-		for (int i = 0; i < numIn; ++i)
-		{
-			MPlug inPlug = inDataPlug.elementByPhysicalIndex(i);
-			unsigned logicalIndex = inPlug.logicalIndex();
+	// 	for (int i = 0; i < numIn; ++i)
+	// 	{
+	// 		MPlug inPlug = inDataPlug.elementByPhysicalIndex(i);
+	// 		unsigned logicalIndex = inPlug.logicalIndex();
 
-			MPlug colorPlug  = inPlug.child(aDrawColor) ;
-			float colorRed, colorGreen, colorBlue;
-			colorPlug.child(0).getValue(colorRed);
-			colorPlug.child(1).getValue(colorGreen);
-			colorPlug.child(2).getValue(colorBlue);
+	// 		MPlug colorPlug  = inPlug.child(aDrawColor) ;
+	// 		float colorRed, colorGreen, colorBlue;
+	// 		colorPlug.child(0).getValue(colorRed);
+	// 		colorPlug.child(1).getValue(colorGreen);
+	// 		colorPlug.child(2).getValue(colorBlue);
 
-			MPlug outPlug = outForcePlug.elementByLogicalIndex(logicalIndex);
-			MObject o;
-			st = outPlug.getValue(o); mser;
-			MFnVectorArrayData fnV(o, &st); mser;
-			MVectorArray dir = fnV.array();
+	// 		MPlug outPlug = outForcePlug.elementByLogicalIndex(logicalIndex);
+	// 		MObject o;
+	// 		st = outPlug.getValue(o); mser;
+	// 		MFnVectorArrayData fnV(o, &st); mser;
+	// 		MVectorArray dir = fnV.array();
 
-			view.setDrawColor( MColor( MColor::kRGB, colorRed, colorGreen, colorBlue ) );
+	// 		view.setDrawColor( MColor( MColor::kRGB, colorRed, colorGreen, colorBlue ) );
 
 
 
-			for (unsigned i = 0 ;  i < len  ; i++) {
+	// 		for (unsigned i = 0 ;  i < len  ; i++) {
 
-				glVertex3f(float(position[i].x) , float(position[i].y) , float(position[i].z) );
-				glVertex3f(
-				  (float((dir[i].x * glyphScale ) + position[i].x)),
-				  (float((dir[i].y * glyphScale ) + position[i].y)),
-				  (float((dir[i].z * glyphScale ) + position[i].z))
-				);
+	// 			glVertex3f(float(position[i].x) , float(position[i].y) , float(position[i].z) );
+	// 			glVertex3f(
+	// 			  (float((dir[i].x * glyphScale ) + position[i].x)),
+	// 			  (float((dir[i].y * glyphScale ) + position[i].y)),
+	// 			  (float((dir[i].z * glyphScale ) + position[i].z))
+	// 			);
 
 
-			}
-		}
+	// 		}
+	// 	}
 
-		glEnd();
+	// 	glEnd();
 
-		// JPMDBG;
-	}
+	// 	// JPMDBG;
+	// }
 
 
 
-	if (drawResultGlyphs) {
-		// JPMDBG;
+	// if (drawResultGlyphs) {
+	// 	// JPMDBG;
 
-		MPlug totalForcePlug( thisNode, aOutForce );
+	// 	MPlug totalForcePlug( thisNode, aOutForce );
 
-		MObject dOutForce;
-		st = totalForcePlug.getValue(dOutForce);
+	// 	MObject dOutForce;
+	// 	st = totalForcePlug.getValue(dOutForce);
 
-		MFnVectorArrayData fnOutForce(dOutForce);
-		MVectorArray force = fnOutForce.array(&st); mser;
-		unsigned len = force.length();
+	// 	MFnVectorArrayData fnOutForce(dOutForce);
+	// 	MVectorArray force = fnOutForce.array(&st); mser;
+	// 	unsigned len = force.length();
 
 
-		glBegin(GL_LINES);
+	// 	glBegin(GL_LINES);
 
 
 
-		MPlug colorPlug(thisNode, aResultDrawColor) ;
-		float colorRed, colorGreen, colorBlue;
-		colorPlug.child(0).getValue(colorRed);
-		colorPlug.child(1).getValue(colorGreen);
-		colorPlug.child(2).getValue(colorBlue);
+	// 	MPlug colorPlug(thisNode, aResultDrawColor) ;
+	// 	float colorRed, colorGreen, colorBlue;
+	// 	colorPlug.child(0).getValue(colorRed);
+	// 	colorPlug.child(1).getValue(colorGreen);
+	// 	colorPlug.child(2).getValue(colorBlue);
 
-		view.setDrawColor( MColor( MColor::kRGB, colorRed, colorGreen, colorBlue ) );
+	// 	view.setDrawColor( MColor( MColor::kRGB, colorRed, colorGreen, colorBlue ) );
 
-		for (unsigned i = 0 ;  i < len  ; i++) {
+	// 	for (unsigned i = 0 ;  i < len  ; i++) {
 
-			glVertex3f(float(position[i].x) , float(position[i].y) , float(position[i].z) );
-			glVertex3f(
-			  (float((force[i].x * glyphScale ) + position[i].x)),
-			  (float((force[i].y * glyphScale ) + position[i].y)),
-			  (float((force[i].z * glyphScale ) + position[i].z))
-			);
-		}
+	// 		glVertex3f(float(position[i].x) , float(position[i].y) , float(position[i].z) );
+	// 		glVertex3f(
+	// 		  (float((force[i].x * glyphScale ) + position[i].x)),
+	// 		  (float((force[i].y * glyphScale ) + position[i].y)),
+	// 		  (float((force[i].z * glyphScale ) + position[i].z))
+	// 		);
+	// 	}
 
-		glEnd();
+	// 	glEnd();
 
 		// JPMDBG;
 		// cerr << endl;
-	}
+	// }
 
 
 
 
-	glPopAttrib();
+	// glPopAttrib();
 
-	view.endGL();
+	// view.endGL();
 	// JPMDBG;
 }
 
@@ -508,7 +508,7 @@ MStatus prioritize::initialize()
 	MFnEnumAttribute eAttr;
 	MFnUnitAttribute uAttr;
 
-	aInForce = tAttr.create("inSignal", "isg", MFnData::kVectorArray , &st ); mser;
+	aInForce = tAttr.create("inSignal", "isg", MFnData::kVectorArray  );
 	tAttr.setStorable(false);
 
 	aActive = nAttr.create( "active", "act", MFnNumericData::kBoolean);
@@ -554,7 +554,7 @@ MStatus prioritize::initialize()
 	st = addAttribute(aInData);
 
 	//st =addAttribute(aDrawColor);
-	aPositions = tAttr.create("positionPP", "ppp", MFnData::kVectorArray , &st ); mser;
+	aPositions = tAttr.create("positionPP", "ppp", MFnData::kVectorArray); 
 	tAttr.setStorable(false);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);
 	st = addAttribute(aPositions);

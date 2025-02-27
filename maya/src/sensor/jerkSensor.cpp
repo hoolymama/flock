@@ -69,7 +69,7 @@ MStatus	jerkSensor::initialize()
 	MFnTypedAttribute tAttr;
 
 
-	aAcceleration = tAttr.create("acceleration", "acc", MFnData::kVectorArray, &st ); mser;
+	aAcceleration = tAttr.create("acceleration", "acc", MFnData::kVectorArray); 
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
 	st = addAttribute(aAcceleration); mser;

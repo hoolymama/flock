@@ -43,7 +43,7 @@ rankData::rankData(const MObject &node, MString rank)
 
 
 
-	MPlug rankPlug = dn.findPlug(aRank);
+	MPlug rankPlug = dn.findPlug(aRank, true);
 	MPlug homeXPlug = rankPlug.child(aHome).child(aHomeX);
 	MPlug homeZPlug = rankPlug.child(aHome).child(aHomeZ);
 	MPlug radiusMinPlug = rankPlug.child(aRadius).child(aRadiusMin);
@@ -56,9 +56,6 @@ rankData::rankData(const MObject &node, MString rank)
 	st	= homeZPlug.getValue(homeZ); mser;
 	st	= radiusMinPlug.getValue(radiusMin); mser;
 	st	= radiusMaxPlug.getValue(radiusMax); mser;
-
-	// 	cerr << "radiusMin: " << radiusMin << endl;
-	// cerr << "radiusMax: " << radiusMax <<  endl;
 
 
 	childstr = ("stepIncrementRamp" + rank);

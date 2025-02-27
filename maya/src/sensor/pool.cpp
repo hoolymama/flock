@@ -46,7 +46,7 @@ MStatus pool::initialize()
 	MFnTypedAttribute tAttr;
 
 
-	aPosition = tAttr.create("position", "pos", MFnData::kVectorArray, &st); mser;
+	aPosition = tAttr.create("position", "pos", MFnData::kVectorArray); 
 	tAttr.setReadable(false);
 	tAttr.setCached(false);
 	st = addAttribute(aPosition ); mser;

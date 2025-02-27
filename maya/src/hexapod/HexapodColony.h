@@ -1,5 +1,5 @@
-#ifndef HexapodColony_H
-#define HexapodColony_H
+#ifndef hexapodColony_H
+#define hexapodColony_H
 #include <list>
 #include <maya/MObject.h>
 #include <maya/M3dView.h>
@@ -7,7 +7,7 @@
 
 #include <maya/MFnDependencyNode.h>
 
-// #include <maya/MMeshIsectAccelParams.h>
+ 
 #include <maya/MItMeshPolygon.h>
 #include <maya/MFnMesh.h>
 
@@ -18,16 +18,16 @@
 #include <maya/MFnDoubleArrayData.h>
 #include <maya/MFnVectorArrayData.h>
 #include "hexapodAgent.h"
-#include "HexapodFoot.h"
+#include "hexapodFoot.h"
 #include "displayMask.h"
 #include "errorMacros.h"
 
-class HexapodColony{
+class hexapodColony{
 public:
 
-	HexapodColony();
+	hexapodColony();
 
-	~HexapodColony();
+	~hexapodColony();
 
 	void clear();
 
@@ -41,7 +41,6 @@ public:
 
 
 
-	const Ground & ground() const  ; 
 
 
 	void getOutputData(
@@ -84,14 +83,12 @@ private:
 	/* use a std::list because random inserts */
 	std::list<HexapodAgent*> m_agents;
 
-
-	//////////
-	Ground m_ground;
+ 
 
 };
 
 
-inline  MIntArray HexapodColony::getIntArray(
+inline  MIntArray hexapodColony::getIntArray(
 	const  MString & name,
 	const MObject &node,
 	MDataBlock& data,
@@ -112,7 +109,7 @@ inline  MIntArray HexapodColony::getIntArray(
 }
 
 
-inline  MDoubleArray HexapodColony::getDoubleArray(
+inline  MDoubleArray hexapodColony::getDoubleArray(
 	const  MString & name,
 	const MObject &node,
 	MDataBlock& data,
@@ -133,7 +130,7 @@ inline  MDoubleArray HexapodColony::getDoubleArray(
 }
 
 
-inline  MVectorArray HexapodColony::getVectorArray(
+inline  MVectorArray hexapodColony::getVectorArray(
 	const  MString & name,
 	const MObject &node,
 	MDataBlock& data,
@@ -145,9 +142,7 @@ inline  MVectorArray HexapodColony::getVectorArray(
 	MObject att = depNode.attribute(name, st);
 	if (*st != MS::kSuccess) return MVectorArray(len, MVector::zero);
 	MVectorArray arr =  MFnVectorArrayData(data.inputValue(att).data()).array();
-	// if (name == "leftFootFeed" || name == "rightFootFeed") {
-	// 	cerr << "NAME: "<< name << " -- LEN: " << arr.length() << endl;
-	// }
+ 
 	if (arr.length() != len) {
 		*st = MS::kUnknownParameter;
 		return MVectorArray(len, MVector::zero);

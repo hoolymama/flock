@@ -174,22 +174,22 @@ MStatus sensor::initialize()
 	MRampAttribute rAttr;
 
 
-	aPositionPP = tAttr.create("positionPP", "posp", MFnData::kVectorArray, &st ); mser;
+	aPositionPP = tAttr.create("positionPP", "posp", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
 	st = addAttribute(aPositionPP); mser;
 
-	aVelocityPP = tAttr.create("velocityPP", "velp", MFnData::kVectorArray, &st ); mser;
+	aVelocityPP = tAttr.create("velocityPP", "velp", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
 	st = addAttribute(aVelocityPP); mser;
 
-	aViewVectorPP = tAttr.create("viewVectorPP", "vvp", MFnData::kVectorArray, &st ); mser;
+	aViewVectorPP = tAttr.create("viewVectorPP", "vvp", MFnData::kVectorArray);
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
 	st = addAttribute(aViewVectorPP); mser;
 
-	aMaxDistancePP	= tAttr.create("maxDistancePP", "mxdp", MFnData::kDoubleArray, &st ); mser;
+	aMaxDistancePP	= tAttr.create("maxDistancePP", "mxdp", MFnData::kDoubleArray);
 	tAttr.setStorable(false);
 	tAttr.setConnectable(true);
 	tAttr.setDisconnectBehavior(MFnAttribute::kReset);

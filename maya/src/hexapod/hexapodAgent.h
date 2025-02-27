@@ -10,32 +10,18 @@
 #include <maya/MString.h>
 
 #include <maya/MRampAttribute.h>
-#include "HexapodFoot.h"
+#include "hexapodFoot.h"
 #include "mayaMath.h"
 #include "displayMask.h"
 #include "rankData.h"
 
 #include  "actuator.h"
-#include  "Ground.h"
 
-class HexapodFoot;
+class hexapodFoot;
 
 class HexapodAgent {
 public:
-
-	// HexapodAgent(	
-	// 	double dt,
-	// 	unsigned particleId,
-	// 	const MVector &pos,
-	// 	const MVector &phi,
-	// 	const MVector &vel,
-	// 	const MVector &omega,
-	// 	double scale,
-	// 	double homeAX, double homeAZ, double radiusMinA, double radiusMaxA,
-	// 	double homeBX, double homeBZ, double radiusMinB, double radiusMaxB,
-	// 	double homeCX, double homeCZ, double radiusMinC, double radiusMaxC
-	// 	);
-
+ 
 	HexapodAgent(	
 		double dt,
 		unsigned particleId,
@@ -66,14 +52,13 @@ public:
 		double dt, 	double floorThickness);
 
 	void  applyActuator(	
-		const HexapodFoot &leftFoot, 
-		const HexapodFoot &rightFoot, 
+		const hexapodFoot &leftFoot, 
+		const hexapodFoot &rightFoot, 
 		actuator &actuator);
 
 	void  applyActuator( actuator &actuator);
 
-	// void applyActuators( std::vector<actuator*> & actuatorStack ) ;
-
+ 
 	void update(	
 		double dt, double maxSpeed,
 		const MVector &pos,
@@ -93,11 +78,11 @@ public:
 		MRampAttribute &posteriorRadiusRamp,
 		const MVector &leftFootFeed, 
 		const MVector &rightFootFeed,
-		double feedBlend,
-		Ground & ground
+		double feedBlend
+		// Ground & ground
 		);
 
-	void draw( M3dView & view, const DisplayMask & mask) const;
+	// void draw( M3dView & view, const DisplayMask & mask) const;
 
 	void getOutputData(
 		MVector& la, MVector& lb, MVector& lc, 
@@ -110,9 +95,7 @@ public:
 	const MMatrix & matrixInverse() const;
 
 	const MMatrix & matrixNext() const;
-
-	// MVector worldBodyPosition() const;
-
+ 
 private:
 
 	/* input particle data */
@@ -136,12 +119,12 @@ private:
 	MMatrix m_matrixNext;
 
 
-	HexapodFoot m_footLA;
-	HexapodFoot m_footLB;
-	HexapodFoot m_footLC;
-	HexapodFoot m_footRA;
-	HexapodFoot m_footRB;
-	HexapodFoot m_footRC;
+	hexapodFoot m_footLA;
+	hexapodFoot m_footLB;
+	hexapodFoot m_footLC;
+	hexapodFoot m_footRA;
+	hexapodFoot m_footRB;
+	hexapodFoot m_footRC;
 
 
 	/* local position and rotation (phi) of body, calculated by actuators*/
