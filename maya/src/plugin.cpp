@@ -90,9 +90,15 @@ MStatus initializePlugin( MObject obj)
 
 	MStatus st;
 
+
 	MString method("initializePlugin");
 
 	MFnPlugin plugin( obj, PLUGIN_VENDOR, PLUGIN_VERSION , MAYA_VERSION);
+
+	MGlobal::executePythonCommandOnIdle("from flock import menu;menu.FlockMenu()", true);
+
+
+
 	st = plugin.registerNode( "flockShape", flockShape::id, flockShape::creator,
 	                          flockShape::initialize, MPxNode::kLocatorNode); mser;
 

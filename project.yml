@@ -3,18 +3,9 @@ name: FlockProject
 templates:
 - release
 - doc
-default_erb_files:
-- README.*
-- LICENSE.*
 os_darwin64:
-  release_script_erb_files:
-  - resource/*.erb
-os_linux64:
-  release_script_erb_files:
-  - resource/*.erb
-os_win64:
   release_script_copy_files:
-  - resource/*.BAT
+  - resource/install.py
 requirements:
 - name: maya
   version: ==2014
