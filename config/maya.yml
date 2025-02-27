@@ -1,10 +1,10 @@
 maya_version: ${MAYA_VERSION}
 
-dg_convert_cmd: 'convert  -resize 32x32'
+dg_convert_cmd: 'magick convert -resize 32x32'
 
-outliner_convert_cmd: 'convert  -resize 20x20'
+outliner_convert_cmd: 'magick convert -resize 20x20'
 
-icon_convert_cmd: 'convert'
+icon_convert_cmd: 'magick convert'
 
 maya_icon_destination: 'maya/icons'
 

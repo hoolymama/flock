@@ -61,7 +61,7 @@ os_darwin64:
     -                       '/usr/lib'
     framework_flag:          '-framework'
     linker_options:
-    -                       '-arch  x86_64'
+    -                        '-arch arm64'
     object_flag:            '-o '
     outputfile_flag:        '-o '
     libs: []
@@ -71,7 +71,7 @@ os_darwin64:
     lib_ext:                ''
     object_extension:       'o'
     compiler_options:
-    -                       '-arch  x86_64'
+    -                       '-arch arm64'
     -                       '-x c++'
     -                       '-DCC_GNU_'
     -                       '-DOSMac_'
