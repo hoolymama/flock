@@ -6,7 +6,16 @@
         {
             "label": "rake",
             "type": "shell",
-            "command": "rake",
+            "command": "clear && rake && python3 /Volumes/xhf/tools/darwin64/flock/999.0.0/config/install.py",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "rake clobber",
+            "type": "shell",
+            "command": "rake clobber",
             "group": {
                 "kind": "build",
                 "isDefault": true
