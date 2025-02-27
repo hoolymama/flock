@@ -1,0 +1,1073 @@
+// Selection
+
+global proc string selection.firstOfType(string $type) {
+
+	string $s[] = `ls -sl -dag -leaf -ni -type $type`;
+	if (! size($s)) error("Select at least one "+$type);
+	
+	return $s[0] ;
+
+}
+
+global proc int[] selection.componentIndices(string $selection[])
+{
+	string $buff[];
+	string $sel[] = `ls -flatten $selection`;
+	int $result[];
+	for ($o in $sel) {
+		if (`gmatch   $o "*\\[*[0-9]*\\]"`) {
+			int $nt = `tokenize $o "[]" $buff`;
+			$result[`size $result`] = (int)$buff[($nt-1)];		
+		} 
+
+
+	}
+	return $result;
+}
+
+
+// String
+
+
+/**
+string.rstrip
+	strip the last n characters from the input string
+*/
+global proc string string.rstrip(string $str, int $n) {
+	int $siz = size($str);
+	if ($n >= $siz) return "";
+	int $last = $siz - $n;
+	return `substring $str 1 $last`;
+}
+
+global proc string string.stripTrailingSlash(string $dir){
+	if ($dir == "/") return $dir; // dont strip if the dir is root
+	while (endsWith($dir,"/")) {
+		$dir = string.rstrip($dir, 1 );
+	}
+	return $dir;
+}
+
+global proc string string.stripTrailingNumbers(string $name){
+	string $nums = `match "[0-9]+$" $name`;
+	int $len = size($nums);
+	return string.rstrip($name, $len);
+}
+
+// - if no number on the end, put a 0,
+// - otherwise bump it up
+
+global proc string string.increment(string $word){
+	string $num = `match "[0-9]*$" $word`;
+	string $underscored =  `match "_[0-9]*$" $word`;
+
+	int $intNum = 0; // if num null intnum will be 0 anyway
+	if ($num != "") {
+		$intNum	= int($num);
+		$intNum ++;
+	}
+	int $numLength = size($num);
+	int $underscoredLength = size($underscored);
+
+	if ( $numLength == 0) {
+		if ($underscoredLength == 0) {
+			$word += "_";
+		} 
+	} else {
+		$word = string.rstrip( $word,  $numLength);
+	}
+	$word  += $intNum;
+	
+	return $word;
+}
+
+global proc string[] string.tokenize(string $str, string $delim) {
+	string $result[];
+	tokenize($str, $delim, $result);
+	return $result;
+}
+
+global proc string string.firstToken(string $str, string $delim) {
+	string $toks[] =  string.tokenize($str,  $delim);
+	int $siz = `size $toks`;
+	if ($siz)
+	{
+		return  $toks[0];
+	}
+	return "";
+}
+
+global proc string string.lastToken(string $str, string $delim) {
+	string  $toks[] =  string.tokenize($str,  $delim);
+	int $siz = `size  $toks`;
+	if ($siz)
+	{
+		return  $toks[$siz-1];
+	}
+	return "";
+}
+
+global proc string string.legalizeCharsInString(string $str, string $chars[]) {
+
+	for ($c in $chars) {
+		$str = substituteAllString($str, $c , "_");
+	}
+	return $str;
+}
+
+global proc string string.legalizeString(string $str) {
+	string $chars[] = {"|", ":", " ", "-", ".", "[", "]"};
+
+	$str =  string.legalizeCharsInString($str, $chars);
+ 
+	return $str;
+}
+
+
+global proc string string.join(string $array[], string $seperator) {
+	int $n = size($array) -1;
+	string $result;
+	for ($i = 0;$i<$n;$i++) {
+		$result+=( $array[$i] +  $seperator);
+	}
+	$result+= $array[$i] ;
+	return 	$result;
+}
+
+global proc string string.acronym(string $str, string $seperator) {
+	string $result;
+	string $letters[] ;
+	string $words[] = string.tokenize($str," ");
+	for ($word in $words) {
+		$letters[`size $letters`] = `substring $word 1 1`; 
+	}
+	$result = string.join($letters, $seperator);
+
+	return $result ;
+}
+global proc string string.removeSpaces(string $str) {
+	return substituteAllString($str, " ", "");
+}
+
+
+global proc string string.padNumber(int $n, int $pad) {
+	string $result;
+	if ($pad <= 1) return string($n);
+
+	string $sign = "";
+	if ($n < 0)  {
+		$sign = "-";
+		$n = -$n;
+	}
+
+	int $max;
+	if ( $pad == 2) {
+		$max = 100;
+	} else if ( $pad == 3) {
+		$max = 1000;
+	} else if ( $pad == 4) {
+		$max = 10000;
+	} else if ( $pad == 5) {
+		$max = 100000;
+	} else {
+		$max = pow(10,$pad);
+	}
+
+	if ($n >=$max) {
+		$result =  string($n);
+	} else  {
+		$n+= $max;
+		string $s = string($n);
+		$result = substring($s,2 , ($pad+1));
+	}
+	
+
+	return ($sign+$result);
+}
+
+
+
+
+
+
+
+// return matching items (gmatch is glob)
+global proc string[] string.grep( string $array[] , string $match){
+	string $result[];
+	for ($s in $array) {
+		if (`gmatch $s $match`) $result[`size $result`] = $s;
+	}
+	return $result;
+}
+
+global proc string string.intArrayAsArgString( int $array[] ){
+	string $result ="{";
+	int $n = size($array);
+
+	for ($i=0;$i<$n;$i++) {
+		$result +=	 $array[$i];
+		if ( $i < ($n-1))  $result += ", ";
+	}
+	$result +=	"}";
+	return $result;
+}
+
+global proc string string.floatArrayAsArgString( float $array[] ){
+	string $result ="{";
+	int $n = size($array);
+
+	for ($i=0;$i<$n;$i++) {
+		$result +=	 $array[$i];
+		if ( $i < ($n-1))  $result += ", ";
+	}
+	$result +=	"}";
+	return $result;
+}
+
+
+
+global proc string string.stringArrayAsArgString( string $array[] ){
+	string $result ="{";
+	int $n = size($array);
+
+	for ($i=0;$i<$n;$i++) {
+		$result +=	 ("\""+$array[$i] +"\"") ;
+		if ( $i < ($n-1))  $result += ", ";
+	}
+	$result +=	"}";
+	return $result;
+}
+
+
+global proc string string.camelize( string $str ){
+	string $result;
+	$str =  string.numberLetterUnderscore(  $str );
+	$str = interToUI($str);
+	string $toks[] = string.tokenize($str," _") ;
+	
+	
+	
+	for ($t in $toks) {
+		$t = tolower($t);
+		$t = capitalizeString($t);
+		$result += $t ;	
+	}
+	return $result;
+}
+
+global proc string string.lowerCamelize( string $str ){
+	string $result;
+	$str =  string.numberLetterUnderscore(  $str );
+	$str = interToUI($str);
+	string $toks[] = string.tokenize($str," _") ;
+	int $c = 0;
+	for ($t in $toks) {
+		if ($c > 0)
+		{
+			$t = tolower($t);
+			$t = capitalizeString($t);
+		} else {
+			$t = tolower($t);
+		}
+		$result += $t ;	
+		$c ++;
+	}
+	return $result;
+}
+
+global proc string[]  string.camelizeStringArray(string $arr[]){
+	string $result[];
+	for ($a in $arr){
+		$result[`size $result`] = string.camelize($a);
+	}
+	return $result;	
+}
+	
+global proc string string.letterAt(string $str, int $pos){
+	return `substring $str $pos $pos`;
+}
+
+/**
+turns this:
+string.underScoreize("CreatedAt the beginningOf the.third.day OF THE Month    of__june in/the/root///directory.txt")
+into this:
+// Result: created_at_the_beginning_of_the_third_day_of_the_month_of_june_in_the_root_directory_txt //
+*/
+
+global proc string string.underScoreize( string $str ){
+	
+	$str = interToUI($str);
+	
+	string $toks[] =  string.tokenize( $str , " ._|/:-");
+	
+	 $str = string.join($toks, "_");
+	
+	return tolower($str);
+	
+}
+
+global proc string string.numberLetterUnderscore( string $str ){
+	// deal with number followed by letter, because by default
+	// interToUI doesn't put an underscore in there - so we do it here
+	int $len = `size $str`;
+	string $newStr;
+	string $lastChar ="";
+	for ($i = 1;$i<$len;$i++) {
+		string $first = `substring $str $i $i`;
+		string $second = `substring $str  ($i+1) ($i+1)`;
+		if ((`gmatch $first "[0-9]"`) && (!(`gmatch $second "[0-9,_]"`))){
+			$newStr += ($first+"_");
+		} else {
+			$newStr += $first;
+		}
+	}
+	$newStr += `substring $str  ($len) ($len)`;
+	return 	$newStr;
+}
+
+global proc string string.underScoreizeObjectName( string $str ){
+
+	$str = interToUI($str);
+
+	string $toks[] =  string.tokenize( $str , " _");
+
+	$str = string.join($toks, "_");
+
+ 	$str = string.numberLetterUnderscore(  $str );
+
+	return tolower($str);
+
+}
+
+
+
+global proc string string.substituteReturnsForNewlines(string $str){
+	return substituteAllString( $str, "\r", "\n");
+}
+
+/*
+we need this to make attribute and flag descriptions legal for textile markup processing
+a state of 1 means the current character is a newline character
+if the previous state was also a newline then thats two in a row, so we 
+dont add the current char
+*/
+global proc string string.removeDoubleNewlines(string $str) {
+	string $result = "";
+	int $n = size($str);
+	int $state = 0;
+	int $prevState = 0;
+	for ($i=1;$i<=$n;$i++){
+		string $char = string.letterAt($str,$i);
+		$state = ( $char== "\n");
+		if (! ($state && $prevState ) ) $result += $char ;
+		$prevState = $state;
+	}
+	return $result;
+}
+
+
+
+
+global proc string string.getFromPrompt(
+		string $title,
+		string $message
+	){
+
+	string $name = "";
+	int $ok = 0;
+	string $result = "Go";
+	while ((!$ok ) && ($result == "Go")) {
+
+		$result = `promptDialog 
+			-title  $title
+			-message $message
+			-text $name
+			-button "Go" -button "Cancel"
+			-defaultButton "Go" -cancelButton "Cancel"
+			-dismissString "Cancel"`;
+
+		$name = `promptDialog -query -text`;
+
+		if ( size($name) ){
+			$ok = 1 ;
+		} else {
+			$message = "Choose a valid string or cancel";
+		}
+	}
+
+	if ($result == "Go") {
+		return $name;
+	}
+	return "";
+}
+
+
+global proc string[] string.reverseStringArray(string $in[]) {
+	string $result[];
+	int $siz = `size $in`;
+	int $count = 0;
+	for ($i = ($siz-1); $i >=0; $i--){
+		$result[$count] =  $in[$i];
+		$count ++;
+	}
+	return $result;
+}
+global proc string[] string.splitEndNumbers(string $in, int $mode) {
+	// mode 0 = join underscore to number
+	// mode 1 = join underscore to word
+	string $endNumbers = "";
+	string $endUnderscores = "";
+	
+	$endNumbers = `match "[0-9]*$" $in`;
+	int $nLength = 	`size $endNumbers`;
+	int $wLength = 	`size $in` - $nLength ;
+	string $word = 	 `substring $in 1 $wLength`;
+	
+	$endUnderscores = `match "_*$" $word`;
+	int $uLength = 	`size $endUnderscores`;
+	$wLength = 	$wLength - $uLength ;	
+	$word = 	 `substring $in  1 $wLength`;
+
+	if ($mode == 0) {
+		$endNumbers = ($endUnderscores + $endNumbers );
+	} else {
+		$word = ($word + $endUnderscores);
+	}
+
+	
+	return {$word, $endNumbers};
+
+	
+}
+
+global proc string[] string.splitNamespace(string $in) {
+	string $result[] = {};
+	
+	string $endObject = `match ":[0-9,a-z,A-Z,_]*$" $in`;
+	if ($endObject=="" ) return {"",$in};
+	
+	int $objLength = (`size $endObject`);
+	
+	int $nsLength = (`size $in` - $objLength);
+	
+	string $nsPart = substring($in, 1,$nsLength);
+	$nsPart =( $nsPart +":");
+	string $objPart = substring($endObject,2,$objLength );
+	
+	return {$nsPart , $objPart };
+}
+
+
+// Attributes
+
+
+
+
+/// returns the "node.parentAttr[0]" from a "node.parentAttr[0].attr" string
+proc string attr.preAttrString(string $nodeAttr)
+{
+	string $result;
+
+	string $buf[];
+	int $bufS =`tokenize $nodeAttr "." $buf`;
+
+	if($bufS>1)
+	{
+		string $lastAttr = $buf[$bufS-1];
+		$result = (substring($nodeAttr,1,(size($nodeAttr) - size($lastAttr) -1 )));
+	}
+	else
+		$result = $nodeAttr;
+
+	return $result;
+}
+/// remove the index from an element of a multi to get the multi
+global proc string attr.stripLastBrackets(string $attr)
+{
+	//split attr in different parts
+	string $buf[];
+	int $bufS =`tokenize $attr "." $buf`;
+	string $lastAttr = $buf[$bufS-1];
+
+	// get rid of the brackets
+	int $attrPartS = size($lastAttr);
+	string $attrPart = substituteAllString($lastAttr,"[","");
+	$attrPart = substituteAllString($attrPart,"]","");
+	string $indexStr;
+
+	if($attrPartS == (size($attrPart)+2))
+	{
+		$indexStr = `match "[0-9]+$" $attrPart`;
+		$attrPart = `substring $attrPart 1 (size($attrPart) - size($indexStr))`;
+	}
+
+	if ($bufS>1)
+		$attr = attr.preAttrString($attr) +"."+$attrPart;
+	else
+		$attr = $attrPart;
+
+	return $attr;
+}
+
+
+/// use attributeFu to get the type of an attribute
+global proc string attr.getType(string $nodeAttr)
+{
+	string $result ="";
+	$nodeAttr = attr.stripLastBrackets($nodeAttr);
+
+	return `getAttr -type $nodeAttr`;
+}
+
+/// 
+global proc string attr.nodeFromNodeAttr(string $nodeAttr){
+	string $buff[];
+	tokenize $nodeAttr ".[]" $buff;
+	return $buff[0];
+}
+
+global proc string  attr.attrFromNodeAttr(string $nodeAttr){
+	string $buff[];
+	int $n = `tokenize $nodeAttr "." $buff`;
+	string $result = "";
+	if ($n >1) {
+		$result = $buff[1];
+		if ($n >2) {
+			for ($i=2;$i<$n;$i++){
+				$result += ("."+$buff[$i]);	
+			}
+		}
+
+	}
+	return  $result ;
+}
+
+// wedgieChannels[0].wedgieValues[1].plugA
+// wedgieChannels
+// 0
+// wedgieValues
+// 1
+// optional
+// print ((5/2)*2)-1;
+// 
+// looks convoluted, but we want the LAST plug index (1 in the above example)
+global proc int attr.plugIndexFromPlug( string $nodeAttr ){
+	//print ($nodeAttr+"\n");
+	string $buff[];
+
+	int $nt = `tokenize $nodeAttr "[]" $buff`;
+	if ($nt < 2) return 0;
+	int $index = (($nt/2)*2)-1;
+	int $result =  $buff[$index];
+	return  $result ;
+}
+
+// must be a multi, such as myNode.wedgieChannels
+global proc int[] attr.plugIndicesFromPlug( string $nodeAttr ){
+//	string $node = attr.nodeFromNodeAttr( $nodeAttr);
+	int $result[];
+	string $plugs[] = `listAttr -m $nodeAttr`;
+	for ($plug in $plugs) {
+		//string $na = ($node+"."+$plug);
+		int $index = attr.plugIndexFromPlug( $plug );
+		$result[`size $result`] = $index ;
+	}	
+
+	return int.uniqueSortedArray($result);
+
+}
+
+
+global proc int attr.physicalFromLogical(string $nodeAttr, int $logicalIndex) {
+	int $result = 0;
+	int $indices[] = `getAttr -mi $nodeAttr`;
+	if (!`size  $indices`) return -1;
+	
+	int $count = 0;
+	for ($i in $indices ) {
+		if ($logicalIndex == $i) return $count;
+		$count ++;
+	}
+	
+	return -1;
+}
+
+
+// global proc int attr.plugExists(string $plug) {
+// 	
+// 	listAttr -m defaultClapper.wedgieChannels[0]
+// 	
+// 	int $result = 0;
+// 	
+// 	return $result;
+// }
+
+
+global proc string attr.nodeType_attr( string $nodeAttr ){
+	string $toks[] = string.tokenize($nodeAttr,".");
+	string $nt=`nodeType $toks[0]`;
+	return ($nt+"_"+$toks[1]);
+}
+
+global proc string[] attr.enumNames(string $nodeAttr) {
+	string $node = attr.nodeFromNodeAttr($nodeAttr);
+	string $attr = attr.attrFromNodeAttr($nodeAttr);
+	string $names[] = `attributeQuery -n $node -listEnum $attr`;
+	return string.tokenize($names[0], ":");
+}
+
+// $plugPairs must be src, dest,src,dest etc.....
+// for example - the result of: listConnections -d 1 -s 0 -p 1 -c 1 
+global proc attr.disconnectPlugPairs(string $plugPairs[]){
+	int $n = `size $plugPairs`;
+	for ($i = 0;$i<$n;$i+=2) {
+		// string $src = `substitute "outRotation" $plugPairs[$i] "orot"`;
+		string $cmd = ("if (`isConnected "+$plugPairs[$i]+" "+ $plugPairs[($i+1)]+"`)   disconnectAttr "+$plugPairs[$i]+" "+ $plugPairs[($i+1)]);
+		evalEcho ($cmd);
+	}
+}
+
+/**
+given an output plug, disconnect all destination connections
+*/
+global proc attr.disconnectAllDestinations (string $outPlug){
+	string $conns[] =  `listConnections -d 1 -s 0 -p 1 -c 1 $outPlug`;
+	attr.disconnectPlugPairs $conns;
+}
+
+/**
+given an output plug, disconnect all destination connections of the specified type
+for example. to disconnect all destination joints from a plug:
+attr.disconnectAllDestinationsOfType "foo.outRotation" "joint"
+*/
+global proc attr.disconnectAllDestinationsOfType (string $outPlug, string $type){
+	string $conns[] =  `listConnections -d 1 -s 0 -p 1 -c 1 -type $type $outPlug`;
+	attr.disconnectPlugPairs $conns;
+}
+
+/**
+return true if there is nothing stopping us from setting the attribute
+*/
+global proc int attr.isSettable(string $nodeAttr){
+	string $conns[] = `listConnections -s 1 -d 0 $nodeAttr`;
+	if (`size $conns`) return false;
+	if (`getAttr -lock $nodeAttr`) return false;
+	return true;
+}
+
+global proc int attr.findNextNonExistentIndex ( string $plug ) {
+	int $mi[] = `getAttr -mi $plug`;
+	int $siz = `size  $mi`;
+	if (! $siz) return 0;	
+	$mi = `sort $mi`; // just in case
+	for ($i=0;$i< $siz;$i++) {
+		if ( $mi[$i] > $i) return $i;
+	}
+	return $siz;
+}
+
+
+global proc int attr.findNextUnconnectedIndex ( string $plug ) {
+	string $myarr[] = `listConnections -scn 1 -c 1 $plug`;
+	int $siz = `size  $myarr`;
+	if (!$siz) return 0;
+	string $lastConn = $myarr[($siz-2)] ;
+	string $buf[] = string.tokenize($lastConn, "[]"); 
+
+	int $sizBuf = `size $buf`;
+	int $index ;
+	if ( endsWith($lastConn, "]")) {
+		$index = (int)$buf[($sizBuf-1)];
+	} else {
+		$index = (int)$buf[($sizBuf-2)];
+	}
+	
+	return ($index+1);
+}
+
+global proc int attr.findFinalNonExistentIndex( string $plug) {
+	int $result = 0;
+	int $mi[] = `getAttr -mi $plug`;
+	int $siz = `size  $mi`;
+	int $index =  $mi[($siz-1)];
+	return ($index+1);
+}
+
+
+global proc int attr.findFinalUnconnectedIndex( string $plug) {
+//	print ("PLUG IS "+ $plug+"\n");
+	string $myarr[] = `listConnections -scn 1 -c 1 $plug`;
+	int $nConns = `size $myarr`;
+	if ($nConns < 2) return 0;
+	int $index = attr.plugIndexFromPlug($myarr[($nConns-2)]);
+	return ($index+1);
+}
+
+global proc attr.forceStringAttr(string $node,string $attrName, string $value){
+
+	if (! `attributeQuery -n $node -ex $attrName`) {
+		addAttr -ln $attrName  -dt "string" $node;
+	}
+	setAttr -type "string" ($node+"."+ $attrName)  $value;
+}
+
+global proc attr.addAttrs(string $node,string $attrs[]){
+
+	// try with -dt, if it fails try -at
+	for ($a in $attrs){
+		string $attrAndType[] = string.tokenize($a,":");
+	//print ("$node is "+$node+"\n");
+		if (! `attributeQuery -n $node -ex $attrAndType[0]`) {
+	
+			if  (catch(`addAttr -ln $attrAndType[0]  -dt   $attrAndType[1] $node`)) {
+				warning("-dt flag didn't work -- trying -at flag");
+				addAttr -ln  $attrAndType[0] -at $attrAndType[1] $node;
+				setAttr -k 1 ($node+"." + $attrAndType[0]);
+			}
+		} 
+	}
+}
+// attr.addAttrs("mib_amb_occlusion1",{"foo:float","bar:string"})
+
+
+
+global proc string attr.getNotesAttrString(string $node) {
+	string $result = "";
+	if (`attributeQuery -n $node -exists "notes"`) {
+		$result =  `getAttr ($node+".notes")`;
+		if ($result != "") {
+			$result = ("---------- "+$node+" notes ------------\n"+ $result + "\n\n");
+		}
+	}
+	return $result;
+}
+
+global proc attr.connectPairs(string $srcNode, string $destNode, string $attrPairs[]) {
+	for ($a in $attrPairs) {
+		string $atts[] = string.tokenize($a,":");
+		string $src = ($srcNode+"."+$atts[0]);
+		string $dest = ($destNode+"."+$atts[1]);
+
+		if (! `isConnected $src  $dest`){
+			catch(`connectAttr -f $src  $dest`);
+		}	
+	}
+}
+
+
+
+
+// Connect
+proc string connection.ensureConnectedNode(string $nodeAttr, string $type, string $attr, int $mode ) {
+	// mode 0 = in
+	// mode 1 = out
+	string $n ;
+	string $conns[] = `listConnections -shapes 1 -s (!$mode) -d $mode -type $type $nodeAttr`;
+	if (! `size $conns`) {
+		 $n = `createNode $type`;
+		if ($mode) { // out
+			connectAttr -f $nodeAttr  ($n+"."+$attr) ;
+		} else {
+			connectAttr -f  ($n+"."+$attr)  $nodeAttr  ;
+		}
+	} else {
+		$n  = $conns[0]; 
+	}
+	return	$n ;
+}
+
+
+global proc string connection.ensureInputNode(string $nodeAttr, string $inputType, string $attr) {	
+	return connection.ensureConnectedNode( $nodeAttr,  $inputType,  $attr, 0 );
+}
+
+
+global proc string connection.ensureOutputNode(string $nodeAttr, string $outputType, string $attr) {
+	return connection.ensureConnectedNode( $nodeAttr,  $outputType,  $attr, 1 );
+}
+
+
+
+// Dynamics
+global proc dynamics.deleteParticleExpressions(string $object) {
+	string $particles[] = `ls -dag -leaf -type "particle" $object`;
+	for ($p in $particles) {
+		dynExpression -s "" -rbd $p;
+		dynExpression -s "" -rad $p;
+		dynExpression -s "" -c $p;
+	}
+}
+
+
+
+
+global proc string[] dynamics.getGeoConnectors() {
+	string $result[];
+	string $sel[] = `ls -sl`;
+	for ($o in $sel) {
+		string $g = dynamics.getGeoConnector($o);
+		if ($g != "") $result[size($result)] = $g;
+	}
+	select $result; 
+	return $result;
+}
+
+// get or make geoConnector
+global proc string dynamics.getGeoConnector(string $ob) {
+
+	if (!`objExists $ob`) {
+		return `createNode geoConnector`;
+	}
+
+	if (`nodeType $ob` == "geoConnector") return $ob;
+
+	string $obs[] = `ls -dag -leaf -type "nurbsSurface" -type "mesh" -type "nurbsCurve" $ob`;
+	if (size($obs)) {
+		$ob = $obs[0];
+	} else {
+		error("bad selection for dynamics.getGeoConnector " + $ob);
+		return "";
+	}
+	string $geos[] = `listConnections -s 0 -d 1 -type "geoConnector" $ob`;
+	if (size( $geos)) return $geos[0];
+
+	// surf exists and has no geoConnector attached
+
+
+	string $g = `createNode geoConnector -name ($ob+"GeoConnector")`;
+	connectAttr "time1.outTime" ($g+".currentTime");
+	connectAttr -f ($ob + ".message") ($g+".owner");
+	connectAttr -f ($ob + ".worldMatrix") ($g+".worldMatrix");
+	if (`nodeType $ob` == "mesh") {
+		connectAttr -f ($ob + ".outMesh") ($g+".localGeometry");
+		setAttr ($g+".tessellationFactor") 1;
+	} else if (`nodeType $ob` == "nurbsSurface") {
+		connectAttr -f ($ob + ".local") ($g+".localGeometry");
+		setAttr ($g+".tessellationFactor") 200;
+	} else 	if (`nodeType $ob` == "nurbsCurve") {
+		connectAttr -f ($ob + ".local") ($g+".localGeometry");
+		setAttr ($g+".tessellationFactor") 20;
+	}
+
+	setAttr ($g+".resilience") 0;
+	setAttr ($g+".friction") 0;
+	return $g;
+}
+
+global proc string dynamics.getOutSignalAttr(string $node){
+	string $nt = `nodeType $node`;
+	if (sensor.typeIsSensor($nt) ) {
+		return ($node+".assessment");
+	} else if (gmatch ($nt, "*Field")){
+		int $plug = 0;
+		/*
+		$result = `promptDialog 
+		-title  "Field Plug Id"
+		-message "Plug Id?\n  "
+		-button "Go"
+		-defaultButton "Go"`;
+		$plug = int(`promptDialog -query -text`);
+		*/
+		
+		return($node+".outputForce["+$plug+"]");
+	} else if ($nt == "agentCollision") {
+		return($node+".outForce");
+	}
+	return "";
+}
+
+
+
+global proc string[] dynamics.getOutSignalConnPairs(string $node){
+
+
+	string $nt = `nodeType $node`;
+	
+	if (sensor.typeIsSensor($nt) ) {
+		return  `listConnections -d 1 -s 0 -c 1  -p 1   ($node+".assessment")`;
+	} else if (gmatch ($nt, "*Field")){
+		return  `listConnections -d 1 -s 0 -c 1  -p 1   ($node+".outputForce")`;
+	} else if (`attributeQuery  -ex -n $node "outputV"` ) {
+		return  `listConnections -d 1 -s 0 -c 1  -p 1   ($node+".outputV")`;
+	} else if (`attributeQuery  -ex -n $node "outSignal"` ) {
+		return  `listConnections -d 1 -s 0 -c 1 -p 1  ($node+".outSignal")`;
+	} 
+	
+	return {};
+}
+
+
+
+global proc dynamics.performConnectField(string $field, string $obj) {
+	
+	
+	if (`attributeQuery -exists -n $obj "sampleFieldData"`)  { // feather or bendybones
+		int $fInId = attr.findNextUnconnectedIndex($field+".inputData");
+		int $fOutId = attr.findNextUnconnectedIndex($field+".outputForce");
+		int $fid =  max($fInId, $fOutId);
+		int $cid  = attr.findNextUnconnectedIndex( $obj+".inputForce");
+		connectAttr -f ($obj+".sampleFieldData") ( $field+".inputData["+$fid+"]");
+		connectAttr -f ($field+".outputForce["+$fid+"]" ) ( $obj+".inputForce["+$cid+"]");
+	} else {
+		connectDynamic -f $field $obj;
+	} 
+}
+
+
+global proc  dynamics.connectField() {
+	
+	string $sel[] = `ls -sl` ;
+
+	string $fields[] = `ls -sl -type "field"`;
+	if (!size($fields)) {error("No Fields Selected");}
+	
+	string $notFields[];
+	for ($o in $sel) {
+		int $found = false;
+		for ($f in $fields) {
+			if ($o == $f) {
+				 $found = true;
+				 break;
+			}
+		}
+		if (!$found) $notFields[size($notFields)] = $o;
+	
+	}
+
+	for ($field in $fields){
+		for ($obj in $notFields) {
+			dynamics.performConnectField( $field,  $obj);
+		}
+	}
+}
+
+
+proc string dynamics.expressionFlagFromType(int $type) {
+
+	if ($type == 0)	return "-c";
+	if ($type == 1)	return "-rbd";
+	if ($type == 2)	return "-rad";
+	return "-c";
+}
+
+global proc dynamics.prependToDynExpression(string $particle, string $code, string $title, int $type){
+	dynamics.writeDynExpression( $particle,  $code,  $title,  $type,  0) ;
+}
+
+global proc dynamics.appendToDynExpression(string $particle, string $code, string $title, int $type){
+	dynamics.writeDynExpression( $particle,  $code,  $title,  $type,  1) ;
+}
+
+
+
+global proc dynamics.writeDynExpression(string $particle, string $code, string $title, int $type, int $position) {
+	// $position == 0 , prepend
+	// $position == 0 , append
+
+
+	string $flag= dynamics.expressionFlagFromType( $type) ;
+	string $str;
+	
+	
+	string $new= ( ";\n// *************** " + $title+ " **********************\n");
+	 $new += $code;
+	 $new += ( ";\n// ****************************************************\n");
+	
+	
+	string $existing = eval("dynExpression " +$flag + " -q -s " + $particle);  
+	
+	
+	if ($position) { // after
+		$str = ($existing + $new);
+	} else { // before
+		$str = ($new + $existing);
+	}	
+	
+	
+	eval("dynExpression " +$flag + " -s \"" +	encodeString($str) +"\" "+ $particle);  
+	
+	
+}
+
+
+
+
+
+global proc dynamics.connectFieldToEmitter(string $emitter, string $field){
+	
+	int $ifid =  attr.findNextUnconnectedIndex($field+".inputData");
+	int $ofid =  attr.findNextUnconnectedIndex($field+".outputForce");
+	int $fid =  max($ifid , $ofid);
+	
+	int $eid  = attr.findNextUnconnectedIndex(( $emitter+".forces"));
+	
+	connectAttr -f ($emitter	+".samplePoints") ( $field+".inputData["+$fid+"].inputPositions");
+	connectAttr -f ($emitter	+".sampleVelocities") ( $field+".inputData["+$fid+"].inputVelocities");
+	connectAttr -f ($emitter	+".sampleMasses") ( $field+".inputData["+$fid+"].inputMass");
+	connectAttr -f ($emitter	+".sampleDeltaTime") ( $field+".inputData["+$fid+"].deltaTime");
+	connectAttr -f ($field		+".outputForce["+$fid+"]" ) ( $emitter+".forces["+$eid+"]");
+}
+
+global proc dynamics.connectSelFieldsToSelEmitters() {
+	string $fields[] = `ls -sl -type "field" `;
+	string $emitters[] =  `ls -sl -type "fieldEmitter" -type "chainEmitter" -type "splashEmitter" -type "meshVolumeEmitter"  -type "arrayEmitter"  -type "chainArrayEmitter" `;
+	for ($e in  $emitters) {
+		for ($f in $fields) {
+			dynamics.connectFieldToEmitter($e,$f);
+		}
+	}	
+}
+
+
+global proc dynamics.addOutAccelerationToParticles() {
+	string $particles[] = `ls -sl -dag -leaf -type "particle"`;
+	for ($p in $particles) {
+		 dynamics.doAddOutAccelerationToParticles( $p) ;
+	}
+}
+
+global proc dynamics.doAddOutAccelerationToParticles(string $particleShape) {
+
+	attr.addAttrs( $particleShape,{"outAcceleration:vectorArray","oldVelocity:vectorArray"} );
+	
+	string $expr = `dynExpression -c -q -s $particleShape`;  
+	$expr += (";\noldVelocity = <<0,0,0>>;\n"+
+	"outAcceleration = <<0,0,0>>;\n"
+	);
+	dynExpression -c -s $expr $particleShape;
+
+
+	$expr = `dynExpression -rbd -q -s $particleShape`;  
+	$expr += (	"\nfloat $stss = sceneTimeStepSize;\n"+
+	"if ($stss == 0) $stss = 0.04;\n"+
+	"outAcceleration = (velocity - oldVelocity) / $stss;\n"+
+	"oldVelocity =velocity;\n"
+	);
+	dynExpression -rbd -s $expr $particleShape;			
+
+}
+
+
+
+//  Window
+
+/// create a window - delete window of the same name if it exists already
+global proc string window.uniqueWindow(string $title, string $flags ){
+	
+	string $windowName = window.uniqueWindowName($title );
+
+	if ( `window -exists $windowName` ) {
+		deleteUI $windowName;
+	}
+	
+	// if the user has not given a title flag, then we create a default title. Same goes for iconName.
+	string $cmd = 	("window "+$flags);
+	if (! `gmatch $flags "*-title*"`)  $cmd =( $cmd + " -title \""+$title+"\" ");
+	if (! `gmatch $flags "*-iconName*"`)  $cmd = ( $cmd + " -iconName \""+$title+"\" ");
+	$cmd = ( $cmd + " \""+ $windowName+"\"");
+
+	eval $cmd;
+	return $windowName;
+}
+
+

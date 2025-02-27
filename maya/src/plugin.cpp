@@ -258,7 +258,6 @@ MStatus initializePlugin( MObject obj)
 	st = plugin.registerNode( "hungerState", hungerState::id, hungerState::creator,
 	                          hungerState::initialize); mser;
 
-	MGlobal::executePythonCommand("import flock;flock.load()");
 	return st;
 
 }
@@ -269,7 +268,6 @@ MStatus uninitializePlugin( MObject obj)
 
 	MString method("uninitializePlugin");
 
-	MGlobal::executePythonCommand("import flock;flock.unload()");
 
 	MFnPlugin plugin( obj );
 
